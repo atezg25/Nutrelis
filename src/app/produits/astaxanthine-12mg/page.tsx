@@ -158,10 +158,17 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-function PackSelector() {
+function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original: number, mode: string) => void }) {
   const [mode, setMode] = useState("unique");
   const [selected, setSelected] = useState(2);
-
+useEffect(() => {
+    const pack = packs.find(p => p.id === selected)!;
+    if (onPackChange) onPackChange(
+      mode === "abonnement" ? pack.aboPrix : pack.prix,
+      mode === "abonnement" ? pack.prix : pack.ancien,
+      mode
+    );
+  }, []);
   const packs = [
     {
       id: 1,
@@ -201,6 +208,15 @@ function PackSelector() {
     },
   ];
 
+useEffect(() => {
+    const pack = packs.find(p => p.id === selected)!;
+    if (onPackChange) onPackChange(
+      mode === "abonnement" ? pack.aboPrix : pack.prix,
+      mode === "abonnement" ? pack.prix : pack.ancien,
+      mode
+    );
+  }, [selected, mode]);
+
   const current = packs.find((p) => p.id === selected)!;
 
   return (
@@ -220,7 +236,15 @@ function PackSelector() {
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setMode(tab.id)}
+            onClick={() => {
+  setMode(tab.id);
+  const pack = packs.find(p => p.id === selected)!;
+  if (onPackChange) onPackChange(
+    tab.id === "abonnement" ? pack.aboPrix : pack.prix,
+    tab.id === "abonnement" ? pack.prix : pack.ancien,
+    tab.id
+  );
+}}
             style={{
               padding: "12px 8px",
               background: mode === tab.id ? "var(--asta-accent)" : "transparent",
@@ -267,7 +291,14 @@ function PackSelector() {
         {packs.map((pack) => (
           <div
             key={pack.id}
-            onClick={() => setSelected(pack.id)}
+            onClick={() => {
+  setSelected(pack.id);
+  if (onPackChange) onPackChange(
+    mode === "abonnement" ? pack.aboPrix : pack.prix,
+    mode === "abonnement" ? pack.prix : pack.ancien,
+    mode
+  );
+}}
             style={{
               display: "flex",
               alignItems: "center",
@@ -936,6 +967,20 @@ function FaqItemWhite({ icon, q, a }: { icon: string; q: string; a: string }) {
 }
 
 export default function Astaxanthine() {
+  const [prixAffiche, setPrixAffiche] = useState(27000);
+  const [prixOriginal, setPrixOriginal] = useState(33750);
+  const [selectedPack, setSelectedPack] = useState(2);
+  const [mode, setMode] = useState<"unique" | "abonnement">("unique");
+
+  const packs = [
+    { id: 1, label: "1 Boîte · 60 capsules", desc: "Cure de 60 jours", prix: 15000, original: 18750 },
+    { id: 2, label: "2 Boîtes · 120 capsules", desc: "Cure de 120 jours", prix: 27000, original: 33750, eco: "3 000 FCFA", popular: true },
+    { id: 3, label: "3 Boîtes · 180 capsules", desc: "Cure de 180 jours", prix: 36000, original: 45000, eco: "9 000 FCFA" },
+  ];
+
+  const currentPack = packs.find(p => p.id === selectedPack)!;
+  const currentPrice = mode === "abonnement" ? Math.round(currentPack.prix * 0.95) : currentPack.prix;
+  const originalPrice = mode === "abonnement" ? currentPack.prix : currentPack.original;
   const clientPhotos = [
     "/images/astaxanthine/Ast2.png",
     "/images/astaxanthine/Ast3.png",
@@ -1923,8 +1968,12 @@ export default function Astaxanthine() {
 
               {/* Prix */}
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                <span style={{ color: "var(--asta-text2)", fontSize: 15, textDecoration: "line-through" }}>30 000 FCFA</span>
-                <span style={{ color: "var(--asta-accent)", fontSize: 26, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>27 000 FCFA</span>
+                <span style={{ color: "var(--asta-text2)", fontSize: 15, textDecoration: "line-through" }}>
+                  {prixOriginal.toLocaleString("fr-FR")} FCFA
+                </span>
+                <span style={{ color: "var(--asta-accent)", fontSize: 26, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>
+                  {prixAffiche.toLocaleString("fr-FR")} FCFA
+                </span>
               </div>
 
               {/* Description courte */}
@@ -1940,7 +1989,10 @@ export default function Astaxanthine() {
               </div>
 
               {/* Pack Selector */}
-              <PackSelector />
+             <PackSelector onPackChange={(prix, original) => {
+                setPrixAffiche(prix);
+                setPrixOriginal(original);
+              }} />
 
               {/* Bénéfices liste */}
               <div style={{ marginTop: 24, padding: "16px 20px", background: "var(--asta-bg2)", borderRadius: 12, border: "1px solid var(--asta-border)" }}>
