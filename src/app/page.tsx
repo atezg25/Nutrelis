@@ -1,4 +1,5 @@
 "use client";
+import NavbarCart from "@/components/NavbarCart";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -46,15 +47,18 @@ function Navbar() {
             onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.75)"}
           >{item.label}</Link>
         ))}
-        <Link href="/produits/astaxanthine-12mg" style={{
-          background: "var(--accent)", color: "#fff",
-          padding: "10px 24px", borderRadius: 8,
-          fontSize: 14, fontWeight: 700, textDecoration: "none",
-          fontFamily: "var(--font-sora), sans-serif",
-          boxShadow: "0 4px 16px rgba(29,185,84,0.35)",
-        }}>
-          Commander →
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+  <NavbarCart />
+  <Link href="/produits/astaxanthine-12mg" style={{
+    background: "var(--accent)", color: "#fff",
+    padding: "10px 24px", borderRadius: 8,
+    fontSize: 14, fontWeight: 700, textDecoration: "none",
+    fontFamily: "var(--font-sora), sans-serif",
+    boxShadow: "0 4px 16px rgba(29,185,84,0.35)",
+  }}>
+    Commander →
+  </Link>
+</div>
       </div>
     </nav>
   );

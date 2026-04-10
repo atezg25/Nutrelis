@@ -1,4 +1,6 @@
 "use client";
+import { useCart } from "@/context/CartContext";
+import NavbarCart from "@/components/NavbarCart";
 import { useState, useEffect, useRef } from "react";
 
 function Countdown() {
@@ -89,19 +91,22 @@ function Navbar() {
             </a>
           ))}
         </div>
-        <a href="#commander" style={{
-          background: "var(--asta-accent)",
-          color: "#fff",
-          padding: "10px 24px",
-          borderRadius: 8,
-          fontSize: 14,
-          fontWeight: 700,
-          textDecoration: "none",
-          boxShadow: "0 4px 14px rgba(125,8,6,0.25)",
-          fontFamily: "var(--font-sora), sans-serif",
-        }}>
-          Commander →
-        </a>
+       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <NavbarCart />
+          <a href="#commander" style={{
+            background: "var(--asta-accent)",
+            color: "#fff",
+            padding: "10px 24px",
+            borderRadius: 8,
+            fontSize: 14,
+            fontWeight: 700,
+            textDecoration: "none",
+            boxShadow: "0 4px 14px rgba(125,8,6,0.25)",
+            fontFamily: "var(--font-sora), sans-serif",
+          }}>
+            Commander →
+          </a>
+        </div>
       </div>
     </nav>
   );
@@ -161,6 +166,8 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original: number, mode: string) => void }) {
   const [mode, setMode] = useState("unique");
   const [selected, setSelected] = useState(2);
+  const [ajouté, setAjouté] = useState(false);
+  const { ajouterArticle } = useCart();
 useEffect(() => {
     const pack = packs.find(p => p.id === selected)!;
     if (onPackChange) onPackChange(
@@ -396,33 +403,63 @@ useEffect(() => {
         ))}
       </div>
 
-      <button style={{
-        width: "100%",
-        background: "var(--asta-accent)",
-        color: "#fff",
-        border: "none",
-        padding: "18px",
-        borderRadius: 12,
-        fontSize: 17,
-        fontWeight: 900,
-        cursor: "pointer",
-       letterSpacing: 0.5,
-        marginBottom: 10,
-        fontFamily: "var(--font-sora), sans-serif",
-        boxShadow: "0 6px 24px rgba(125,8,6,0.3)",
-        display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-      }}>
-        ⚡ {mode === "abonnement" ? "S'ABONNER — ÉCONOMISER 15%" : "ACHETER MAINTENANT"}
+      <button
+        onClick={() => {
+          const pack = packs.find(p => p.id === selected)!;
+          ajouterArticle({
+            id: `asta-pack-${pack.id}-${mode}`,
+            nom: `NUTRELIS Astaxanthine 12mg`,
+            description: pack.capsules,
+            prix: mode === "abonnement" ? pack.aboPrix : pack.prix,
+            prixOriginal: pack.ancien,
+            image: pack.img,
+            mode: mode as "unique" | "abonnement",
+          });
+          setAjouté(true);
+          setTimeout(() => setAjouté(false), 2000);
+        }}
+        style={{
+          width: "100%",
+          background: ajouté ? "#1db954" : "var(--asta-accent)",
+          color: "#fff",
+          border: "none",
+          padding: "18px",
+          borderRadius: 12,
+          fontSize: 17,
+          fontWeight: 900,
+          cursor: "pointer",
+          letterSpacing: 0.5,
+          marginBottom: 10,
+          fontFamily: "var(--font-sora), sans-serif",
+          boxShadow: ajouté ? "0 6px 24px rgba(29,185,84,0.4)" : "0 6px 24px rgba(125,8,6,0.3)",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          transition: "all 0.3s",
+        }}>
+        {ajouté ? "✅ AJOUTÉ AU PANIER !" : `⚡ ${mode === "abonnement" ? "S'ABONNER — ÉCONOMISER 15%" : "ACHETER MAINTENANT"}`}
       </button>
 
-      <button style={{
-        width: "100%", background: "transparent", color: "var(--asta-accent)",
-        border: "2px solid var(--asta-accent)", padding: "16px", borderRadius: 12,
-        fontSize: 15, fontWeight: 800, cursor: "pointer",
-        letterSpacing: 0.5, marginBottom: 14,
-        fontFamily: "var(--font-sora), sans-serif",
-        display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-      }}>
+      <button
+        onClick={() => {
+          const pack = packs.find(p => p.id === selected)!;
+          ajouterArticle({
+            id: `asta-pack-${pack.id}-${mode}`,
+            nom: `NUTRELIS Astaxanthine 12mg`,
+            description: pack.capsules,
+            prix: mode === "abonnement" ? pack.aboPrix : pack.prix,
+            prixOriginal: pack.ancien,
+            image: pack.img,
+            mode: mode as "unique" | "abonnement",
+          });
+          window.location.href = "/panier";
+        }}
+        style={{
+          width: "100%", background: "transparent", color: "var(--asta-accent)",
+          border: "2px solid var(--asta-accent)", padding: "16px", borderRadius: 12,
+          fontSize: 15, fontWeight: 800, cursor: "pointer",
+          letterSpacing: 0.5, marginBottom: 14,
+          fontFamily: "var(--font-sora), sans-serif",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+        }}>
         🛒 AJOUTER AU PANIER
       </button>
 
