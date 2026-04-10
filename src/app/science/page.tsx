@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-
+import NavbarCart from "@/components/NavbarCart";
 export default function Science() {
   return (
     <div style={{ background: "var(--bg-primary)", color: "var(--text-primary)", overflowX: "hidden" }}>
@@ -16,9 +16,12 @@ export default function Science() {
             <Link key={item.label} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
           ))}
         </div>
-        <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: "10px 24px", borderRadius: 8, fontSize: 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
-          Commander →
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+  <NavbarCart />
+  <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: "10px 24px", borderRadius: 8, fontSize: 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
+    Commander →
+  </Link>
+</div>
       </nav>
 
       {/* HERO */}
