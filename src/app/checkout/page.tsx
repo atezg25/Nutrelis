@@ -2,7 +2,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-
 export default function Checkout() {
   const { items, totalPrix, viderPanier } = useCart();
   const [etape, setEtape] = useState<"formulaire" | "paiement" | "confirmation">("formulaire");
@@ -12,15 +11,45 @@ export default function Checkout() {
     adresse: "", ville: "", quartier: "",
   });
 
+const [chargement, setChargement] = useState(false);
+  const [erreur, setErreur] = useState("");
+
   const handleSubmit = () => {
     if (!form.nom || !form.prenom || !form.telephone || !form.adresse) return;
     setEtape("paiement");
   };
 
-  const handlePaiement = () => {
-    if (!modePaiement) return;
-    viderPanier();
-    setEtape("confirmation");
+  const handlePaiement = async () => {
+    if (!modePaiement || modePaiement === "carte") return;
+    setChargement(true);
+    setErreur("");
+
+    try {
+      const res = await fetch("/api/notchpay/init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.email,
+          telephone: form.telephone,
+          nom: form.nom,
+          prenom: form.prenom,
+          montant: totalPrix,
+          description: items.map(i => i.description).join(", "),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.authorization_url) {
+        window.location.href = data.authorization_url;
+      } else {
+        setErreur(data.error || "Erreur lors de l'initialisation du paiement");
+      }
+    } catch {
+      setErreur("Erreur réseau. Réessayez.");
+    } finally {
+      setChargement(false);
+    }
   };
 
   // PAGE CONFIRMATION
@@ -229,21 +258,24 @@ export default function Checkout() {
               </div>
             )}
 
-            <div style={{ display: "flex", gap: 12 }}>
-              <button
-                onClick={() => setEtape("formulaire")}
-                style={{ flex: 1, background: "#fff", color: "#555", border: "1.5px solid #ddd", padding: "16px", borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: "pointer" }}
-              >
-                ← Retour
-              </button>
-              <button
-                onClick={handlePaiement}
-                disabled={!modePaiement || modePaiement === "carte"}
-                style={{ flex: 2, background: modePaiement && modePaiement !== "carte" ? "#7D0806" : "#ccc", color: "#fff", border: "none", padding: "16px", borderRadius: 12, fontSize: 15, fontWeight: 900, cursor: modePaiement && modePaiement !== "carte" ? "pointer" : "not-allowed", fontFamily: "var(--font-sora), sans-serif", boxShadow: modePaiement && modePaiement !== "carte" ? "0 6px 24px rgba(125,8,6,0.3)" : "none" }}
-              >
-                Confirmer la commande →
-              </button>
-            </div>
+            {erreur && (
+  <p style={{ color: "#e53e3e", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{erreur}</p>
+)}
+<div style={{ display: "flex", gap: 12 }}>
+  <button
+    onClick={() => setEtape("formulaire")}
+    style={{ flex: 1, background: "#fff", color: "#555", border: "1.5px solid #ddd", padding: "16px", borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: "pointer" }}
+  >
+    ← Retour
+  </button>
+  <button
+    onClick={handlePaiement}
+    disabled={!modePaiement || modePaiement === "carte" || chargement}
+    style={{ flex: 2, background: modePaiement && modePaiement !== "carte" ? "#7D0806" : "#ccc", color: "#fff", border: "none", padding: "16px", borderRadius: 12, fontSize: 15, fontWeight: 900, cursor: "pointer", fontFamily: "var(--font-sora), sans-serif" }}
+  >
+    {chargement ? "Redirection..." : "Confirmer et payer →"}
+  </button>
+</div>
           </div>
         )}
 
