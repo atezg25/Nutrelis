@@ -2,7 +2,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-
+export const dynamic = "force-dynamic";
 function SuccessContent() {
   const searchParams = useSearchParams();
   const reference = searchParams.get("reference") || searchParams.get("trxref");
