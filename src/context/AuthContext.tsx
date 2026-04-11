@@ -41,9 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const token = localStorage.getItem("nutrelis-token");
     if (!token) { setLoading(false); return; }
-    fetchCustomer(token).then(c => { setCustomer(c); setLoading(false); });
+    fetchCustomer(token).then(c => {
+      if (c) setCustomer(c);
+      else localStorage.removeItem("nutrelis-token");
+      setLoading(false);
+    });
   }, []);
 
   const connecter = async (email: string, password: string) => {
@@ -53,23 +58,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    if (!res.ok) throw new Error(data.message || "Erreur connexion");
+    
     localStorage.setItem("nutrelis-token", data.token);
+    
     const c = await fetchCustomer(data.token);
+    if (!c) throw new Error("Profil introuvable");
     setCustomer(c);
   };
 
   const inscrire = async (data: { email: string; password: string; first_name: string; last_name: string; phone?: string }) => {
-    // 1. Register auth
     const regRes = await fetch(`${BACKEND}/auth/customer/emailpass/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: data.email, password: data.password }),
     });
     const regData = await regRes.json();
-    if (!regRes.ok) throw new Error(regData.message);
+    if (!regRes.ok) throw new Error(regData.message || "Erreur inscription");
 
-    // 2. Create customer profile
     const cusRes = await fetch(`${BACKEND}/store/customers`, {
       method: "POST",
       headers: {
@@ -80,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ email: data.email, first_name: data.first_name, last_name: data.last_name, phone: data.phone }),
     });
     const cusData = await cusRes.json();
-    if (!cusRes.ok) throw new Error(cusData.message);
+    if (!cusRes.ok) throw new Error(cusData.message || "Erreur création profil");
 
     localStorage.setItem("nutrelis-token", regData.token);
     setCustomer(cusData.customer);
