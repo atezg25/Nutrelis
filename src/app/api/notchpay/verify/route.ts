@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
 
     const response = await fetch(`https://api.notchpay.co/payments/${reference}`, {
       headers: {
-        "Authorization": process.env.NOTCHPAY_PUBLIC_KEY!,
+        "Authorization": process.env.NOTCHPAY_SECRET_KEY!,
         "Accept": "application/json",
       },
     });
