@@ -1,6 +1,7 @@
 import { Sora, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -22,9 +23,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="fr">
       <body className={`${dmSans.variable} ${sora.variable}`}>
-        <CartProvider>
-          {children}
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
