@@ -92,7 +92,7 @@ function Navbar() {
           ))}
         </div>
        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <NavbarCart />
+          <NavbarCart dark={false} />
           <a href="#commander" style={{
             background: "var(--asta-accent)",
             color: "#fff",
