@@ -35,6 +35,10 @@ const [chargement, setChargement] = useState(false);
           prenom: form.prenom,
           montant: totalPrix,
           description: items.map(i => i.description).join(", "),
+          items: items,
+          adresse: form.adresse,
+          ville: form.ville,
+          quartier: form.quartier,
         }),
       });
 
