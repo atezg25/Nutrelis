@@ -1,6 +1,8 @@
 "use client";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { medusa } from "@/lib/medusa";
+
+const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL!;
+const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!;
 
 interface Customer {
   id: string;
@@ -15,10 +17,24 @@ interface AuthContextType {
   loading: boolean;
   connecter: (email: string, password: string) => Promise<void>;
   inscrire: (data: { email: string; password: string; first_name: string; last_name: string; phone?: string }) => Promise<void>;
-  deconnecter: () => Promise<void>;
+  deconnecter: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
+
+async function fetchCustomer(token: string): Promise<Customer | null> {
+  try {
+    const res = await fetch(`${BACKEND}/store/customers/me`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "x-publishable-api-key": PUB_KEY,
+      },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.customer;
+  } catch { return null; }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -27,14 +43,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem("nutrelis-token");
     if (!token) { setLoading(false); return; }
-    medusa.store.customer.retrieve()
-      .then(({ customer }) => setCustomer(customer as Customer))
-      .catch(() => { localStorage.removeItem("nutrelis-token"); setCustomer(null); })
-      .finally(() => setLoading(false));
+    fetchCustomer(token).then(c => { setCustomer(c); setLoading(false); });
   }, []);
 
   const connecter = async (email: string, password: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/customer/emailpass`, {
+    const res = await fetch(`${BACKEND}/auth/customer/emailpass`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -42,39 +55,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.message);
     localStorage.setItem("nutrelis-token", data.token);
-    const { customer } = await medusa.store.customer.retrieve();
-    setCustomer(customer as Customer);
+    const c = await fetchCustomer(data.token);
+    setCustomer(c);
   };
 
   const inscrire = async (data: { email: string; password: string; first_name: string; last_name: string; phone?: string }) => {
-    // 1. Enregistrer les credentials
-    const res = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/customer/emailpass/register`, {
+    // 1. Register auth
+    const regRes = await fetch(`${BACKEND}/auth/customer/emailpass/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: data.email, password: data.password }),
     });
-    const authData = await res.json();
-    if (!res.ok) throw new Error(authData.message);
-    
-    localStorage.setItem("nutrelis-token", authData.token);
+    const regData = await regRes.json();
+    if (!regRes.ok) throw new Error(regData.message);
 
-    // 2. Créer le profil client
-    await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/customers`, {
+    // 2. Create customer profile
+    const cusRes = await fetch(`${BACKEND}/store/customers`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${authData.token}`,
-        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+        "Authorization": `Bearer ${regData.token}`,
+        "x-publishable-api-key": PUB_KEY,
       },
       body: JSON.stringify({ email: data.email, first_name: data.first_name, last_name: data.last_name, phone: data.phone }),
     });
+    const cusData = await cusRes.json();
+    if (!cusRes.ok) throw new Error(cusData.message);
 
-    // 3. Récupérer le profil
-    const { customer } = await medusa.store.customer.retrieve();
-    setCustomer(customer as Customer);
+    localStorage.setItem("nutrelis-token", regData.token);
+    setCustomer(cusData.customer);
   };
 
-  const deconnecter = async () => {
+  const deconnecter = () => {
     localStorage.removeItem("nutrelis-token");
     setCustomer(null);
   };
@@ -88,6 +100,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth doit être utilisé dans CartProvider");
+  if (!ctx) throw new Error("useAuth doit être utilisé dans AuthProvider");
   return ctx;
 }
