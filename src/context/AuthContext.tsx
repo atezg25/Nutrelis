@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         "Authorization": `Bearer ${authData.token}`,
         "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
       },
-      body: JSON.stringify({ first_name: data.first_name, last_name: data.last_name, phone: data.phone }),
+      body: JSON.stringify({ email: data.email, first_name: data.first_name, last_name: data.last_name, phone: data.phone }),
     });
 
     // 3. Récupérer le profil
