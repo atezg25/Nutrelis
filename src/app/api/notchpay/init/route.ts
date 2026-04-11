@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     const response = await fetch("https://api.notchpay.co/payments/initialize", {
       method: "POST",
       headers: {
-        "Authorization": process.env.NOTCHPAY_SECRET_KEY!,
+        "Authorization": process.env.NOTCHPAY_PUBLIC_KEY!,
         "Content-Type": "application/json",
         "Accept": "application/json",
       },
