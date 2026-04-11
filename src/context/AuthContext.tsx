@@ -25,29 +25,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem("nutrelis-token");
+    if (!token) { setLoading(false); return; }
     medusa.store.customer.retrieve()
       .then(({ customer }) => setCustomer(customer as Customer))
-      .catch(() => setCustomer(null))
+      .catch(() => { localStorage.removeItem("nutrelis-token"); setCustomer(null); })
       .finally(() => setLoading(false));
   }, []);
 
   const connecter = async (email: string, password: string) => {
-    const { token } = await medusa.auth.login("customer", "emailpass", { email, password });
-    localStorage.setItem("nutrelis-token", token);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/customer/emailpass`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+    localStorage.setItem("nutrelis-token", data.token);
     const { customer } = await medusa.store.customer.retrieve();
     setCustomer(customer as Customer);
   };
 
   const inscrire = async (data: { email: string; password: string; first_name: string; last_name: string; phone?: string }) => {
-    await medusa.auth.register("customer", "emailpass", { email: data.email, password: data.password });
-    await connecter(data.email, data.password);
-    await medusa.store.customer.update({ first_name: data.first_name, last_name: data.last_name, phone: data.phone });
+    // 1. Enregistrer les credentials
+    const res = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/auth/customer/emailpass/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: data.email, password: data.password }),
+    });
+    const authData = await res.json();
+    if (!res.ok) throw new Error(authData.message);
+    
+    localStorage.setItem("nutrelis-token", authData.token);
+
+    // 2. Créer le profil client
+    await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/customers`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${authData.token}`,
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!,
+      },
+      body: JSON.stringify({ first_name: data.first_name, last_name: data.last_name, phone: data.phone }),
+    });
+
+    // 3. Récupérer le profil
     const { customer } = await medusa.store.customer.retrieve();
     setCustomer(customer as Customer);
   };
 
   const deconnecter = async () => {
-    await medusa.auth.logout();
     localStorage.removeItem("nutrelis-token");
     setCustomer(null);
   };
@@ -61,6 +88,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth doit être utilisé dans AuthProvider");
+  if (!ctx) throw new Error("useAuth doit être utilisé dans CartProvider");
   return ctx;
 }
