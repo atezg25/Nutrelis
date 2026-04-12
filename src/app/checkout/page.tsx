@@ -5,10 +5,13 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import BoutonGoogle from "@/components/BoutonGoogle";
+import { useLocale } from "@/context/LocaleContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Checkout() {
   const { items, totalPrix } = useCart();
   const { customer } = useAuth();
+  const { t } = useLocale();
   const [etape, setEtape] = useState<"formulaire" | "paiement" | "confirmation">("formulaire");
   const [modePaiement, setModePaiement] = useState<"mobile_money" | "orange_money" | "carte" | null>(null);
   const [form, setForm] = useState({
@@ -192,21 +195,21 @@ export default function Checkout() {
         {etape === "formulaire" && (
           <div style={{ background: "#fff", borderRadius: 20, padding: isMobile ? "24px 20px" : "40px", border: "1px solid #eee" }}>
             <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.4rem", fontWeight: 800, marginBottom: 28 }}>
-              Vos coordonnées
+              {t("checkout.title")}
             </h2>
 
             {/* Connexion rapide Google */}
             {!customer && (
               <div style={{ marginBottom: 28 }}>
                 <p style={{ color: "#888", fontSize: 13, marginBottom: 12, textAlign: "center" }}>
-                  Remplir rapidement avec Google
+                  {t("checkout.googleFill")}
                 </p>
                 <div style={{ display: "flex", justifyContent: "center" }}>
                   <BoutonGoogle />
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "24px 0 0" }}>
                   <div style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
-                  <span style={{ color: "#aaa", fontSize: 13, fontWeight: 600 }}>ou remplir manuellement</span>
+                  <span style={{ color: "#aaa", fontSize: 13, fontWeight: 600 }}>{t("checkout.orManual")}</span>
                   <div style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
                 </div>
               </div>
@@ -216,7 +219,7 @@ export default function Checkout() {
               <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 10, padding: "12px 16px", marginBottom: 24, display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 18 }}>✅</span>
                 <span style={{ fontSize: 14, color: "#333" }}>
-                  Connecté en tant que <strong>{customer.first_name} {customer.last_name}</strong>
+                  {t("checkout.googleConnected")} <strong>{customer.first_name} {customer.last_name}</strong>
                 </span>
               </div>
             )}
@@ -283,7 +286,7 @@ export default function Checkout() {
               onClick={handleSubmit}
               style={{ width: "100%", background: "#7D0806", color: "#fff", border: "none", padding: "18px", borderRadius: 12, fontSize: 16, fontWeight: 900, cursor: "pointer", fontFamily: "var(--font-sora), sans-serif", boxShadow: "0 6px 24px rgba(125,8,6,0.3)" }}
             >
-              Continuer vers le paiement →
+              {t("checkout.continuePayment")}
             </button>
           </div>
         )}
@@ -292,9 +295,9 @@ export default function Checkout() {
         {etape === "paiement" && (
           <div style={{ background: "#fff", borderRadius: 20, padding: isMobile ? "24px 20px" : "40px", border: "1px solid #eee" }}>
             <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.4rem", fontWeight: 800, marginBottom: 8 }}>
-              Mode de paiement
+              {t("checkout.paymentTitle")}
             </h2>
-            <p style={{ color: "#888", fontSize: 14, marginBottom: 28 }}>Choisissez votre méthode de paiement préférée</p>
+            <p style={{ color: "#888", fontSize: 14, marginBottom: 28 }}>{t("checkout.paymentDesc")}</p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
               {[
@@ -371,7 +374,7 @@ export default function Checkout() {
                 disabled={!modePaiement || modePaiement === "carte" || chargement}
                 style={{ flex: 2, background: modePaiement && modePaiement !== "carte" ? "#7D0806" : "#ccc", color: "#fff", border: "none", padding: "16px", borderRadius: 12, fontSize: isMobile ? 13 : 15, fontWeight: 900, cursor: "pointer", fontFamily: "var(--font-sora), sans-serif" }}
               >
-                {chargement ? "⏳ Redirection..." : "Confirmer et payer →"}
+                {chargement ? `⏳ ${t("checkout.redirecting")}` : t("checkout.confirmPay")}
               </button>
             </div>
           </div>
@@ -380,7 +383,7 @@ export default function Checkout() {
         {/* RÉSUMÉ COMMANDE */}
         <div style={{ background: "#fff", borderRadius: 20, padding: isMobile ? "20px" : "32px", border: "1px solid #eee", position: isSmall ? "relative" : "sticky", top: isSmall ? 0 : 80 }}>
           <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.1rem", fontWeight: 800, marginBottom: 20 }}>
-            Votre commande
+            {t("checkout.yourOrder")}
           </h2>
 
           {items.map((item, i) => (
