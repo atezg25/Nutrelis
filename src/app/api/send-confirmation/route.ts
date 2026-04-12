@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
     `;
 
     const { data, error } = await resend.emails.send({
-      from: "NUTRELIS <commandes@nutrelis.fr>",
+      from: "NUTRELIS <onboarding@resend.dev>",
       to: [destinataire],
       subject: `✅ Commande confirmée — ${prenom} ${nom}`,
       html,
