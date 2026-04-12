@@ -17,6 +17,7 @@ interface AuthContextType {
   loading: boolean;
   connecter: (email: string, password: string) => Promise<void>;
   inscrire: (data: { email: string; password: string; first_name: string; last_name: string; phone?: string }) => Promise<void>;
+  connexionGoogle: (credential: string) => Promise<void>;
   deconnecter: () => void;
 }
 
@@ -92,13 +93,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCustomer(cusData.customer);
   };
 
+  const connexionGoogle = async (credential: string) => {
+    const res = await fetch("/api/auth/google", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erreur connexion Google");
+    localStorage.setItem("nutrelis-token", data.token);
+    setCustomer(data.customer);
+  };
+
   const deconnecter = () => {
     localStorage.removeItem("nutrelis-token");
     setCustomer(null);
   };
 
   return (
-    <AuthContext.Provider value={{ customer, loading, connecter, inscrire, deconnecter }}>
+    <AuthContext.Provider value={{ customer, loading, connecter, inscrire, connexionGoogle, deconnecter }}>
       {children}
     </AuthContext.Provider>
   );
