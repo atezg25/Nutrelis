@@ -1,29 +1,34 @@
 "use client";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useScreenSize } from "@/hooks/useIsMobile";
 
 export default function Panier() {
   const { items, totalItems, totalPrix, supprimerArticle, modifierQuantite, viderPanier } = useCart();
+  const sc = useScreenSize();
+  const isMobile = sc === "mobile";
+  const isSmall = sc === "mobile" || sc === "tablet";
+  const px = isMobile ? "16px" : sc === "tablet" ? "28px" : "60px";
 
   return (
     <div style={{ background: "#fff", color: "#1a1a1a", minHeight: "100vh" }}>
 
       {/* NAVBAR */}
-      <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: "0 60px", height: 68, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
-        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#060f08", fontWeight: 900, fontSize: 16 }}>N</div>
-          <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 20, letterSpacing: 3, color: "#f0fff4" }}>NUTRELIS</span>
+      <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: `0 ${px}`, height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
+        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#060f08", fontWeight: 900, fontSize: 15 }}>N</div>
+          <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isMobile ? 16 : 20, letterSpacing: 3, color: "#f0fff4" }}>NUTRELIS</span>
         </Link>
-        <Link href="/produits/astaxanthine-12mg" style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, textDecoration: "none" }}>
-          ← Continuer mes achats
+        <Link href="/produits/astaxanthine-12mg" style={{ color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 12 : 14, textDecoration: "none" }}>
+          ← {isMobile ? "Achats" : "Continuer mes achats"}
         </Link>
       </nav>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "60px" }}>
-        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "2rem", fontWeight: 900, marginBottom: 8 }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: `40px ${px}` }}>
+        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: 900, marginBottom: 8 }}>
           Mon panier
         </h1>
-        <p style={{ color: "#888", fontSize: 15, marginBottom: 48 }}>
+        <p style={{ color: "#888", fontSize: 15, marginBottom: 36 }}>
           {totalItems === 0 ? "Votre panier est vide" : `${totalItems} article${totalItems > 1 ? "s" : ""}`}
         </p>
 
@@ -44,51 +49,67 @@ export default function Panier() {
 
         ) : (
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 48, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 380px", gap: isSmall ? 32 : 48, alignItems: "start" }}>
 
             {/* LISTE ARTICLES */}
             <div>
               {items.map((item, i) => (
                 <div key={item.id} style={{
                   display: "grid",
-                  gridTemplateColumns: "80px 1fr auto",
-                  gap: 24,
-                  padding: "28px 0",
+                  gridTemplateColumns: isMobile ? "64px 1fr" : "80px 1fr auto",
+                  gap: isMobile ? 16 : 24,
+                  padding: "24px 0",
                   borderBottom: i < items.length - 1 ? "1px solid #eee" : "none",
-                  alignItems: "center",
+                  alignItems: "start",
                 }}>
-                  <div style={{ width: 80, height: 80, borderRadius: 12, overflow: "hidden", background: "#fdf5f3", border: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ width: isMobile ? 64 : 80, height: isMobile ? 64 : 80, borderRadius: 12, overflow: "hidden", background: "#fdf5f3", border: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <img src={item.image} alt={item.nom} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 6 }} />
                   </div>
 
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>{item.nom}</div>
+                  <div style={{ gridColumn: isMobile ? "2" : "2" }}>
+                    <div style={{ fontWeight: 800, fontSize: isMobile ? 14 : 15, marginBottom: 4 }}>{item.nom}</div>
                     <div style={{ color: "#888", fontSize: 13, marginBottom: 8 }}>{item.description}</div>
                     {item.mode === "abonnement" && (
                       <span style={{ background: "#e8f5eb", color: "var(--accent)", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20 }}>
                         ⭐ Abonnement mensuel −15%
                       </span>
                     )}
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
                       <button onClick={() => modifierQuantite(item.id, item.quantite - 1)} style={{ width: 28, height: 28, borderRadius: "50%", border: "1.5px solid #ddd", background: "#fff", cursor: "pointer", fontSize: 16, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
                       <span style={{ fontWeight: 700, fontSize: 15, minWidth: 20, textAlign: "center" }}>{item.quantite}</span>
                       <button onClick={() => modifierQuantite(item.id, item.quantite + 1)} style={{ width: 28, height: 28, borderRadius: "50%", border: "1.5px solid #ddd", background: "#fff", cursor: "pointer", fontSize: 16, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
-                      <button onClick={() => supprimerArticle(item.id)} style={{ color: "#e53e3e", fontSize: 12, fontWeight: 600, background: "none", border: "none", cursor: "pointer", marginLeft: 8 }}>
+                      <button onClick={() => supprimerArticle(item.id)} style={{ color: "#e53e3e", fontSize: 12, fontWeight: 600, background: "none", border: "none", cursor: "pointer", marginLeft: 4 }}>
                         Supprimer
                       </button>
                     </div>
-                  </div>
-
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontWeight: 900, fontSize: 18, color: "#7D0806" }}>
-                      {(item.prix * item.quantite).toLocaleString()} FCFA
-                    </div>
-                    {item.prixOriginal > item.prix && (
-                      <div style={{ color: "#aaa", fontSize: 13, textDecoration: "line-through" }}>
-                        {(item.prixOriginal * item.quantite).toLocaleString()} FCFA
+                    {/* Prix affiché sous les contrôles sur mobile */}
+                    {isMobile && (
+                      <div style={{ marginTop: 12 }}>
+                        <div style={{ fontWeight: 900, fontSize: 16, color: "#7D0806" }}>
+                          {(item.prix * item.quantite).toLocaleString()} FCFA
+                        </div>
+                        {item.prixOriginal > item.prix && (
+                          <div style={{ color: "#aaa", fontSize: 12, textDecoration: "line-through" }}>
+                            {(item.prixOriginal * item.quantite).toLocaleString()} FCFA
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
+
+                  {/* Prix à droite sur desktop */}
+                  {!isMobile && (
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontWeight: 900, fontSize: 18, color: "#7D0806" }}>
+                        {(item.prix * item.quantite).toLocaleString()} FCFA
+                      </div>
+                      {item.prixOriginal > item.prix && (
+                        <div style={{ color: "#aaa", fontSize: 13, textDecoration: "line-through" }}>
+                          {(item.prixOriginal * item.quantite).toLocaleString()} FCFA
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -98,7 +119,7 @@ export default function Panier() {
             </div>
 
             {/* RÉSUMÉ COMMANDE */}
-            <div style={{ background: "#f8f9fa", borderRadius: 20, padding: "32px", border: "1px solid #eee", position: "sticky", top: 88 }}>
+            <div style={{ background: "#f8f9fa", borderRadius: 20, padding: "28px", border: "1px solid #eee", position: isSmall ? "relative" : "sticky", top: isSmall ? 0 : 80 }}>
               <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.2rem", fontWeight: 800, marginBottom: 24 }}>
                 Résumé de la commande
               </h2>
@@ -154,8 +175,8 @@ export default function Panier() {
         )}
       </div>
 
-      <footer style={{ background: "#060f08", padding: "32px 60px", marginTop: 80 }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <footer style={{ background: "#060f08", padding: `32px ${px}`, marginTop: 80 }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 16 : 0 }}>
           <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>© 2026 NUTRELIS</span>
           <div style={{ display: "flex", gap: 24 }}>
             {[{ label: "FAQ", href: "/faq" }, { label: "Livraison", href: "/livraison" }, { label: "Contact", href: "/contact" }].map(l => (

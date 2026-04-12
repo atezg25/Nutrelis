@@ -2,6 +2,7 @@
 import { useCart } from "@/context/CartContext";
 import NavbarCart from "@/components/NavbarCart";
 import { useState, useEffect, useRef } from "react";
+import { useScreenSize } from "@/hooks/useIsMobile";
 
 function Countdown() {
   const [time, setTime] = useState({ h: 5, m: 47, s: 59 });
@@ -28,6 +29,9 @@ function Countdown() {
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const sc = useScreenSize();
+  const isMobile = sc === "mobile";
+  const isSmall = sc === "mobile" || sc === "tablet";
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", fn);
@@ -47,16 +51,16 @@ function Navbar() {
       <div style={{
         maxWidth: 1280,
         margin: "0 auto",
-        padding: "0 40px",
-        height: 68,
+        padding: isMobile ? "0 16px" : "0 40px",
+        height: 60,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
       }}>
-        <a href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
+        <a href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{
-            width: 36,
-            height: 36,
+            width: 32,
+            height: 32,
             borderRadius: 8,
             background: "var(--asta-accent)",
             display: "flex",
@@ -64,7 +68,7 @@ function Navbar() {
             justifyContent: "center",
             color: "#fff",
             fontWeight: 900,
-            fontSize: 16,
+            fontSize: 15,
             fontFamily: "var(--font-sora), sans-serif",
           }}>
             N
@@ -72,39 +76,41 @@ function Navbar() {
           <span style={{
             fontFamily: "var(--font-sora), sans-serif",
             fontWeight: 800,
-            fontSize: 20,
+            fontSize: isMobile ? 16 : 20,
             letterSpacing: 3,
             color: "var(--asta-text)",
           }}>
             NUTRELIS
           </span>
         </a>
-        <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-          {["Produits", "Science", "Avis clients", "FAQ"].map((item) => (
-            <a key={item} href="#" style={{
-              color: "var(--asta-text2)",
-              fontSize: 14,
-              fontWeight: 500,
-              textDecoration: "none",
-            }}>
-              {item}
-            </a>
-          ))}
-        </div>
-       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {!isSmall && (
+          <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+            {["Produits", "Science", "Avis clients", "FAQ"].map((item) => (
+              <a key={item} href="#" style={{
+                color: "var(--asta-text2)",
+                fontSize: 14,
+                fontWeight: 500,
+                textDecoration: "none",
+              }}>
+                {item}
+              </a>
+            ))}
+          </div>
+        )}
+       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <NavbarCart dark={false} />
           <a href="#commander" style={{
             background: "var(--asta-accent)",
             color: "#fff",
-            padding: "10px 24px",
+            padding: isMobile ? "8px 14px" : "10px 24px",
             borderRadius: 8,
-            fontSize: 14,
+            fontSize: isMobile ? 12 : 14,
             fontWeight: 700,
             textDecoration: "none",
             boxShadow: "0 4px 14px rgba(125,8,6,0.25)",
             fontFamily: "var(--font-sora), sans-serif",
           }}>
-            Commander →
+            {isMobile ? "Commander" : "Commander →"}
           </a>
         </div>
       </div>
@@ -487,6 +493,8 @@ useEffect(() => {
 
 function RaisonsSection() {
   const [active, setActive] = useState<number | null>(null);
+  const scR = useScreenSize();
+  const colsR = scR === "mobile" ? "repeat(2, 1fr)" : scR === "tablet" ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
   const raisons = [
     {
       num: "01",
@@ -521,7 +529,7 @@ function RaisonsSection() {
   ];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 16 }}>
+    <div style={{ display: "grid", gridTemplateColumns: colsR, gap: 16 }}>
       {raisons.map((r, i) => (
         <div
           key={i}
@@ -697,8 +705,10 @@ function ProductGallery() {
     "/images/astaxanthine/NUT4.png",
   ];
 
+  const scGallery = useScreenSize();
+  const isSmallGallery = scGallery === "mobile" || scGallery === "tablet";
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12, position: "sticky", top: 80 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12, position: isSmallGallery ? "relative" : "sticky", top: isSmallGallery ? 0 : 80 }}>
       {/* Image principale */}
       <div style={{
         position: "relative",
@@ -891,6 +901,7 @@ function ProductGallery() {
 function StatsSection() {
   const [progress, setProgress] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+  const scSt = useScreenSize();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -916,7 +927,7 @@ function StatsSection() {
   ];
 
   return (
-    <div ref={ref} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px 80px" }}>
+    <div ref={ref} style={{ display: "grid", gridTemplateColumns: scSt === "mobile" ? "1fr" : "1fr 1fr", gap: scSt === "mobile" ? "32px" : "40px 80px" }}>
       {stats.map((stat, i) => (
         <div key={i}>
           <div style={{
@@ -1014,6 +1025,11 @@ export default function Astaxanthine() {
   const [prixOriginal, setPrixOriginal] = useState(33750);
   const [selectedPack, setSelectedPack] = useState(2);
   const [mode, setMode] = useState<"unique" | "abonnement">("unique");
+  const sc = useScreenSize();
+  const isMobile = sc === "mobile";
+  const isSmall = sc === "mobile" || sc === "tablet";
+  const px = isMobile ? "16px" : sc === "tablet" ? "28px" : "60px";
+  const py = isMobile ? "48px" : sc === "tablet" ? "64px" : "96px";
 
   const packs = [
     { id: 1, label: "1 Boîte · 60 capsules", desc: "Cure de 60 jours", prix: 15000, original: 18750 },
@@ -1056,8 +1072,8 @@ export default function Astaxanthine() {
       <section style={{
         background: "#fff",
         display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        minHeight: 540,
+        gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr",
+        minHeight: isSmall ? "auto" : 540,
         overflow: "hidden",
       }}>
         {/* Côté gauche — Image */}
@@ -1067,8 +1083,9 @@ export default function Astaxanthine() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "40px 20px",
+          padding: isMobile ? "32px 16px" : "40px 20px",
           overflow: "hidden",
+          minHeight: isSmall ? 280 : undefined,
         }}>
           <div style={{
             position: "absolute",
@@ -1167,7 +1184,7 @@ export default function Astaxanthine() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          padding: "40px 48px 40px 40px",
+          padding: isMobile ? "28px 16px" : sc === "tablet" ? "32px 28px" : "40px 48px 40px 40px",
           background: "#fff",
         }}>
           <div style={{
@@ -1281,7 +1298,7 @@ export default function Astaxanthine() {
           maxWidth: 1280,
           margin: "0 auto",
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
+          gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
         }}>
           {[
             { label: "FORMULE CLINIQUEMENT PROUVÉE", svg: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
@@ -1363,7 +1380,7 @@ export default function Astaxanthine() {
       </div>
 
      {/* SECTION PRODUIT CENTRÉ */}
-      <section style={{ background: "#fff", padding: "80px 60px" }}>
+      <section style={{ background: "#fff", padding: `${py} ${px}` }}>
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
           <p style={{ color: "var(--asta-gold)", fontSize: 13, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
             ★★★★★ Noté 4.8/5 | Approuvé par 12 000+ clients
@@ -1474,7 +1491,7 @@ export default function Astaxanthine() {
       </section>
 
       {/* AVIS CLIENTS */}
-      <section style={{ padding: "96px 60px", background: "var(--asta-bg)" }}>
+      <section style={{ padding: `${py} ${px}`, background: "var(--asta-bg)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
@@ -1485,7 +1502,7 @@ export default function Astaxanthine() {
               <span style={{ color: "var(--asta-accent)" }}>Vous aussi.</span>
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 28 }}>
             {[
               { name: "Marie Ange", semaines: "3 semaines", titre: "Ma peau n'a jamais été aussi lumineuse", text: "Depuis que j'ai commencé l'astaxanthine NUTRELIS, mon teint est éclatant et uniforme. Les imperfections ont disparu. Je reçois des compliments chaque jour.", img: "/images/astaxanthine/Ast2.png" },
               { name: "Christine", semaines: "6 semaines", titre: "Un vrai boost d'énergie au quotidien", text: "Je me sens plus énergique et concentrée. Ma fatigue a disparu. Ma peau est plus nette, mes cheveux tombent moins. NUTRELIS est devenu indispensable.", img: "/images/astaxanthine/Ast3.png" },
@@ -1540,7 +1557,7 @@ export default function Astaxanthine() {
       </section>
 
       {/* POURQUOI NUTRELIS */}
-      <section style={{ background: "var(--asta-accent)", padding: "72px 60px" }}>
+      <section style={{ background: "var(--asta-accent)", padding: `${py} ${px}` }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 52 }}>
             <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
@@ -1550,7 +1567,7 @@ export default function Astaxanthine() {
               Pourquoi choisir NUTRELIS comme partenaire santé ?
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 24 }}>
             {[
               { icon: "🔬", label: "Dosage clinique 12mg", desc: "Dose validée par les études scientifiques" },
               { icon: "🌺", label: "Source hawaïenne", desc: "Micro-algues cultivées sous le soleil d'Hawaï" },
@@ -1574,7 +1591,7 @@ export default function Astaxanthine() {
       </section>
 
       {/* 5 RAISONS */}
-      <section style={{ padding: "96px 60px 0", background: "var(--asta-bg2)" }}>
+      <section style={{ padding: `${py} ${px} 0`, background: "var(--asta-bg2)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
@@ -1591,7 +1608,7 @@ export default function Astaxanthine() {
       {/* CTA APRÈS 5 RAISONS */}
       <div style={{
         textAlign: "center",
-        padding: "24px 60px 60px",
+        padding: `24px ${px} 60px`,
         background: "var(--asta-bg2)",
       }}>
         <a href="#commander" style={{
@@ -1615,7 +1632,7 @@ export default function Astaxanthine() {
       </div>
 
       {/* VIDÉOS */}
-      <section style={{ padding: "96px 60px 0", background: "var(--asta-bg)" }}>
+      <section style={{ padding: `${py} ${px} 0`, background: "var(--asta-bg)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
@@ -1626,7 +1643,7 @@ export default function Astaxanthine() {
               <span style={{ color: "var(--asta-accent)" }}>vrais résultats</span>
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 20 }}>
             {[
               { name: "VINCENT", file: "video1.mp4" },
               { name: "CHRISTIAN", file: "video2.mp4" },
@@ -1677,7 +1694,7 @@ export default function Astaxanthine() {
       {/* CTA APRÈS VIDÉOS */}
       <div style={{
         textAlign: "center",
-        padding: "24px 60px 40px",
+        padding: `24px ${px} 40px`,
         background: "var(--asta-bg)",
       }}>
         <a href="#commander" style={{
@@ -1703,7 +1720,7 @@ export default function Astaxanthine() {
      {/* PROBLÈME → SOLUTION */}
       <section style={{
         background: "linear-gradient(135deg, #7D0806 0%, #a01010 40%, #d4817e 80%, #f5e8e5 100%)",
-        padding: "80px 60px 0",
+        padding: `${py} ${px} 0`,
         overflow: "hidden",
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -1740,7 +1757,7 @@ export default function Astaxanthine() {
           {/* Deux colonnes */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr",
             gap: 20,
             marginBottom: 48,
           }}>
@@ -1844,7 +1861,7 @@ export default function Astaxanthine() {
       </section>
 
       {/* STATS */}
-      <section style={{ padding: "80px 60px", background: "#fff" }}>
+      <section style={{ padding: `${py} ${px}`, background: "#fff" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 52 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
@@ -1864,9 +1881,9 @@ export default function Astaxanthine() {
      {/* NUTRELIS VS AUTRES */}
       <section style={{
         background: "linear-gradient(135deg, #7D0806 0%, #a01010 40%, #d4817e 80%, #f5e8e5 100%)",
-        padding: "80px 60px",
+        padding: `${py} ${px}`,
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 40 : 80, alignItems: "center" }}>
 
           {/* Gauche — comparaison */}
           <div>
@@ -1977,7 +1994,7 @@ export default function Astaxanthine() {
       </section>
 
       {/* COMMANDER */}
-      <section id="commander" style={{ padding: "96px 60px", background: "var(--asta-bg)" }}>
+      <section id="commander" style={{ padding: `${py} ${px}`, background: "var(--asta-bg)" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 52 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
@@ -1991,7 +2008,7 @@ export default function Astaxanthine() {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 32 : 60, alignItems: "start" }}>
 
             {/* Gauche — Galerie images */}
             <ProductGallery />
@@ -2063,10 +2080,10 @@ export default function Astaxanthine() {
       {/* SECTION MÉDECIN — TIMELINE */}
       <section style={{
         background: "linear-gradient(135deg, #fff8f6 0%, #fdecea 50%, #fff8f6 100%)",
-        padding: "80px 60px",
+        padding: `${py} ${px}`,
         overflow: "hidden",
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 32 : 80, alignItems: "center" }}>
 
           {/* Image médecin */}
           <div style={{ position: "relative" }}>
@@ -2202,9 +2219,9 @@ export default function Astaxanthine() {
       {/* GARANTIE */}
       <section style={{
         background: "#fff",
-        padding: "80px 60px",
+        padding: `${py} ${px}`,
       }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 32 : 80, alignItems: "center" }}>
 
           {/* Gauche — contenu */}
           <div style={{ textAlign: "center" }}>
@@ -2264,7 +2281,7 @@ export default function Astaxanthine() {
       {/* FAQ */}
       <section style={{
         background: "var(--asta-accent)",
-        padding: "80px 60px",
+        padding: `${py} ${px}`,
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 52 }}>
@@ -2278,7 +2295,7 @@ export default function Astaxanthine() {
             </h2>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: 16 }}>
             {[
               {
                 icon: "🌿",
@@ -2328,9 +2345,9 @@ export default function Astaxanthine() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: "#1a0505", padding: "64px 60px 32px" }}>
+      <footer style={{ background: "#1a0505", padding: `64px ${px} 32px` }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 48 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : sc === "tablet" ? "1fr 1fr 1fr" : "2fr 1fr 1fr 1fr", gap: isMobile ? 24 : 48, marginBottom: 48 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
                 <div style={{
@@ -2372,7 +2389,7 @@ export default function Astaxanthine() {
               </div>
             ))}
           </div>
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 24, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 8 : 0 }}>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>
               © 2026 NUTRELIS — Tous droits réservés
             </p>
