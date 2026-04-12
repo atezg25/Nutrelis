@@ -6,22 +6,31 @@ export const dynamic = "force-dynamic";
 function SuccessContent() {
   const searchParams = useSearchParams();
   const reference = searchParams.get("reference") || searchParams.get("trxref");
+  const statusUrl = searchParams.get("status");
   const [statut, setStatut] = useState<"chargement" | "succès" | "échec">("chargement");
 
   useEffect(() => {
     if (!reference) { setStatut("échec"); return; }
 
+    // Si Notchpay a déjà envoyé status=complete dans l'URL, on l'accepte directement
+    if (statusUrl === "complete" || statusUrl === "success") {
+      setStatut("succès");
+      return;
+    }
+
+    // Sinon on vérifie via l'API
     fetch(`/api/notchpay/verify?reference=${reference}`)
       .then(r => r.json())
       .then(data => {
-        if (data.transaction?.status === "complete") {
+        const s = data.transaction?.status;
+        if (s === "complete" || s === "success" || s === "completed") {
           setStatut("succès");
         } else {
           setStatut("échec");
         }
       })
       .catch(() => setStatut("échec"));
-  }, [reference]);
+  }, [reference, statusUrl]);
 
   if (statut === "chargement") {
     return (

@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 export default function Checkout() {
-  const { items, totalPrix, viderPanier } = useCart();
+  const { items, totalPrix } = useCart();
   const [etape, setEtape] = useState<"formulaire" | "paiement" | "confirmation">("formulaire");
   const [modePaiement, setModePaiement] = useState<"mobile_money" | "orange_money" | "carte" | null>(null);
   const [form, setForm] = useState({
@@ -25,6 +25,36 @@ const [chargement, setChargement] = useState(false);
     setErreur("");
 
     try {
+      const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL;
+      const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
+
+      // Lancer Medusa en arrière-plan (sans bloquer Notchpay)
+      const itemsAvecVariant = items.filter(i => i.variantId);
+      if (itemsAvecVariant.length > 0) {
+        fetch(`${BACKEND}/store/carts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-publishable-api-key": PUB_KEY! },
+          body: JSON.stringify({ region_id: "reg_01KNX74XTS40FD0GVD8296GKHN" }),
+        })
+          .then(r => r.json())
+          .then(cartData => {
+            const cartId = cartData.cart?.id;
+            if (!cartId) return;
+            localStorage.setItem("nutrelis-medusa-cart", cartId);
+            return Promise.all(
+              itemsAvecVariant.map(item =>
+                fetch(`${BACKEND}/store/carts/${cartId}/line-items`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json", "x-publishable-api-key": PUB_KEY! },
+                  body: JSON.stringify({ variant_id: item.variantId, quantity: item.quantite }),
+                })
+              )
+            );
+          })
+          .catch(() => {});
+      }
+
+      // 2. Initialiser le paiement Notchpay
       const res = await fetch("/api/notchpay/init", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -35,7 +65,7 @@ const [chargement, setChargement] = useState(false);
           prenom: form.prenom,
           montant: totalPrix,
           description: items.map(i => i.description).join(", "),
-          items: items,
+          items,
           adresse: form.adresse,
           ville: form.ville,
           quartier: form.quartier,
@@ -277,7 +307,7 @@ const [chargement, setChargement] = useState(false);
     disabled={!modePaiement || modePaiement === "carte" || chargement}
     style={{ flex: 2, background: modePaiement && modePaiement !== "carte" ? "#7D0806" : "#ccc", color: "#fff", border: "none", padding: "16px", borderRadius: 12, fontSize: 15, fontWeight: 900, cursor: "pointer", fontFamily: "var(--font-sora), sans-serif" }}
   >
-    {chargement ? "Redirection..." : "Confirmer et payer →"}
+    {chargement ? "⏳ Redirection vers le paiement..." : "Confirmer et payer →"}
   </button>
 </div>
           </div>

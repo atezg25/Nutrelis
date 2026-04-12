@@ -166,7 +166,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original: number, mode: string) => void }) {
   const [mode, setMode] = useState("unique");
   const [selected, setSelected] = useState(2);
-  const [ajouté, setAjouté] = useState(false);
   const { ajouterArticle } = useCart();
 useEffect(() => {
     const pack = packs.find(p => p.id === selected)!;
@@ -188,6 +187,8 @@ useEffect(() => {
       eco: null,
       popular: false,
       img: "/images/astaxanthine/P_01.png",
+      variantId: "variant_01KNX844AZ8E2VAQS6T6QH7CWA",
+      sku: "NUT-AX-1P",
     },
     {
       id: 2,
@@ -200,6 +201,8 @@ useEffect(() => {
       eco: "3 000 FCFA",
       popular: true,
       img: "/images/astaxanthine/P_02.png",
+      variantId: "variant_01KNX844B038BGGT8JKXGVD5D4",
+      sku: "NUT-AX-2P",
     },
     {
       id: 3,
@@ -212,6 +215,8 @@ useEffect(() => {
       eco: "9 000 FCFA",
       popular: false,
       img: "/images/astaxanthine/P_03.png",
+      variantId: "variant_01KNX844B0HJWBPJTS7P0M27SK",
+      sku: "NUT-AX-3P",
     },
   ];
 
@@ -408,6 +413,7 @@ useEffect(() => {
           const pack = packs.find(p => p.id === selected)!;
           ajouterArticle({
             id: `asta-pack-${pack.id}-${mode}`,
+            variantId: pack.variantId,
             nom: `NUTRELIS Astaxanthine 12mg`,
             description: pack.capsules,
             prix: mode === "abonnement" ? pack.aboPrix : pack.prix,
@@ -415,12 +421,11 @@ useEffect(() => {
             image: pack.img,
             mode: mode as "unique" | "abonnement",
           });
-          setAjouté(true);
-          setTimeout(() => setAjouté(false), 2000);
+          window.location.href = "/checkout";
         }}
         style={{
           width: "100%",
-          background: ajouté ? "#1db954" : "var(--asta-accent)",
+          background: "var(--asta-accent)",
           color: "#fff",
           border: "none",
           padding: "18px",
@@ -431,11 +436,11 @@ useEffect(() => {
           letterSpacing: 0.5,
           marginBottom: 10,
           fontFamily: "var(--font-sora), sans-serif",
-          boxShadow: ajouté ? "0 6px 24px rgba(29,185,84,0.4)" : "0 6px 24px rgba(125,8,6,0.3)",
+          boxShadow: "0 6px 24px rgba(125,8,6,0.3)",
           display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           transition: "all 0.3s",
         }}>
-        {ajouté ? "✅ AJOUTÉ AU PANIER !" : `⚡ ${mode === "abonnement" ? "S'ABONNER — ÉCONOMISER 15%" : "ACHETER MAINTENANT"}`}
+        {`⚡ ${mode === "abonnement" ? "S'ABONNER — ÉCONOMISER 15%" : "ACHETER MAINTENANT"}`}
       </button>
 
       <button
@@ -443,6 +448,7 @@ useEffect(() => {
           const pack = packs.find(p => p.id === selected)!;
           ajouterArticle({
             id: `asta-pack-${pack.id}-${mode}`,
+            variantId: pack.variantId,
             nom: `NUTRELIS Astaxanthine 12mg`,
             description: pack.capsules,
             prix: mode === "abonnement" ? pack.aboPrix : pack.prix,

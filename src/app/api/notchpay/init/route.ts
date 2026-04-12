@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, telephone, nom, prenom, montant, description, items, adresse, ville, quartier } = body;
+    const { email, telephone, nom, prenom, montant, description, items, adresse, ville, quartier, medusaCartId } = body;
 
     const response = await fetch("https://api.notchpay.co/payments/initialize", {
       method: "POST",
@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
           items: JSON.stringify(items || []),
           adresse, ville, quartier,
           nom, prenom, telephone, email,
+          medusaCartId: body.medusaCartId || null,
         }
       }),
     });

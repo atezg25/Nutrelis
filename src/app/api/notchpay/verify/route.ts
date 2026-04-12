@@ -22,12 +22,15 @@ export async function GET(req: NextRequest) {
 
     const data = await response.json();
 
+    console.log("Notchpay verify response:", JSON.stringify(data, null, 2));
+
     if (!response.ok) {
       return NextResponse.json({ error: data.message }, { status: 400 });
     }
 
     // 2. Si paiement complet, créer la commande dans Medusa
-    if (data.transaction?.status === "complete") {
+    const status = data.transaction?.status;
+    if (status === "complete" || status === "success" || status === "completed") {
       try {
         const metadata = data.transaction?.metadata || {};
         const items = JSON.parse(metadata.items || "[]");

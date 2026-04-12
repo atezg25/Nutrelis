@@ -6,6 +6,8 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 // ============================================================
 export interface CartItem {
   id: string;
+
+
   nom: string;
   description: string;
   prix: number;
@@ -13,6 +15,7 @@ export interface CartItem {
   quantite: number;
   image: string;
   mode: "unique" | "abonnement";
+  variantId?: string;
 }
 
 interface CartContextType {
