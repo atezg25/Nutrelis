@@ -20,7 +20,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email ou téléphone manquant" }, { status: 400 });
     }
 
-    const destinataire = email || `${telephone}@nutrelis.com`;
+    // Tant que le domaine nutrelis.bio n'est pas vérifié dans Resend,
+    // on envoie uniquement à l'adresse du compte Resend (atezg25@gmail.com).
+    // Une fois le domaine vérifié, remplacer par : email || `${telephone}@nutrelis.bio`
+    const destinataire = process.env.STORE_EMAIL || "atezg25@gmail.com";
 
     const lignesItems = (items as CartItem[] || []).map((item) => `
       <tr>
@@ -181,7 +184,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await resend.emails.send({
       from: "NUTRELIS <onboarding@resend.dev>",
       to: [destinataire],
-      subject: `✅ Commande confirmée — ${prenom} ${nom}`,
+      subject: `✅ Nouvelle commande — ${prenom} ${nom} (${email || telephone})`,
       html,
     });
 
