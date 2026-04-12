@@ -93,11 +93,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCustomer(cusData.customer);
   };
 
-  const connexionGoogle = async (credential: string) => {
+  const connexionGoogle = async (accessToken: string) => {
     const res = await fetch("/api/auth/google", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ credential }),
+      body: JSON.stringify({ access_token: accessToken }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Erreur connexion Google");

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL!;
 const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!;
 
-interface GooglePayload {
+interface GoogleUserInfo {
   sub: string;
   email: string;
   email_verified: boolean;
@@ -13,24 +13,26 @@ interface GooglePayload {
   picture: string;
 }
 
-async function verifierTokenGoogle(credential: string): Promise<GooglePayload> {
-  // Vérifier le token JWT Google via l'API Google
-  const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+async function getGoogleUserInfo(accessToken: string): Promise<GoogleUserInfo> {
+  const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
   if (!res.ok) throw new Error("Token Google invalide");
   return res.json();
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { credential } = await req.json();
-    if (!credential) {
-      return NextResponse.json({ error: "Credential manquant" }, { status: 400 });
+    const body = await req.json();
+    const accessToken = body.credential || body.access_token;
+    if (!accessToken) {
+      return NextResponse.json({ error: "Token manquant" }, { status: 400 });
     }
 
-    // 1. Vérifier le token Google
-    const google = await verifierTokenGoogle(credential);
-    if (!google.email_verified) {
-      return NextResponse.json({ error: "Email Google non vérifié" }, { status: 400 });
+    // 1. Récupérer les infos Google
+    const google = await getGoogleUserInfo(accessToken);
+    if (!google.email) {
+      return NextResponse.json({ error: "Email Google non disponible" }, { status: 400 });
     }
 
     const email = google.email;
@@ -55,7 +57,6 @@ export async function POST(req: NextRequest) {
 
     // 3. Si pas de token, créer le compte
     if (!token) {
-      // Enregistrer l'authentification
       const regRes = await fetch(`${BACKEND}/auth/customer/emailpass/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,7 +71,6 @@ export async function POST(req: NextRequest) {
       const regData = await regRes.json();
       token = regData.token;
 
-      // Créer le profil client
       await fetch(`${BACKEND}/store/customers`, {
         method: "POST",
         headers: {
