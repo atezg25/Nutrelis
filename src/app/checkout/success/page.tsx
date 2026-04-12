@@ -2,6 +2,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 export const dynamic = "force-dynamic";
 
 function SuccessContent() {
@@ -10,9 +11,13 @@ function SuccessContent() {
   const statusUrl = searchParams.get("status");
   const [statut, setStatut] = useState<"chargement" | "succès" | "échec">("chargement");
   const [emailEnvoye, setEmailEnvoye] = useState(false);
+  const { viderPanier } = useCart();
 
-  const envoyerEmail = async (ref: string) => {
+  const confirmerCommande = async (ref: string) => {
     if (emailEnvoye) return;
+    // Vider le panier
+    viderPanier();
+    // Envoyer l'email
     try {
       const customerRaw = localStorage.getItem("nutrelis-customer");
       if (!customerRaw) return;
@@ -35,7 +40,7 @@ function SuccessContent() {
     // Si Notchpay a déjà envoyé status=complete dans l'URL, on l'accepte directement
     if (statusUrl === "complete" || statusUrl === "success") {
       setStatut("succès");
-      envoyerEmail(reference);
+      confirmerCommande(reference);
       return;
     }
 
@@ -46,7 +51,7 @@ function SuccessContent() {
         const s = data.transaction?.status;
         if (s === "complete" || s === "success" || s === "completed") {
           setStatut("succès");
-          envoyerEmail(reference);
+          confirmerCommande(reference);
         } else {
           setStatut("échec");
         }
