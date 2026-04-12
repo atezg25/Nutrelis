@@ -1,17 +1,33 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
+import BoutonGoogle from "@/components/BoutonGoogle";
 
 export default function Checkout() {
   const { items, totalPrix } = useCart();
+  const { customer } = useAuth();
   const [etape, setEtape] = useState<"formulaire" | "paiement" | "confirmation">("formulaire");
   const [modePaiement, setModePaiement] = useState<"mobile_money" | "orange_money" | "carte" | null>(null);
   const [form, setForm] = useState({
     nom: "", prenom: "", email: "", telephone: "",
     adresse: "", ville: "", quartier: "",
   });
+
+  // Pré-remplir le formulaire si connecté via Google
+  useEffect(() => {
+    if (customer && !form.nom && !form.prenom) {
+      setForm(prev => ({
+        ...prev,
+        nom: prev.nom || customer.last_name || "",
+        prenom: prev.prenom || customer.first_name || "",
+        email: prev.email || customer.email || "",
+        telephone: prev.telephone || customer.phone || "",
+      }));
+    }
+  }, [customer]);
 
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
@@ -178,6 +194,32 @@ export default function Checkout() {
             <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.4rem", fontWeight: 800, marginBottom: 28 }}>
               Vos coordonnées
             </h2>
+
+            {/* Connexion rapide Google */}
+            {!customer && (
+              <div style={{ marginBottom: 28 }}>
+                <p style={{ color: "#888", fontSize: 13, marginBottom: 12, textAlign: "center" }}>
+                  Remplir rapidement avec Google
+                </p>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <BoutonGoogle />
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "24px 0 0" }}>
+                  <div style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
+                  <span style={{ color: "#aaa", fontSize: 13, fontWeight: 600 }}>ou remplir manuellement</span>
+                  <div style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
+                </div>
+              </div>
+            )}
+
+            {customer && (
+              <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 10, padding: "12px 16px", marginBottom: 24, display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 18 }}>✅</span>
+                <span style={{ fontSize: 14, color: "#333" }}>
+                  Connecté en tant que <strong>{customer.first_name} {customer.last_name}</strong>
+                </span>
+              </div>
+            )}
 
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 16 }}>
               {[
