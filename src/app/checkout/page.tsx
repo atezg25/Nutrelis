@@ -82,6 +82,18 @@ export default function Checkout() {
       const data = await res.json();
 
       if (data.authorization_url) {
+        // Sauvegarder les infos client pour l'email de confirmation
+        localStorage.setItem("nutrelis-customer", JSON.stringify({
+          nom: form.nom,
+          prenom: form.prenom,
+          email: form.email,
+          telephone: form.telephone,
+          adresse: form.adresse,
+          ville: form.ville,
+          quartier: form.quartier,
+          items,
+          total: totalPrix,
+        }));
         window.location.href = data.authorization_url;
       } else {
         setErreur(data.error || "Erreur lors de l'initialisation du paiement");

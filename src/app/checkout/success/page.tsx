@@ -3,11 +3,31 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 export const dynamic = "force-dynamic";
+
 function SuccessContent() {
   const searchParams = useSearchParams();
   const reference = searchParams.get("reference") || searchParams.get("trxref");
   const statusUrl = searchParams.get("status");
   const [statut, setStatut] = useState<"chargement" | "succès" | "échec">("chargement");
+  const [emailEnvoye, setEmailEnvoye] = useState(false);
+
+  const envoyerEmail = async (ref: string) => {
+    if (emailEnvoye) return;
+    try {
+      const customerRaw = localStorage.getItem("nutrelis-customer");
+      if (!customerRaw) return;
+      const customer = JSON.parse(customerRaw);
+      await fetch("/api/send-confirmation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...customer, reference: ref }),
+      });
+      setEmailEnvoye(true);
+      localStorage.removeItem("nutrelis-customer");
+    } catch {
+      // Silencieux — l'email est bonus, pas critique
+    }
+  };
 
   useEffect(() => {
     if (!reference) { setStatut("échec"); return; }
@@ -15,6 +35,7 @@ function SuccessContent() {
     // Si Notchpay a déjà envoyé status=complete dans l'URL, on l'accepte directement
     if (statusUrl === "complete" || statusUrl === "success") {
       setStatut("succès");
+      envoyerEmail(reference);
       return;
     }
 
@@ -25,6 +46,7 @@ function SuccessContent() {
         const s = data.transaction?.status;
         if (s === "complete" || s === "success" || s === "completed") {
           setStatut("succès");
+          envoyerEmail(reference);
         } else {
           setStatut("échec");
         }
@@ -53,7 +75,7 @@ function SuccessContent() {
         <p style={{ color: "#555", fontSize: 15, marginBottom: 36, lineHeight: 1.8 }}>
           Nous n'avons pas pu confirmer votre paiement. Réessayez ou contactez-nous.
         </p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/checkout" style={{ background: "#7D0806", color: "#fff", padding: "14px 28px", borderRadius: 10, fontSize: 14, fontWeight: 800, textDecoration: "none" }}>
             Réessayer →
           </Link>
@@ -66,7 +88,7 @@ function SuccessContent() {
   }
 
   return (
-    <div style={{ textAlign: "center", maxWidth: 560, padding: "60px 40px" }}>
+    <div style={{ textAlign: "center", maxWidth: 560, padding: "60px 24px" }}>
       <div style={{ fontSize: 72, marginBottom: 24 }}>🎉</div>
       <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "2rem", fontWeight: 900, marginBottom: 16, color: "#1a1a1a" }}>
         Paiement confirmé !
@@ -74,9 +96,12 @@ function SuccessContent() {
       <p style={{ color: "#555", fontSize: 16, lineHeight: 1.8, marginBottom: 12 }}>
         Votre commande a été reçue et sera expédiée via <strong>ATEZ Express</strong> dans les 24h.
       </p>
-      <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 16, padding: "20px", marginBottom: 36 }}>
-        <p style={{ fontSize: 13, color: "#555" }}>Référence : <strong>{reference}</strong></p>
+      <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 16, padding: "20px", marginBottom: 16 }}>
+        <p style={{ fontSize: 13, color: "#555", margin: 0 }}>Référence : <strong>{reference}</strong></p>
       </div>
+      <p style={{ color: "#888", fontSize: 13, marginBottom: 32 }}>
+        📧 Un email de confirmation vous a été envoyé.
+      </p>
       <Link href="/" style={{ background: "var(--accent)", color: "#060f08", padding: "16px 40px", borderRadius: 10, fontSize: 15, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
         Retour à l'accueil →
       </Link>
