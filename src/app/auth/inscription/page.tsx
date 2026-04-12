@@ -28,7 +28,7 @@ export default function Inscription() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8f9fa", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <div style={{ minHeight: "100vh", background: "#1a0a0a", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, color: "#1a1a1a" }}>
       <div style={{ background: "#fff", borderRadius: 20, padding: "48px 40px", width: "100%", maxWidth: 480, boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
         
         <div style={{ textAlign: "center", marginBottom: 32 }}>
