@@ -14,9 +14,61 @@ const sora = Sora({
   weight: ["400", "600", "700", "800"],
 });
 
+const URL = "https://nutrelis-v76z.vercel.app";
+
 export const metadata = {
-  title: "NUTRELIS — Compléments Alimentaires Premium",
-  description: "Des compléments alimentaires d'excellence pour votre vitalité.",
+  metadataBase: new URL(URL),
+  title: {
+    default: "NUTRELIS — Compléments Alimentaires Premium au Cameroun",
+    template: "%s | NUTRELIS",
+  },
+  description:
+    "NUTRELIS propose des compléments alimentaires d'excellence à base d'actifs naturels — Astaxanthine 12mg, livraison ATEZ Express au Cameroun. Résultats visibles dès 2 semaines.",
+  keywords: [
+    "compléments alimentaires Cameroun",
+    "astaxanthine 12mg",
+    "antioxydant naturel",
+    "beauté peau Cameroun",
+    "énergie vitalité",
+    "NUTRELIS",
+    "Douala",
+    "Yaoundé",
+  ],
+  authors: [{ name: "NUTRELIS" }],
+  creator: "NUTRELIS",
+  publisher: "NUTRELIS",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  openGraph: {
+    type: "website",
+    locale: "fr_CM",
+    url: URL,
+    siteName: "NUTRELIS",
+    title: "NUTRELIS — Compléments Alimentaires Premium au Cameroun",
+    description:
+      "L'Astaxanthine naturelle à dose clinique de 12mg. Peau lumineuse, énergie, protection cellulaire. Livraison ATEZ Express partout au Cameroun.",
+    images: [
+      {
+        url: "/images/astaxanthine/NUT2.png",
+        width: 1200,
+        height: 630,
+        alt: "NUTRELIS Astaxanthine 12mg — Compléments Premium",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NUTRELIS — Compléments Alimentaires Premium au Cameroun",
+    description:
+      "L'Astaxanthine naturelle à dose clinique de 12mg. Peau lumineuse, énergie, protection cellulaire.",
+    images: ["/images/astaxanthine/NUT2.png"],
+  },
+  alternates: {
+    canonical: URL,
+  },
 };
 
 export default function RootLayout({ children }) {
