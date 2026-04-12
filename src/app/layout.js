@@ -2,7 +2,6 @@ import { Sora, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
-import GoogleWrapper from "@/components/GoogleWrapper";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -15,10 +14,10 @@ const sora = Sora({
   weight: ["400", "600", "700", "800"],
 });
 
-const URL = "https://nutrelis-v76z.vercel.app";
+const SITE_URL = "https://nutrelis-v76z.vercel.app";
 
 export const metadata = {
-  metadataBase: new URL(URL),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "NUTRELIS — Compléments Alimentaires Premium au Cameroun",
     template: "%s | NUTRELIS",
@@ -46,7 +45,7 @@ export const metadata = {
   openGraph: {
     type: "website",
     locale: "fr_CM",
-    url: URL,
+    url: SITE_URL,
     siteName: "NUTRELIS",
     title: "NUTRELIS — Compléments Alimentaires Premium au Cameroun",
     description:
@@ -68,7 +67,7 @@ export const metadata = {
     images: ["/images/astaxanthine/NUT2.png"],
   },
   alternates: {
-    canonical: URL,
+    canonical: SITE_URL,
   },
 };
 
@@ -76,13 +75,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="fr">
       <body className={`${dmSans.variable} ${sora.variable}`}>
-        <GoogleWrapper>
-          <AuthProvider>
-            <CartProvider>
-              {children}
-            </CartProvider>
-          </AuthProvider>
-        </GoogleWrapper>
+        <AuthProvider>
+          <CartProvider>
+            {children}
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

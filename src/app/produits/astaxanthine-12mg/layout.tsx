@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-const URL = "https://nutrelis-v76z.vercel.app";
+const SITE_URL = "https://nutrelis-v76z.vercel.app";
 
 export const metadata: Metadata = {
   title: "Astaxanthine 12mg — Antioxydant le Plus Puissant au Monde",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    url: `${URL}/produits/astaxanthine-12mg`,
+    url: `${SITE_URL}/produits/astaxanthine-12mg`,
     title: "NUTRELIS Astaxanthine 12mg — L'Antioxydant le Plus Puissant au Monde",
     description:
       "6000× plus puissante que la Vitamine C. Résultats visibles dès 2 semaines : peau lumineuse, énergie stable, protection cellulaire. Livraison partout au Cameroun.",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     images: ["/images/astaxanthine/NUT2.png"],
   },
   alternates: {
-    canonical: `${URL}/produits/astaxanthine-12mg`,
+    canonical: `${SITE_URL}/produits/astaxanthine-12mg`,
   },
 };
 
