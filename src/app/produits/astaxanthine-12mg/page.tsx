@@ -173,6 +173,8 @@ function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original
   const [mode, setMode] = useState("unique");
   const [selected, setSelected] = useState(2);
   const { ajouterArticle } = useCart();
+  const scPS = useScreenSize();
+  const isMobilePS = scPS === "mobile";
 useEffect(() => {
     const pack = packs.find(p => p.id === selected)!;
     if (onPackChange) onPackChange(
@@ -320,11 +322,11 @@ useEffect(() => {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 16,
+              gap: isMobilePS ? 10 : 16,
               background: selected === pack.id ? "#fdecea" : "#fff",
               border: `2px solid ${selected === pack.id ? "var(--asta-accent)" : "var(--asta-border)"}`,
               borderRadius: 12,
-              padding: "16px 20px",
+              padding: isMobilePS ? "12px 14px" : "16px 20px",
               cursor: "pointer",
               transition: "all 0.2s",
               position: "relative",
@@ -368,7 +370,7 @@ useEffect(() => {
             <img
               src={pack.img}
               alt={pack.label}
-              style={{ width: 56, height: 56, objectFit: "contain", flexShrink: 0 }}
+              style={{ width: isMobilePS ? 44 : 56, height: isMobilePS ? 44 : 56, objectFit: "contain", flexShrink: 0 }}
             />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 800, fontSize: 14, color: "var(--asta-text)", marginBottom: 2 }}>
@@ -397,12 +399,12 @@ useEffect(() => {
               )}
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div style={{ color: "var(--asta-accent)", fontSize: 20, fontWeight: 900, lineHeight: 1 }}>
+              <div style={{ color: "var(--asta-accent)", fontSize: isMobilePS ? 15 : 20, fontWeight: 900, lineHeight: 1 }}>
                 {(mode === "abonnement" ? pack.aboPrix : pack.prix).toLocaleString()}
-                <span style={{ fontSize: 12 }}> FCFA</span>
+                <span style={{ fontSize: 11 }}> FCFA</span>
               </div>
-              <div style={{ color: "#aaa", fontSize: 12, textDecoration: "line-through" }}>
-                {pack.ancien.toLocaleString()} FCFA
+              <div style={{ color: "#aaa", fontSize: 11, textDecoration: "line-through" }}>
+                {pack.ancien.toLocaleString()} F
               </div>
               {mode === "abonnement" && (
                 <div style={{ fontSize: 11, color: "var(--asta-gold)", fontWeight: 700 }}>
@@ -750,9 +752,9 @@ function ProductGallery() {
       </div>
 
       {/* Thumbnails en dessous */}
-      <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: "repeat(7, 1fr)", 
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: isSmallGallery ? "repeat(4, 1fr)" : "repeat(7, 1fr)",
         gap: 8,
       }}>
         {images.map((img, i) => (
@@ -1057,12 +1059,15 @@ export default function Astaxanthine() {
         background: "#7D0806",
         color: "#fff",
         textAlign: "center",
-        padding: "11px 16px",
-        fontSize: 13,
+        padding: "10px 16px",
+        fontSize: isMobile ? 12 : 13,
         fontWeight: 600,
+        lineHeight: 1.5,
       }}>
-        🎉 VENTE SPÉCIALE — Achetez maintenant et économisez jusqu'à 70% aujourd'hui !
-        &nbsp;·&nbsp; Expire dans <Countdown />
+        {isMobile
+          ? <>🎉 −70% — Expire dans <Countdown /></>
+          : <>🎉 VENTE SPÉCIALE — Achetez maintenant et économisez jusqu'à 70% aujourd'hui ! &nbsp;·&nbsp; Expire dans <Countdown /></>
+        }
       </div>
 
       {/* NAVBAR */}
@@ -1087,7 +1092,7 @@ export default function Astaxanthine() {
           overflow: "hidden",
           minHeight: isSmall ? 280 : undefined,
         }}>
-          <div style={{
+          {!isMobile && <div style={{
             position: "absolute",
             width: 420,
             height: 420,
@@ -1097,8 +1102,8 @@ export default function Astaxanthine() {
             left: "50%",
             transform: "translate(-50%,-50%)",
             pointerEvents: "none",
-          }} />
-          <div style={{
+          }} />}
+          {!isMobile && <div style={{
             position: "absolute",
             width: 560,
             height: 560,
@@ -1108,35 +1113,35 @@ export default function Astaxanthine() {
             left: "50%",
             transform: "translate(-50%,-50%)",
             pointerEvents: "none",
-          }} />
+          }} />}
           <div style={{
             position: "absolute",
-            top: 40, right: 52, zIndex: 40,
-            width: 100, height: 100, borderRadius: "50%",
+            top: isMobile ? 12 : 40, right: isMobile ? 16 : 52, zIndex: 40,
+            width: isMobile ? 72 : 100, height: isMobile ? 72 : 100, borderRadius: "50%",
             background: "#fff",
             border: "3px solid var(--asta-accent)",
             display: "flex", flexDirection: "column",
             alignItems: "center", justifyContent: "center",
             boxShadow: "0 4px 16px rgba(125,8,6,0.2)",
           }}>
-            <span style={{ color: "var(--asta-accent)", fontSize: 28, fontWeight: 900, lineHeight: 1 }}>90</span>
-            <span style={{ color: "var(--asta-accent)", fontSize: 11, fontWeight: 800, letterSpacing: 0.5 }}>JOURS</span>
-            <span style={{ color: "#888", fontSize: 7, textAlign: "center", padding: "0 6px", lineHeight: 1.3 }}>
+            <span style={{ color: "var(--asta-accent)", fontSize: isMobile ? 20 : 28, fontWeight: 900, lineHeight: 1 }}>90</span>
+            <span style={{ color: "var(--asta-accent)", fontSize: isMobile ? 8 : 11, fontWeight: 800, letterSpacing: 0.5 }}>JOURS</span>
+            {!isMobile && <span style={{ color: "#888", fontSize: 7, textAlign: "center", padding: "0 6px", lineHeight: 1.3 }}>
               Satisfait ou<br />Remboursé
-            </span>
+            </span>}
           </div>
           <div style={{
             position: "absolute",
-            top: 40, left: 60, zIndex: 3,
-            width: 90, height: 90, borderRadius: "50%",
+            top: isMobile ? 12 : 40, left: isMobile ? 16 : 60, zIndex: 3,
+            width: isMobile ? 64 : 90, height: isMobile ? 64 : 90, borderRadius: "50%",
             background: "#fff",
             border: "3px solid #1db954",
             display: "flex", flexDirection: "column",
             alignItems: "center", justifyContent: "center",
             boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
           }}>
-            <span style={{ fontSize: 20 }}>🌿</span>
-            <span style={{ color: "#1a7a3c", fontSize: 9, fontWeight: 800, textAlign: "center", lineHeight: 1.3, padding: "0 6px" }}>
+            <span style={{ fontSize: isMobile ? 14 : 20 }}>🌿</span>
+            <span style={{ color: "#1a7a3c", fontSize: isMobile ? 7 : 9, fontWeight: 800, textAlign: "center", lineHeight: 1.3, padding: "0 6px" }}>
               100%<br />NATUREL
             </span>
           </div>
@@ -1144,7 +1149,7 @@ export default function Astaxanthine() {
             src="/images/astaxanthine/img_transparent.png"
             alt="NUTRELIS Astaxanthine 12mg"
             style={{
-              width: "58%",
+              width: isMobile ? "55%" : "58%",
               maxWidth: 320,
               height: "auto",
               objectFit: "contain",
@@ -1156,14 +1161,14 @@ export default function Astaxanthine() {
           />
           <div style={{
             position: "absolute",
-            bottom: 64,
-            left: 52,
+            bottom: isMobile ? 20 : 64,
+            left: isMobile ? 16 : 52,
             zIndex: 3,
             background: "var(--asta-accent)",
             color: "#fff",
             fontWeight: 900,
-            fontSize: 17,
-            padding: "8px 16px",
+            fontSize: isMobile ? 13 : 17,
+            padding: isMobile ? "5px 10px" : "8px 16px",
             borderRadius: 10,
             boxShadow: "0 4px 16px rgba(125,8,6,0.4)",
           }}>
@@ -1259,22 +1264,22 @@ export default function Astaxanthine() {
           </div>
 
           <a href="#commander" style={{
-            display: "inline-flex",
+            display: "flex",
             alignItems: "center",
             justifyContent: "center",
             background: "var(--asta-accent)",
             color: "#fff",
-            padding: "19px 52px",
+            padding: isSmall ? "16px" : "19px 52px",
             borderRadius: 10,
-            fontSize: 16,
+            fontSize: isMobile ? 14 : 16,
             fontWeight: 800,
             textDecoration: "none",
             boxShadow: "0 8px 28px rgba(125,8,6,0.35)",
             letterSpacing: 0.5,
-            width: "fit-content",
+            width: isSmall ? "100%" : "fit-content",
             fontFamily: "var(--font-sora), sans-serif",
           }}>
-            COMMANDER MAINTENANT — 70% OFF
+            {isMobile ? "COMMANDER — 70% OFF" : "COMMANDER MAINTENANT — 70% OFF"}
           </a>
 
           <div style={{
@@ -1310,8 +1315,9 @@ export default function Astaxanthine() {
               alignItems: "center",
               justifyContent: "center",
               gap: 14,
-              padding: "22px 28px",
-              borderRight: i < 2 ? "1px solid rgba(255,255,255,0.2)" : "none",
+              padding: isMobile ? "14px 16px" : "22px 28px",
+              borderRight: (!isMobile && i < 2) ? "1px solid rgba(255,255,255,0.2)" : "none",
+              borderBottom: (isMobile && i < 2) ? "1px solid rgba(255,255,255,0.2)" : "none",
             }}>
               <div style={{
                 width: 44,
@@ -2008,13 +2014,15 @@ export default function Astaxanthine() {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 32 : 60, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 24 : 60, alignItems: "start" }}>
 
-            {/* Gauche — Galerie images */}
-            <ProductGallery />
+            {/* Gauche — Galerie images (2e sur mobile) */}
+            <div style={{ order: isSmall ? 2 : 1 }}>
+              <ProductGallery />
+            </div>
 
-            {/* Droite — Sélecteur de pack */}
-            <div>
+            {/* Droite — Sélecteur de pack (1er sur mobile) */}
+            <div style={{ order: isSmall ? 1 : 2 }}>
               {/* Note */}
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <span style={{ color: "#f5a623", fontSize: 16 }}>★★★★★</span>
