@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY!);
+}
 
 interface CartItem {
   nom: string;
@@ -181,7 +183,7 @@ export async function POST(req: NextRequest) {
 </html>
     `;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from: "NUTRELIS <onboarding@resend.dev>",
       to: [destinataire],
       subject: `✅ Nouvelle commande — ${prenom} ${nom} (${email || telephone})`,

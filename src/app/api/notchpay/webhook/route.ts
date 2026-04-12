@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY!);
+}
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL!;
 const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!;
 
@@ -143,7 +145,7 @@ async function envoyerEmail({
 </td></tr></table>
 </body></html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: "NUTRELIS <onboarding@resend.dev>",
     to: [destinataire],
     subject: `✅ Nouvelle commande — ${prenom} ${nom} (${(total).toLocaleString("fr-FR")} FCFA)`,
