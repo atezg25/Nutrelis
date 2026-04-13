@@ -381,7 +381,12 @@ export default function Checkout() {
                 disabled={!modePaiement || modePaiement === "carte" || chargement}
                 style={{ flex: 2, background: modePaiement && modePaiement !== "carte" ? "#7D0806" : "#ccc", color: "#fff", border: "none", padding: "16px", borderRadius: 12, fontSize: isMobile ? 13 : 15, fontWeight: 900, cursor: "pointer", fontFamily: "var(--font-sora), sans-serif" }}
               >
-                {chargement ? `⏳ ${t("checkout.redirecting")}` : t("checkout.confirmPay")}
+                {chargement ? (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ width: 18, height: 18, border: "3px solid rgba(255,255,255,0.3)", borderTop: "3px solid #fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.8s linear infinite" }} />
+                    {t("checkout.redirecting")}
+                  </span>
+                ) : t("checkout.confirmPay")}
               </button>
             </div>
           </div>
