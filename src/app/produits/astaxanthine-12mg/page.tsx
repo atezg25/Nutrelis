@@ -2383,11 +2383,11 @@ export default function Astaxanthine() {
               </div>
             ))}
           </div>
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 24, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 8 : 0 }}>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 24, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "center" : "space-between", alignItems: "center", gap: isMobile ? 6 : 0, textAlign: isMobile ? "center" : undefined }}>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: isMobile ? 11 : 13 }}>
               {t("product.footerRights")}
             </p>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: isMobile ? 11 : 13 }}>
               {t("product.footerDelivery")}
             </p>
           </div>

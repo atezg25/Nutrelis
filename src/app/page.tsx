@@ -401,8 +401,9 @@ export default function Homepage() {
               </div>
             ))}
           </div>
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 18, textAlign: "center" }}>
-            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>{t("home.footerCopyright")}</p>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 18, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "center" : "space-between", alignItems: "center", gap: isMobile ? 6 : 0, textAlign: isMobile ? "center" : undefined }}>
+            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>{t("home.footerRights")}</p>
+            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>{t("home.footerDelivery")}</p>
           </div>
         </div>
       </footer>
