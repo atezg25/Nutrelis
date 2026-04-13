@@ -2404,8 +2404,8 @@ export default function Astaxanthine() {
               { title: t("product.footerService"), links: [
                 { label: t("product.footerFaq"), href: "/faq" },
                 { label: t("product.footerShipping"), href: "/livraison" },
-                { label: t("product.footerRefunds"), href: "/livraison" },
-                { label: t("product.footerTerms"), href: "/livraison" },
+                { label: t("product.footerRefunds"), href: "/retours" },
+                { label: t("product.footerTerms"), href: "/cgv" },
               ]},
             ].map((col, i) => (
               <div key={i}>
