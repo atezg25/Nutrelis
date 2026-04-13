@@ -118,13 +118,15 @@ export default function Checkout() {
           items,
           total: totalPrix,
         }));
+        // Ne pas couper le spinner — la redirection peut prendre quelques secondes
         window.location.href = data.authorization_url;
+        return;
       } else {
         setErreur(data.error || t("common.error"));
+        setChargement(false);
       }
     } catch {
       setErreur(t("common.error"));
-    } finally {
       setChargement(false);
     }
   };
