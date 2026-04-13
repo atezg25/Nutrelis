@@ -1203,7 +1203,7 @@ export default function Astaxanthine() {
           </div>
 
           <h1 style={{
-            fontSize: "clamp(1.9rem, 2.8vw, 2.9rem)",
+            fontSize: isMobile ? "1.6rem" : isSmall ? "2.2rem" : "clamp(2.4rem, 3.5vw, 2.9rem)",
             fontWeight: 800,
             lineHeight: 1.15,
             marginBottom: 18,
@@ -1380,7 +1380,7 @@ export default function Astaxanthine() {
           <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 11 : 13, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
             ★★★★★ {t("product.rated")} | {t("product.approvedBy")} 12 000+ {t("product.clients")}
           </p>
-          <h2 style={{ fontSize: isMobile ? "1.25rem" : "clamp(1.6rem, 2.5vw, 2.2rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: isMobile ? 24 : 40 }}>
+          <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 2.5vw, 2.2rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: isMobile ? 24 : 40 }}>
             {t("product.discoverTitle")}
           </h2>
 
@@ -1492,7 +1492,7 @@ export default function Astaxanthine() {
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
               {t("product.reviewsTag")}
             </p>
-            <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
+            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
               {t("product.reviewsTitle")}{" "}
               <span style={{ color: "var(--asta-accent)" }}>{t("product.reviewsHighlight")}</span>
             </h2>
@@ -1558,7 +1558,7 @@ export default function Astaxanthine() {
             <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
               {t("product.whyTag")}
             </p>
-            <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", color: "#fff" }}>
+            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", color: "#fff" }}>
               {t("product.whyTitle")}
             </h2>
           </div>
@@ -1592,7 +1592,7 @@ export default function Astaxanthine() {
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
               {t("product.fiveReasonsTag")}
             </p>
-            <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
+            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
               {t("product.fiveReasonsTitle")}
             </h2>
           </div>
@@ -1633,7 +1633,7 @@ export default function Astaxanthine() {
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
               {t("product.videoTestimonials")}
             </p>
-            <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
+            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
               {t("product.trueStoriesTitle")}{" "}
               <span style={{ color: "var(--asta-accent)" }}>{t("product.trueStoriesHighlight")}</span>
             </h2>
@@ -1740,7 +1740,7 @@ export default function Astaxanthine() {
           <h2 style={{
             textAlign: "center",
             color: "#fff",
-            fontSize: "clamp(1.6rem, 2.5vw, 2.2rem)",
+            fontSize: isMobile ? "1.2rem" : isSmall ? "1.5rem" : "clamp(1.6rem, 2.5vw, 2.2rem)",
             fontWeight: 800,
             fontFamily: "var(--font-sora), sans-serif",
             marginBottom: 48,
@@ -1862,7 +1862,7 @@ export default function Astaxanthine() {
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
               {t("product.statsTag")}
             </p>
-            <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: 16 }}>
+            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: 16 }}>
               {t("product.statsTitle")}
             </h2>
             <p style={{ color: "var(--asta-text2)", fontSize: 15 }}>
@@ -1940,7 +1940,7 @@ export default function Astaxanthine() {
           <div>
             <h2 style={{
               fontFamily: "var(--font-sora), sans-serif",
-              fontSize: "clamp(1.4rem, 2.2vw, 1.9rem)",
+              fontSize: isMobile ? "1.15rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2.2vw, 1.9rem)",
               fontWeight: 800,
               marginBottom: 32,
               lineHeight: 1.2,
@@ -1995,7 +1995,7 @@ export default function Astaxanthine() {
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
               {t("product.orderNow")}
             </p>
-            <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: 12 }}>
+            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: 12 }}>
               {t("product.chooseFormula")}
             </h2>
             <p style={{ color: "var(--asta-text2)", fontSize: 15 }}>
@@ -2116,7 +2116,7 @@ export default function Astaxanthine() {
               </div>
               <h2 style={{
                 fontFamily: "var(--font-sora), sans-serif",
-                fontSize: "clamp(1.4rem, 2vw, 1.8rem)",
+                fontSize: isMobile ? "1.15rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2vw, 1.8rem)",
                 fontWeight: 800, color: "var(--asta-accent)",
                 lineHeight: 1.3,
               }}>
@@ -2232,7 +2232,7 @@ export default function Astaxanthine() {
             </p>
             <h2 style={{
               fontFamily: "var(--font-sora), sans-serif",
-              fontSize: "2rem", fontWeight: 800, marginBottom: 20,
+              fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "2rem", fontWeight: 800, marginBottom: isMobile ? 14 : 20,
             }}>
               {t("product.guarantee")}
             </h2>
@@ -2282,7 +2282,7 @@ export default function Astaxanthine() {
           <div style={{ textAlign: "center", marginBottom: 52 }}>
             <h2 style={{
               fontFamily: "var(--font-sora), sans-serif",
-              fontSize: "clamp(1.4rem, 2vw, 1.8rem)",
+              fontSize: isMobile ? "1.15rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2vw, 1.8rem)",
               fontWeight: 800, color: "#fff",
               letterSpacing: 4,
             }}>

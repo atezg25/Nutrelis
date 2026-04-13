@@ -161,7 +161,7 @@ export default function Homepage() {
 
               <h1 style={{
                 fontFamily: "var(--font-sora), sans-serif",
-                fontSize: isMobile ? "1.75rem" : isTablet ? "2.4rem" : "clamp(2.4rem, 4vw, 3.8rem)",
+                fontSize: isMobile ? "1.6rem" : isTablet ? "2.2rem" : "clamp(2.4rem, 4vw, 3.8rem)",
                 fontWeight: 900, lineHeight: 1.15,
                 marginBottom: 18, letterSpacing: -0.5,
               }}>
@@ -231,7 +231,7 @@ export default function Homepage() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 36 : 56 }}>
             <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("home.productsTag")}</p>
-            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.4rem" : isTablet ? "1.8rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800 }}>
+            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isTablet ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800 }}>
               {t("home.scienceNature")}
             </h2>
           </div>
@@ -294,7 +294,7 @@ export default function Homepage() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 48 }}>
             <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("home.philosophyTag")}</p>
-            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.4rem" : isTablet ? "1.8rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800 }}>
+            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isTablet ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800 }}>
               {t("home.whyChoose")}
             </h2>
           </div>
@@ -320,7 +320,7 @@ export default function Homepage() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 48 }}>
             <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("home.testimonialsTag")}</p>
-            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.4rem" : isTablet ? "1.8rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800 }}>
+            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isTablet ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800 }}>
               {t("home.transformedHealth")}
             </h2>
           </div>
@@ -355,7 +355,7 @@ export default function Homepage() {
       <section style={{ padding: `${py} ${px}`, background: "radial-gradient(ellipse at 50% 50%, rgba(29,185,84,0.12) 0%, transparent 70%)", textAlign: "center", borderTop: "1px solid rgba(29,185,84,0.1)" }}>
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
           <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("home.startToday")}</p>
-          <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.6rem" : isTablet ? "2rem" : "clamp(2rem, 3.5vw, 3rem)", fontWeight: 900, marginBottom: 20, lineHeight: 1.2 }}>
+          <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.5rem" : isTablet ? "1.8rem" : "clamp(2rem, 3vw, 2.8rem)", fontWeight: 900, marginBottom: 20, lineHeight: 1.2 }}>
             {t("home.transformHealth")}
           </h2>
           <p style={{ color: "rgba(255,255,255,0.6)", fontSize: isMobile ? 14 : 17, lineHeight: 1.8, marginBottom: 32 }}>
