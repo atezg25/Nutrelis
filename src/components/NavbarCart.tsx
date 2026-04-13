@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useScreenSize } from "@/hooks/useIsMobile";
 
 interface NavbarCartProps {
   dark?: boolean; // true = fond sombre (blanc), false = fond clair (bordeaux)
@@ -10,16 +11,19 @@ interface NavbarCartProps {
 export default function NavbarCart({ dark = true }: NavbarCartProps) {
   const { totalItems } = useCart();
   const { customer } = useAuth();
+  const isMobile = useScreenSize() === "mobile";
 
   const color = dark ? "#fff" : "#7D0806";
   const borderColor = dark ? "rgba(255,255,255,0.2)" : "rgba(125,8,6,0.2)";
   const borderHover = dark ? "rgba(255,255,255,0.6)" : "rgba(125,8,6,0.6)";
 
+  const size = isMobile ? 36 : 42;
+
   const btnStyle = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    height: 42,
+    height: size,
     borderRadius: 10,
     border: `1.5px solid ${borderColor}`,
     textDecoration: "none",
@@ -27,23 +31,24 @@ export default function NavbarCart({ dark = true }: NavbarCartProps) {
     color,
     fontSize: 13,
     fontWeight: 700,
-    padding: "0 12px",
-    gap: 8,
+    padding: isMobile ? 0 : "0 12px",
+    gap: isMobile ? 0 : 8,
+    width: isMobile ? size : undefined,
   } as React.CSSProperties;
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 10 }}>
 
       {/* Lien Mon compte */}
       {customer ? (
-        <Link href="/compte" style={btnStyle}
+        <Link href="/compte" style={isMobile ? { ...btnStyle, width: size, padding: 0 } : btnStyle}
           onMouseEnter={e => e.currentTarget.style.borderColor = borderHover}
           onMouseLeave={e => e.currentTarget.style.borderColor = borderColor}
         >
-          <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#7D0806", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 900, color: "#fff", flexShrink: 0 }}>
+          <div style={{ width: isMobile ? 22 : 26, height: isMobile ? 22 : 26, borderRadius: "50%", background: "#7D0806", display: "flex", alignItems: "center", justifyContent: "center", fontSize: isMobile ? 9 : 11, fontWeight: 900, color: "#fff", flexShrink: 0 }}>
             {customer.first_name?.charAt(0)}{customer.last_name?.charAt(0)}
           </div>
-          <span>{customer.first_name}</span>
+          {!isMobile && <span>{customer.first_name}</span>}
         </Link>
       ) : (
         <Link href="/auth/connexion" style={btnStyle}
@@ -54,16 +59,16 @@ export default function NavbarCart({ dark = true }: NavbarCartProps) {
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
           </svg>
-          <span>Connexion</span>
+          {!isMobile && <span>Connexion</span>}
         </Link>
       )}
 
       {/* Icône panier */}
-      <Link href="/panier" style={{ ...btnStyle, position: "relative", width: 42, padding: 0, justifyContent: "center" }}
+      <Link href="/panier" style={{ ...btnStyle, position: "relative", width: size, padding: 0, justifyContent: "center" }}
         onMouseEnter={e => e.currentTarget.style.borderColor = borderHover}
         onMouseLeave={e => e.currentTarget.style.borderColor = borderColor}
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width={isMobile ? 18 : 20} height={isMobile ? 18 : 20} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
           <line x1="3" y1="6" x2="21" y2="6" />
           <path d="M16 10a4 4 0 01-8 0" />

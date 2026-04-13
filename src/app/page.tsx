@@ -50,13 +50,13 @@ function Navbar() {
         </div>
       )}
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 8 }}>
         {!isMobile && <LanguageSwitcher />}
         <NavbarCart />
         <Link href="/produits/astaxanthine-12mg" style={{
           background: "var(--accent)", color: "#fff",
-          padding: isMobile ? "8px 14px" : "10px 20px",
-          borderRadius: 8, fontSize: isMobile ? 12 : 14, fontWeight: 700, textDecoration: "none",
+          padding: isMobile ? "7px 10px" : "10px 20px",
+          borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 700, textDecoration: "none",
           fontFamily: "var(--font-sora), sans-serif",
           whiteSpace: "nowrap",
         }}>
