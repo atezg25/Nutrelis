@@ -1377,10 +1377,10 @@ export default function Astaxanthine() {
      {/* SECTION PRODUIT CENTRÉ */}
       <section style={{ background: "#fff", padding: `${py} ${px}` }}>
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
-          <p style={{ color: "var(--asta-gold)", fontSize: 13, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
+          <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 11 : 13, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
             ★★★★★ {t("product.rated")} | {t("product.approvedBy")} 12 000+ {t("product.clients")}
           </p>
-          <h2 style={{ fontSize: "clamp(1.6rem, 2.5vw, 2.2rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: 40 }}>
+          <h2 style={{ fontSize: isMobile ? "1.25rem" : "clamp(1.6rem, 2.5vw, 2.2rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: isMobile ? 24 : 40 }}>
             {t("product.discoverTitle")}
           </h2>
 
@@ -1388,8 +1388,8 @@ export default function Astaxanthine() {
           <div style={{
             position: "relative",
             background: "var(--asta-bg2)",
-            borderRadius: 24,
-            padding: "48px 40px 40px",
+            borderRadius: isMobile ? 16 : 24,
+            padding: isMobile ? "36px 16px 24px" : "48px 40px 40px",
             border: "1px solid var(--asta-border)",
             boxShadow: "0 8px 40px rgba(125,8,6,0.1)",
             overflow: "hidden",
@@ -1399,12 +1399,12 @@ export default function Astaxanthine() {
               position: "absolute", top: 0, left: 0,
               width: 0, height: 0,
               borderStyle: "solid",
-              borderWidth: "100px 100px 0 0",
+              borderWidth: isMobile ? "70px 70px 0 0" : "100px 100px 0 0",
               borderColor: "var(--asta-accent) transparent transparent transparent",
             }} />
             <div style={{
-              position: "absolute", top: 20, left: 4,
-              color: "#fff", fontWeight: 900, fontSize: 16,
+              position: "absolute", top: isMobile ? 13 : 20, left: isMobile ? 2 : 4,
+              color: "#fff", fontWeight: 900, fontSize: isMobile ? 12 : 16,
               transform: "rotate(-45deg)",
               fontFamily: "var(--font-sora), sans-serif",
             }}>
@@ -1413,16 +1413,16 @@ export default function Astaxanthine() {
 
             {/* Badge 90 jours */}
             <div style={{
-              position: "absolute", top: 24, right: 24,
-              width: 90, height: 90, borderRadius: "50%",
+              position: "absolute", top: isMobile ? 12 : 24, right: isMobile ? 12 : 24,
+              width: isMobile ? 60 : 90, height: isMobile ? 60 : 90, borderRadius: "50%",
               background: "linear-gradient(135deg, #c8940a, #f5c842)",
               display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center",
               boxShadow: "0 4px 16px rgba(184,134,11,0.4)",
             }}>
-              <span style={{ color: "#fff", fontSize: 7, fontWeight: 800 }}>MONEY BACK</span>
-              <span style={{ color: "#fff", fontSize: 24, fontWeight: 900, lineHeight: 1 }}>90</span>
-              <span style={{ color: "#fff", fontSize: 9, fontWeight: 900 }}>DAYS</span>
+              <span style={{ color: "#fff", fontSize: isMobile ? 5 : 7, fontWeight: 800 }}>MONEY BACK</span>
+              <span style={{ color: "#fff", fontSize: isMobile ? 16 : 24, fontWeight: 900, lineHeight: 1 }}>90</span>
+              <span style={{ color: "#fff", fontSize: isMobile ? 6 : 9, fontWeight: 900 }}>DAYS</span>
             </div>
 
             {/* Image produit */}
@@ -1430,35 +1430,35 @@ export default function Astaxanthine() {
               src="/images/astaxanthine/img_transparent.png"
               alt="NUTRELIS Astaxanthine 12mg"
               style={{
-                width: "55%", maxWidth: 280,
+                width: isMobile ? "50%" : "55%", maxWidth: isMobile ? 180 : 280,
                 height: "auto", objectFit: "contain",
                 filter: "drop-shadow(0 20px 40px rgba(125,8,6,0.2))",
-                margin: "0 auto 32px"
+                margin: isMobile ? "0 auto 20px" : "0 auto 32px",
               }}
             />
 
             {/* Info produit */}
-            <div style={{ marginBottom: 20 }}>
-              <p style={{ color: "var(--asta-text2)", fontSize: 13, marginBottom: 8 }}>
+            <div style={{ marginBottom: isMobile ? 14 : 20 }}>
+              <p style={{ color: "var(--asta-text2)", fontSize: isMobile ? 12 : 13, marginBottom: 8 }}>
                 NUTRELIS Astaxanthine 12mg — {t("product.productSubtitle")}
               </p>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
-                <span style={{ color: "var(--asta-accent)", fontSize: 36, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: isMobile ? 8 : 12, flexWrap: "wrap" }}>
+                <span style={{ color: "var(--asta-accent)", fontSize: isMobile ? 24 : 36, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>
                   15 000 FCFA
                 </span>
-                <span style={{ color: "#aaa", fontSize: 18, textDecoration: "line-through" }}>
+                <span style={{ color: "#aaa", fontSize: isMobile ? 14 : 18, textDecoration: "line-through" }}>
                   18 750 FCFA
                 </span>
               </div>
             </div>
 
             {/* Badges */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 28, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: isMobile ? 8 : 16, marginBottom: isMobile ? 20 : 28, flexWrap: "wrap" }}>
               {[t("product.badgeVegan"), t("product.badgeGlutenFree"), t("product.badgeNatural"), t("product.badgeNonGMO")].map((b, i) => (
                 <span key={i} style={{
                   background: "#fff", border: "1px solid var(--asta-border)",
-                  borderRadius: 20, padding: "5px 14px",
-                  fontSize: 12, color: "var(--asta-text2)", fontWeight: 600,
+                  borderRadius: 20, padding: isMobile ? "4px 10px" : "5px 14px",
+                  fontSize: isMobile ? 10 : 12, color: "var(--asta-text2)", fontWeight: 600,
                 }}>
                   {b}
                 </span>
@@ -1469,16 +1469,16 @@ export default function Astaxanthine() {
             <a href="#commander" style={{
               display: "block",
               background: "var(--asta-accent)", color: "#fff",
-              padding: "18px", borderRadius: 12,
-              fontSize: 17, fontWeight: 900, textDecoration: "none",
+              padding: isMobile ? "14px" : "18px", borderRadius: isMobile ? 10 : 12,
+              fontSize: isMobile ? 14 : 17, fontWeight: 900, textDecoration: "none",
               boxShadow: "0 6px 24px rgba(125,8,6,0.35)",
               fontFamily: "var(--font-sora), sans-serif",
               letterSpacing: 0.5,
             }}>
-              {t("product.ctaOrder")}
+              {isMobile ? t("product.ctaOrderShort") : t("product.ctaOrder")}
             </a>
 
-            <p style={{ color: "#aaa", fontSize: 12, marginTop: 16 }}>
+            <p style={{ color: "#aaa", fontSize: isMobile ? 11 : 12, marginTop: isMobile ? 12 : 16 }}>
               {t("common.securePaymentIcon")} &nbsp;|&nbsp; {t("product.guarantee90Full")}
             </p>
           </div>
