@@ -171,9 +171,8 @@ export default function Checkout() {
 
       {/* NAVBAR */}
       <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: `0 ${px}`, height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#060f08", fontWeight: 900, fontSize: 15 }}>N</div>
-          <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isMobile ? 16 : 20, letterSpacing: 3, color: "#f0fff4" }}>NUTRELIS</span>
+        <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
+          <img src="/images/logo-homepage.svg" alt="Nutrelis" style={{ height: isMobile ? 28 : 40, width: "auto" }} />
         </Link>
         {!isMobile && (
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>

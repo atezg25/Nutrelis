@@ -14,9 +14,8 @@ export default function Livraison() {
 
       {/* NAVBAR */}
       <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: isMobile ? "0 12px" : isSmall ? "0 24px" : "0 60px", height: isMobile ? 56 : 68, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
-        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: isMobile ? 6 : 10, flexShrink: 0 }}>
-          <div style={{ width: isMobile ? 28 : 36, height: isMobile ? 28 : 36, borderRadius: 8, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#060f08", fontWeight: 900, fontSize: isMobile ? 13 : 16, fontFamily: "var(--font-sora), sans-serif" }}>N</div>
-          <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isMobile ? 13 : isSmall ? 16 : 20, letterSpacing: isMobile ? 1 : 3, color: "#f0fff4" }}>NUTRELIS</span>
+        <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
+          <img src="/images/logo-homepage.svg" alt="Nutrelis" style={{ height: isMobile ? 28 : 40, width: "auto" }} />
         </Link>
         {!isSmall && (
           <div style={{ display: "flex", gap: 32 }}>

@@ -32,9 +32,8 @@ export default function Compte() {
 
       {/* NAVBAR */}
       <nav style={{ background: "#fff", borderBottom: "1px solid #f0e8e8", padding: "0 40px", height: 68, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 12px rgba(125,8,6,0.06)" }}>
-        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "#7D0806", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 16 }}>N</div>
-          <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 18, letterSpacing: 3, color: "#7D0806" }}>NUTRELIS</span>
+        <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
+          <img src="/images/logo-product.svg" alt="Nutrelis" style={{ height: 36, width: "auto" }} />
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <span style={{ fontSize: 14, color: "#555" }}>{t("account.hello")} <strong>{customer.first_name}</strong></span>

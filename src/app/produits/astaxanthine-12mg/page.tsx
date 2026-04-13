@@ -59,31 +59,8 @@ function Navbar() {
         alignItems: "center",
         justifyContent: "space-between",
       }}>
-        <a href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            background: "var(--asta-accent)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            fontWeight: 900,
-            fontSize: 15,
-            fontFamily: "var(--font-sora), sans-serif",
-          }}>
-            N
-          </div>
-          <span style={{
-            fontFamily: "var(--font-sora), sans-serif",
-            fontWeight: 800,
-            fontSize: isMobile ? 16 : 20,
-            letterSpacing: 3,
-            color: "var(--asta-text)",
-          }}>
-            NUTRELIS
-          </span>
+        <a href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
+          <img src="/images/logo-product.svg" alt="Nutrelis" style={{ height: isMobile ? 28 : 40, width: "auto" }} />
         </a>
         {!isSmall && (
           <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
@@ -2366,24 +2343,8 @@ export default function Astaxanthine() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : sc === "tablet" ? "1fr 1fr 1fr" : "2fr 1fr 1fr 1fr", gap: isMobile ? 24 : 48, marginBottom: 48 }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-                <div style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 8,
-                  background: "var(--asta-accent)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#fff",
-                  fontWeight: 900,
-                  fontSize: 16,
-                }}>
-                  N
-                </div>
-                <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 20, letterSpacing: 3, color: "#fff" }}>
-                  NUTRELIS
-                </span>
+              <div style={{ marginBottom: 20 }}>
+                <img src="/images/logo-homepage.svg" alt="Nutrelis" style={{ height: 36, width: "auto" }} />
               </div>
               <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, lineHeight: 1.8, marginBottom: 24, maxWidth: 280 }}>
                 {t("product.footerDesc")}

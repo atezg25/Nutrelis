@@ -31,17 +31,8 @@ function Navbar() {
       height: isMobile ? 58 : isTablet ? 64 : 70,
       display: "flex", alignItems: "center", justifyContent: "space-between",
     }}>
-      <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{
-          width: 32, height: 32, borderRadius: 8,
-          background: "var(--accent)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontWeight: 900, color: "#fff", fontSize: 15,
-          fontFamily: "var(--font-sora), sans-serif",
-        }}>N</div>
-        <span style={{ color: "#fff", fontWeight: 800, fontSize: isMobile ? 15 : 18, fontFamily: "var(--font-sora), sans-serif", letterSpacing: 1 }}>
-          NUTRELIS
-        </span>
+      <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", flexShrink: 0 }}>
+        <img src="/images/logo-homepage.svg" alt="Nutrelis" style={{ height: isMobile ? 28 : isTablet ? 34 : 40, width: "auto" }} />
       </Link>
 
       {!isSmall && (
@@ -376,9 +367,8 @@ export default function Homepage() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : isTablet ? "1fr 1fr 1fr" : "2fr 1fr 1fr 1fr", gap: isMobile ? 28 : 48, marginBottom: 36 }}>
             <div style={{ gridColumn: isMobile ? "1 / -1" : "auto" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, color: "#fff", fontSize: 15 }}>N</div>
-                <span style={{ color: "#fff", fontWeight: 800, fontSize: 17, fontFamily: "var(--font-sora), sans-serif" }}>NUTRELIS</span>
+              <div style={{ marginBottom: 14 }}>
+                <img src="/images/logo-homepage.svg" alt="Nutrelis" style={{ height: 36, width: "auto" }} />
               </div>
               <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, lineHeight: 1.8, maxWidth: 280 }}>
                 {t("home.footerShortDesc")}
