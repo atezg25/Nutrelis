@@ -1640,7 +1640,7 @@ export default function Astaxanthine() {
               <span style={{ color: "var(--asta-accent)" }}>{t("product.trueStoriesHighlight")}</span>
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 10 : 20 }}>
             {[
               { name: "VINCENT", file: "video1.mp4" },
               { name: "CHRISTIAN", file: "video2.mp4" },
@@ -1648,7 +1648,7 @@ export default function Astaxanthine() {
               { name: "ALEX", file: "video4.mp4" },
             ].map((v, i) => (
               <div key={i} style={{
-                borderRadius: 20,
+                borderRadius: isMobile ? 12 : 20,
                 overflow: "hidden",
                 border: "1px solid var(--asta-border)",
                 background: "#fff",
@@ -1656,7 +1656,7 @@ export default function Astaxanthine() {
               }}>
                 <video
                   controls
-                  style={{ width: "100%", display: "block", maxHeight: 400, objectFit: "cover", background: "#000" }}
+                  style={{ width: "100%", display: "block", maxHeight: isMobile ? 200 : 400, objectFit: "cover", background: "#000" }}
                   onPlay={(e) => {
                     const videos = document.querySelectorAll("video");
                     videos.forEach((vid) => {
@@ -1668,15 +1668,15 @@ export default function Astaxanthine() {
                 >
                   <source src={`/videos/${v.file}`} type="video/mp4" />
                 </video>
-                <div style={{ padding: "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontWeight: 800, fontSize: 14 }}>{v.name}</span>
+                <div style={{ padding: isMobile ? "8px 10px" : "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontWeight: 800, fontSize: isMobile ? 11 : 14 }}>{v.name}</span>
                   <span style={{
                     background: "#fdecea",
                     color: "var(--asta-accent)",
-                    fontSize: 10,
+                    fontSize: isMobile ? 7 : 10,
                     fontWeight: 700,
-                    letterSpacing: 1,
-                    padding: "3px 10px",
+                    letterSpacing: isMobile ? 0.5 : 1,
+                    padding: isMobile ? "2px 6px" : "3px 10px",
                     borderRadius: 10,
                   }}>
                     {t("product.clientVerified")}
