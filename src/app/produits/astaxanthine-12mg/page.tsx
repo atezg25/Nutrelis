@@ -60,7 +60,7 @@ function Navbar() {
         justifyContent: "space-between",
       }}>
         <a href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
-          <img src="/images/logo-product.svg" alt="Nutrelis" style={{ height: isMobile ? 28 : 40, width: "auto" }} />
+          <img src="/images/logo-product.png" alt="Nutrelis" style={{ height: isMobile ? 28 : 40, width: "auto" }} />
         </a>
         {!isSmall && (
           <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
@@ -2344,7 +2344,7 @@ export default function Astaxanthine() {
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : sc === "tablet" ? "1fr 1fr 1fr" : "2fr 1fr 1fr 1fr", gap: isMobile ? 24 : 48, marginBottom: 48 }}>
             <div>
               <div style={{ marginBottom: 20 }}>
-                <img src="/images/logo-homepage.svg" alt="Nutrelis" style={{ height: 36, width: "auto" }} />
+                <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: 36, width: "auto" }} />
               </div>
               <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, lineHeight: 1.8, marginBottom: 24, maxWidth: 280 }}>
                 {t("product.footerDesc")}

@@ -32,7 +32,7 @@ function Navbar() {
       display: "flex", alignItems: "center", justifyContent: "space-between",
     }}>
       <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", flexShrink: 0 }}>
-        <img src="/images/logo-homepage.svg" alt="Nutrelis" style={{ height: isMobile ? 28 : isTablet ? 34 : 40, width: "auto" }} />
+        <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: isMobile ? 28 : isTablet ? 34 : 40, width: "auto" }} />
       </Link>
 
       {!isSmall && (
@@ -368,7 +368,7 @@ export default function Homepage() {
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : isTablet ? "1fr 1fr 1fr" : "2fr 1fr 1fr 1fr", gap: isMobile ? 28 : 48, marginBottom: 36 }}>
             <div style={{ gridColumn: isMobile ? "1 / -1" : "auto" }}>
               <div style={{ marginBottom: 14 }}>
-                <img src="/images/logo-homepage.svg" alt="Nutrelis" style={{ height: 36, width: "auto" }} />
+                <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: 36, width: "auto" }} />
               </div>
               <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, lineHeight: 1.8, maxWidth: 280 }}>
                 {t("home.footerShortDesc")}

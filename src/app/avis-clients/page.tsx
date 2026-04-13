@@ -40,7 +40,7 @@ export default function AvisClients() {
       {/* NAVBAR */}
       <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: isMobile ? "0 12px" : isSmall ? "0 24px" : "0 60px", height: isMobile ? 56 : 68, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
         <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
-          <img src="/images/logo-homepage.svg" alt="Nutrelis" style={{ height: isMobile ? 28 : 40, width: "auto" }} />
+          <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: isMobile ? 28 : 40, width: "auto" }} />
         </Link>
         {!isSmall && (
           <div style={{ display: "flex", gap: 32 }}>
