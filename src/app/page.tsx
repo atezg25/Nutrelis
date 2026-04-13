@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import { useLocale } from "@/context/LocaleContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -59,6 +60,7 @@ function Navbar() {
       )}
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <LanguageSwitcher />
         <NavbarCart />
         <Link href="/produits/astaxanthine-12mg" style={{
           background: "var(--accent)", color: "#fff",

@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import { useLocale } from "@/context/LocaleContext";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Panier() {
   const { items, totalItems, totalPrix, supprimerArticle, modifierQuantite, viderPanier } = useCart();
@@ -23,7 +22,6 @@ export default function Panier() {
           <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isMobile ? 16 : 20, letterSpacing: 3, color: "#f0fff4" }}>NUTRELIS</span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <LanguageSwitcher />
           <Link href="/produits/astaxanthine-12mg" style={{ color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 12 : 14, textDecoration: "none" }}>
             ← {isMobile ? t("nav.products") : t("cart.continueShopping")}
           </Link>

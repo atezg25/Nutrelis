@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import BoutonGoogle from "@/components/BoutonGoogle";
 import { useLocale } from "@/context/LocaleContext";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Checkout() {
   const { items, totalPrix } = useCart();
