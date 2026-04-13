@@ -114,10 +114,10 @@ export default function Checkout() {
         }));
         window.location.href = data.authorization_url;
       } else {
-        setErreur(data.error || "Erreur lors de l'initialisation du paiement");
+        setErreur(data.error || t("common.error"));
       }
     } catch {
-      setErreur("Erreur réseau. Réessayez.");
+      setErreur(t("common.error"));
     } finally {
       setChargement(false);
     }
@@ -130,19 +130,19 @@ export default function Checkout() {
         <div style={{ textAlign: "center", maxWidth: 560, padding: "60px 24px" }}>
           <div style={{ fontSize: 72, marginBottom: 24 }}>🎉</div>
           <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "2rem", fontWeight: 900, marginBottom: 16, color: "#1a1a1a" }}>
-            Commande confirmée !
+            {t("checkout.orderConfirmed")}
           </h1>
           <p style={{ color: "#555", fontSize: 16, lineHeight: 1.8, marginBottom: 12 }}>
-            Merci <strong>{form.prenom} {form.nom}</strong> pour votre commande.
+            {t("success.desc")} <strong>ATEZ Express</strong> {t("success.in24h")}
           </p>
           <p style={{ color: "#555", fontSize: 15, lineHeight: 1.8, marginBottom: 36 }}>
-            Vous recevrez une confirmation par email sous peu. Votre commande sera expédiée via <strong>ATEZ Express</strong> dans les 24h.
+            {t("success.emailSent")}
           </p>
           <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 16, padding: "24px", marginBottom: 36 }}>
             {[
-              { label: "Livraison", val: "4 à 7 jours ouvrés" },
-              { label: "Adresse", val: `${form.adresse}, ${form.quartier}, ${form.ville}` },
-              { label: "Contact", val: form.telephone },
+              { label: t("cart.shipping"), val: t("shipping.standardDelay") },
+              { label: t("checkout.address").replace(" *", ""), val: `${form.adresse}, ${form.quartier}, ${form.ville}` },
+              { label: t("checkout.phone").replace(" *", ""), val: form.telephone },
             ].map((r, i) => (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: i < 2 ? "1px solid #c8e6d0" : "none", fontSize: 14 }}>
                 <span style={{ color: "#888" }}>{r.label}</span>
@@ -151,7 +151,7 @@ export default function Checkout() {
             ))}
           </div>
           <Link href="/" style={{ background: "var(--accent)", color: "#060f08", padding: "16px 40px", borderRadius: 10, fontSize: 15, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
-            Retour à l&apos;accueil →
+            {t("success.backHome")}
           </Link>
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function Checkout() {
         </Link>
         {!isMobile && (
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            {["Coordonnées", "Paiement"].map((s, i) => (
+            {[t("checkout.title"), t("checkout.paymentTitle")].map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: "50%",
@@ -184,7 +184,7 @@ export default function Checkout() {
           </div>
         )}
         <Link href="/panier" style={{ color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 12 : 14, textDecoration: "none" }}>
-          ← Panier
+          ← {t("checkout.backToCart")}
         </Link>
       </nav>
 
@@ -225,8 +225,8 @@ export default function Checkout() {
 
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 16 }}>
               {[
-                { key: "prenom", label: "Prénom *", placeholder: "Jean" },
-                { key: "nom", label: "Nom *", placeholder: "Dupont" },
+                { key: "prenom", label: t("checkout.firstName"), placeholder: t("auth.firstNamePlaceholder") },
+                { key: "nom", label: t("checkout.lastName"), placeholder: t("auth.lastNamePlaceholder") },
               ].map(f => (
                 <div key={f.key}>
                   <label style={{ display: "block", fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#333" }}>{f.label}</label>
@@ -244,9 +244,9 @@ export default function Checkout() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
               {[
-                { key: "telephone", label: "Téléphone *", placeholder: "+237 6XX XXX XXX", type: "tel" },
-                { key: "email", label: "Email", placeholder: "jean@email.com", type: "email" },
-                { key: "adresse", label: "Adresse *", placeholder: "Rue, numéro...", type: "text" },
+                { key: "telephone", label: t("checkout.phone"), placeholder: t("auth.phonePlaceholder"), type: "tel" },
+                { key: "email", label: t("checkout.email"), placeholder: t("auth.emailPlaceholder"), type: "email" },
+                { key: "adresse", label: t("checkout.address"), placeholder: t("checkout.address").replace(" *", ""), type: "text" },
               ].map(f => (
                 <div key={f.key}>
                   <label style={{ display: "block", fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#333" }}>{f.label}</label>
@@ -263,8 +263,8 @@ export default function Checkout() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 {[
-                  { key: "ville", label: "Ville *", placeholder: "Douala" },
-                  { key: "quartier", label: "Quartier", placeholder: "Akwa, Bonanjo..." },
+                  { key: "ville", label: t("checkout.city"), placeholder: "Douala" },
+                  { key: "quartier", label: t("checkout.district"), placeholder: "Akwa, Bonanjo..." },
                 ].map(f => (
                   <div key={f.key}>
                     <label style={{ display: "block", fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#333" }}>{f.label}</label>
@@ -300,9 +300,9 @@ export default function Checkout() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
               {[
-                { id: "mobile_money", label: "MTN Mobile Money", desc: "Paiement via MTN MoMo", emoji: "📱", color: "#ffcc00" },
-                { id: "orange_money", label: "Orange Money", desc: "Paiement via Orange Money", emoji: "🟠", color: "#ff6600" },
-                { id: "carte", label: "Carte bancaire", desc: "Visa, Mastercard (bientôt disponible)", emoji: "💳", color: "#1a1a2e", disabled: true },
+                { id: "mobile_money", label: t("checkout.mtnMomo"), desc: t("checkout.mtnDesc"), emoji: "📱", color: "#ffcc00" },
+                { id: "orange_money", label: t("checkout.orangeMoney"), desc: t("checkout.orangeDesc"), emoji: "🟠", color: "#ff6600" },
+                { id: "carte", label: t("checkout.card"), desc: t("checkout.cardDesc"), emoji: "💳", color: "#1a1a2e", disabled: true },
               ].map(opt => (
                 <div
                   key={opt.id}
@@ -338,7 +338,7 @@ export default function Checkout() {
             {modePaiement && modePaiement !== "carte" && (
               <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 12, padding: "20px", marginBottom: 24 }}>
                 <p style={{ fontSize: 14, color: "#333", lineHeight: 1.7, marginBottom: 8 }}>
-                  <strong>Instructions de paiement :</strong>
+                  <strong>{t("checkout.paymentInstructions")}</strong>
                 </p>
                 <ol style={{ paddingLeft: 20, fontSize: 14, color: "#555", lineHeight: 2 }}>
                   {modePaiement === "mobile_money" ? [
@@ -366,7 +366,7 @@ export default function Checkout() {
                 onClick={() => setEtape("formulaire")}
                 style={{ flex: 1, background: "#fff", color: "#555", border: "1.5px solid #ddd", padding: "16px", borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: "pointer" }}
               >
-                ← Retour
+                ← {t("common.back")}
               </button>
               <button
                 onClick={handlePaiement}
