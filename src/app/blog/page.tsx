@@ -13,10 +13,11 @@ const couleurCategorie: Record<string, string> = {
 };
 
 export default function Blog() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const screen = useScreenSize();
   const isMobile = screen === "mobile";
   const isSmall = screen === "mobile" || screen === "tablet";
+  const isFr = locale === "fr";
   const px = isMobile ? "16px" : isSmall ? "24px" : "60px";
 
   const articles = [
@@ -29,7 +30,7 @@ export default function Blog() {
       duree: t("blogPage.art1Duration"),
       img: "/images/astaxanthine/NUT2.png",
       vedette: true,
-      url: "https://examine.com/supplements/astaxanthin/",
+      url: isFr ? "https://doctonat.com/astaxanthine-bienfaits-posologies/" : "https://examine.com/supplements/astaxanthin/",
     },
     {
       slug: "peau-lumineuse-naturellement",
@@ -39,7 +40,7 @@ export default function Blog() {
       date: t("blogPage.art2Date"),
       duree: t("blogPage.art2Duration"),
       img: "/images/astaxanthine/NUT3.png",
-      url: "https://www.webmd.com/beauty/nutrients-for-healthy-skin",
+      url: isFr ? "https://propolia.com/fr/blog/top-10-des-aliments-bons-pour-la-peau-n91" : "https://www.webmd.com/beauty/nutrients-for-healthy-skin",
     },
     {
       slug: "antioxydants-comparaison",
@@ -49,7 +50,7 @@ export default function Blog() {
       date: t("blogPage.art3Date"),
       duree: t("blogPage.art3Duration"),
       img: "/images/astaxanthine/NUT4.png",
-      url: "https://www.lifeextension.com/wellness/antioxidants/astaxanthin-vs-coq10",
+      url: isFr ? "https://santecool.net/lastaxanthine-plus-puissant-que-la-vitamine-c-la-vitamine-e-et-la-coenzyme-q10/" : "https://www.lifeextension.com/wellness/antioxidants/astaxanthin-vs-coq10",
     },
     {
       slug: "complement-alimentaire-bien-choisir",
@@ -59,7 +60,7 @@ export default function Blog() {
       date: t("blogPage.art4Date"),
       duree: t("blogPage.art4Duration"),
       img: "/images/astaxanthine/NUT5.png",
-      url: "https://ods.od.nih.gov/factsheets/WYNTK-Consumer/",
+      url: isFr ? "https://www.nutripure.fr/fr/blog/comment-reconnaitre-les-complements-alimentaires-de-qualite--n22" : "https://ods.od.nih.gov/factsheets/WYNTK-Consumer/",
     },
     {
       slug: "temoignage-marie-ange",
@@ -79,7 +80,7 @@ export default function Blog() {
       date: t("blogPage.art6Date"),
       duree: t("blogPage.art6Duration"),
       img: "/images/astaxanthine/img4A.png",
-      url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7281326/",
+      url: isFr ? "https://www.echlorial.com/blog/astaxanthin-eyes/" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC7281326/",
     },
   ];
 
