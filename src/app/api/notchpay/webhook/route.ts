@@ -5,6 +5,12 @@ import { Resend } from "resend";
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY!);
 }
+
+function escapeHtml(str: string): string {
+  if (!str) return "";
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL!;
 const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!;
 
@@ -15,17 +21,20 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.text();
 
-    // --- Vérification signature Notchpay ---
+    // --- Vérification signature Notchpay (obligatoire) ---
     const signature = req.headers.get("x-notch-signature");
-    if (signature && process.env.NOTCHPAY_SECRET_KEY) {
-      const expected = crypto
-        .createHmac("sha256", process.env.NOTCHPAY_SECRET_KEY)
-        .update(body)
-        .digest("hex");
-      if (signature !== expected) {
-        console.warn("Webhook Notchpay: signature invalide");
-        return NextResponse.json({ error: "Signature invalide" }, { status: 401 });
-      }
+    const secretKey = process.env.NOTCHPAY_SECRET_KEY;
+    if (!signature || !secretKey) {
+      console.warn("Webhook Notchpay: signature ou clé secrète manquante");
+      return NextResponse.json({ error: "Signature requise" }, { status: 401 });
+    }
+    const expected = crypto
+      .createHmac("sha256", secretKey)
+      .update(body)
+      .digest("hex");
+    if (signature !== expected) {
+      console.warn("Webhook Notchpay: signature invalide");
+      return NextResponse.json({ error: "Signature invalide" }, { status: 401 });
     }
 
     const payload = JSON.parse(body);
@@ -92,8 +101,8 @@ async function envoyerEmail({
   const lignesItems = items.map((item: any) => `
     <tr>
       <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;">
-        <div style="font-weight:700;color:#1a0505;font-size:14px;">${item.nom}</div>
-        <div style="color:#888;font-size:12px;">${item.description}</div>
+        <div style="font-weight:700;color:#1a0505;font-size:14px;">${escapeHtml(item.nom)}</div>
+        <div style="color:#888;font-size:12px;">${escapeHtml(item.description)}</div>
         ${item.mode === "abonnement" ? '<div style="color:#7D0806;font-size:11px;font-weight:700;">⭐ Abonnement −15%</div>' : ""}
       </td>
       <td style="padding:12px 16px;border-bottom:1px solid #f0f0f0;text-align:center;color:#555;font-size:14px;">${item.quantite}</td>
@@ -111,7 +120,7 @@ async function envoyerEmail({
     <div style="font-size:22px;font-weight:900;letter-spacing:3px;color:#fff;margin-bottom:16px;">NUTRELIS</div>
     <div style="font-size:40px;margin-bottom:12px;">🎉</div>
     <h1 style="color:#fff;font-size:24px;font-weight:900;margin:0 0 8px;">Nouvelle commande !</h1>
-    <p style="color:rgba(255,255,255,0.8);font-size:15px;margin:0;">${prenom} ${nom} — réf. <strong style="color:#fff;">${reference}</strong></p>
+    <p style="color:rgba(255,255,255,0.8);font-size:15px;margin:0;">${escapeHtml(prenom)} ${escapeHtml(nom)} — réf. <strong style="color:#fff;">${escapeHtml(reference)}</strong></p>
   </td></tr>
   <tr><td style="padding:40px;">
     <h2 style="color:#1a0505;font-size:16px;font-weight:800;margin:0 0 16px;padding-bottom:12px;border-bottom:2px solid #f0f0f0;">📦 Commande</h2>
@@ -131,7 +140,7 @@ async function envoyerEmail({
     </table>
     <h2 style="color:#1a0505;font-size:16px;font-weight:800;margin:24px 0 16px;padding-bottom:12px;border-bottom:2px solid #f0f0f0;">🚚 Livraison</h2>
     <table width="100%" cellpadding="0" cellspacing="0">
-      ${[["Client", `${prenom} ${nom}`], ["Téléphone", telephone||"—"], ["Email", email||"—"], ["Adresse", adresse||"—"], ["Quartier", quartier||"—"], ["Ville", ville||"—"]].map(([l,v],i)=>`
+      ${[["Client", `${escapeHtml(prenom)} ${escapeHtml(nom)}`], ["Téléphone", escapeHtml(telephone)||"—"], ["Email", escapeHtml(email)||"—"], ["Adresse", escapeHtml(adresse)||"—"], ["Quartier", escapeHtml(quartier)||"—"], ["Ville", escapeHtml(ville)||"—"]].map(([l,v],i)=>`
         <tr style="background:${i%2===0?"#f9f9f9":"#fff"};">
           <td style="padding:10px 16px;font-size:13px;color:#888;width:35%;">${l}</td>
           <td style="padding:10px 16px;font-size:13px;color:#1a0505;font-weight:600;">${v}</td>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
+import { useLocale } from "@/context/LocaleContext";
 
 interface NavbarCartProps {
   dark?: boolean; // true = fond sombre (blanc), false = fond clair (bordeaux)
@@ -12,6 +13,7 @@ export default function NavbarCart({ dark = true }: NavbarCartProps) {
   const { totalItems } = useCart();
   const { customer } = useAuth();
   const isMobile = useScreenSize() === "mobile";
+  const { t } = useLocale();
 
   const color = dark ? "#fff" : "#7D0806";
   const borderColor = dark ? "rgba(255,255,255,0.2)" : "rgba(125,8,6,0.2)";
@@ -59,7 +61,7 @@ export default function NavbarCart({ dark = true }: NavbarCartProps) {
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
           </svg>
-          {!isMobile && <span>Connexion</span>}
+          {!isMobile && <span>{t("nav.login")}</span>}
         </Link>
       )}
 

@@ -163,14 +163,6 @@ function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original
   const scPS = useScreenSize();
   const isMobilePS = scPS === "mobile";
   const { t } = useLocale();
-useEffect(() => {
-    const pack = packs.find(p => p.id === selected)!;
-    if (onPackChange) onPackChange(
-      mode === "abonnement" ? pack.aboPrix : pack.prix,
-      mode === "abonnement" ? pack.prix : pack.ancien,
-      mode
-    );
-  }, []);
   const packs = [
     {
       id: 1,

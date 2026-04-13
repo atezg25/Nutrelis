@@ -45,11 +45,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
     const token = localStorage.getItem("nutrelis-token");
     if (!token) { setLoading(false); return; }
-    fetchCustomer(token).then(c => {
-      if (c) setCustomer(c);
-      else localStorage.removeItem("nutrelis-token");
-      setLoading(false);
-    });
+    fetchCustomer(token)
+      .then(c => {
+        if (c) setCustomer(c);
+        else localStorage.removeItem("nutrelis-token");
+      })
+      .catch(() => {
+        localStorage.removeItem("nutrelis-token");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const connecter = async (email: string, password: string) => {

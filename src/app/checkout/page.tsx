@@ -418,19 +418,19 @@ export default function Checkout() {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: "#555" }}>
-              <span>Sous-total</span><span>{totalPrix.toLocaleString()} FCFA</span>
+              <span>{t("cart.subtotal")}</span><span>{totalPrix.toLocaleString()} FCFA</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: "#555" }}>
-              <span>Livraison</span><span style={{ color: "var(--accent)", fontWeight: 700 }}>GRATUITE</span>
+              <span>{t("cart.shipping")}</span><span style={{ color: "var(--accent)", fontWeight: 700 }}>{t("common.freeShipping")}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 900, fontSize: 16, paddingTop: 12, borderTop: "1px solid #eee" }}>
-              <span>Total</span>
+              <span>{t("cart.total")}</span>
               <span style={{ color: "#7D0806" }}>{totalPrix.toLocaleString()} FCFA</span>
             </div>
           </div>
 
           <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 6 }}>
-            {["🔒 Paiement sécurisé", "📦 Expédition sous 24h", "↩️ Garanti 90 jours"].map((b, i) => (
+            {[t("checkout.badgeSecure"), t("checkout.badgeShipping"), t("checkout.badgeGuarantee")].map((b, i) => (
               <div key={i} style={{ fontSize: 12, color: "#888" }}>{b}</div>
             ))}
           </div>

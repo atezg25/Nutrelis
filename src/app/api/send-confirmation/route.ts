@@ -5,6 +5,11 @@ function getResend() {
   return new Resend(process.env.RESEND_API_KEY!);
 }
 
+function escapeHtml(str: string): string {
+  if (!str) return "";
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 interface CartItem {
   nom: string;
   description: string;
@@ -30,8 +35,8 @@ export async function POST(req: NextRequest) {
     const lignesItems = (items as CartItem[] || []).map((item) => `
       <tr>
         <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">
-          <div style="font-weight: 700; color: #1a0505; font-size: 14px;">${item.nom}</div>
-          <div style="color: #888; font-size: 12px; margin-top: 2px;">${item.description}</div>
+          <div style="font-weight: 700; color: #1a0505; font-size: 14px;">${escapeHtml(item.nom)}</div>
+          <div style="color: #888; font-size: 12px; margin-top: 2px;">${escapeHtml(item.description)}</div>
           ${item.mode === "abonnement" ? '<div style="color: #7D0806; font-size: 11px; font-weight: 700; margin-top: 4px;">⭐ Abonnement mensuel −15%</div>' : ""}
         </td>
         <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; text-align: center; color: #555; font-size: 14px;">
@@ -69,7 +74,7 @@ export async function POST(req: NextRequest) {
                 Commande confirmée !
               </h1>
               <p style="color: rgba(255,255,255,0.8); font-size: 15px; margin: 0;">
-                Merci pour votre confiance, <strong style="color: #fff;">${prenom} ${nom}</strong>
+                Merci pour votre confiance, <strong style="color: #fff;">${escapeHtml(prenom)} ${escapeHtml(nom)}</strong>
               </p>
             </td>
           </tr>
@@ -126,11 +131,11 @@ export async function POST(req: NextRequest) {
               </h2>
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
                 ${[
-                  ["Nom", `${prenom} ${nom}`],
-                  ["Téléphone", telephone || "—"],
-                  ["Adresse", adresse || "—"],
-                  ["Quartier", quartier || "—"],
-                  ["Ville", ville || "—"],
+                  ["Nom", `${escapeHtml(prenom)} ${escapeHtml(nom)}`],
+                  ["Téléphone", escapeHtml(telephone) || "—"],
+                  ["Adresse", escapeHtml(adresse) || "—"],
+                  ["Quartier", escapeHtml(quartier) || "—"],
+                  ["Ville", escapeHtml(ville) || "—"],
                   ["Délai estimé", "4 à 7 jours ouvrés"],
                 ].map(([label, val], i) => `
                   <tr style="background: ${i % 2 === 0 ? "#f9f9f9" : "#fff"};">

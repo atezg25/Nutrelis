@@ -447,6 +447,9 @@ const en: Record<string, any> = {
     orangeStep3: "Enter merchant code: NUTRELIS",
     orangeStep5: "Confirm with your PIN code",
     amount: "Amount",
+    badgeSecure: "🔒 Secure payment",
+    badgeShipping: "📦 Shipped within 24h",
+    badgeGuarantee: "↩️ 90-day guarantee",
   },
 
   // SUCCESS

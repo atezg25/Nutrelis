@@ -447,6 +447,9 @@ const fr: Record<string, any> = {
     orangeStep3: "Entrez le code marchand : NUTRELIS",
     orangeStep5: "Confirmez avec votre code PIN",
     amount: "Montant",
+    badgeSecure: "🔒 Paiement sécurisé",
+    badgeShipping: "📦 Expédition sous 24h",
+    badgeGuarantee: "↩️ Garanti 90 jours",
   },
 
   // SUCCÈS
