@@ -29,6 +29,7 @@ export default function Blog() {
       duree: t("blogPage.art1Duration"),
       img: "/images/astaxanthine/NUT2.png",
       vedette: true,
+      url: "https://examine.com/supplements/astaxanthin/",
     },
     {
       slug: "peau-lumineuse-naturellement",
@@ -38,6 +39,7 @@ export default function Blog() {
       date: t("blogPage.art2Date"),
       duree: t("blogPage.art2Duration"),
       img: "/images/astaxanthine/NUT3.png",
+      url: "https://www.webmd.com/beauty/nutrients-for-healthy-skin",
     },
     {
       slug: "antioxydants-comparaison",
@@ -47,6 +49,7 @@ export default function Blog() {
       date: t("blogPage.art3Date"),
       duree: t("blogPage.art3Duration"),
       img: "/images/astaxanthine/NUT4.png",
+      url: "https://www.lifeextension.com/wellness/antioxidants/astaxanthin-vs-coq10",
     },
     {
       slug: "complement-alimentaire-bien-choisir",
@@ -56,6 +59,7 @@ export default function Blog() {
       date: t("blogPage.art4Date"),
       duree: t("blogPage.art4Duration"),
       img: "/images/astaxanthine/NUT5.png",
+      url: "https://ods.od.nih.gov/factsheets/WYNTK-Consumer/",
     },
     {
       slug: "temoignage-marie-ange",
@@ -65,6 +69,7 @@ export default function Blog() {
       date: t("blogPage.art5Date"),
       duree: t("blogPage.art5Duration"),
       img: "/images/astaxanthine/Ast2.png",
+      url: "/produits/astaxanthine-12mg",
     },
     {
       slug: "astaxanthine-yeux-ecrans",
@@ -74,6 +79,7 @@ export default function Blog() {
       date: t("blogPage.art6Date"),
       duree: t("blogPage.art6Duration"),
       img: "/images/astaxanthine/img4A.png",
+      url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7281326/",
     },
   ];
 
@@ -137,9 +143,9 @@ export default function Blog() {
                 <span style={{ color: "#888", fontSize: 13 }}>{"📅 " + vedette.date}</span>
                 <span style={{ color: "#888", fontSize: 13 }}>{"⏱️ " + vedette.duree + " " + t("blogPage.readTime")}</span>
               </div>
-              <Link href={`/blog/${vedette.slug}`} style={{ background: "var(--accent)", color: "#060f08", padding: "14px 32px", borderRadius: 10, fontSize: 14, fontWeight: 800, textDecoration: "none", display: "inline-block", width: "fit-content" }}>
-                {t("blogPage.readArticle")}
-              </Link>
+              <a href={vedette.url} target={vedette.url.startsWith("/") ? undefined : "_blank"} rel={vedette.url.startsWith("/") ? undefined : "noopener noreferrer"} style={{ background: "var(--accent)", color: "#060f08", padding: "14px 32px", borderRadius: 10, fontSize: 14, fontWeight: 800, textDecoration: "none", display: "inline-block", width: "fit-content" }}>
+                {t("blogPage.readArticle")} {!vedette.url.startsWith("/") && "↗"}
+              </a>
             </div>
           </div>
         </div>
@@ -189,9 +195,9 @@ export default function Blog() {
                   <p style={{ color: "#666", fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>{art.extrait}</p>
                   <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0 }}>
                     <span style={{ color: "#aaa", fontSize: 12 }}>{"📅 " + art.date}</span>
-                    <Link href={`/blog/${art.slug}`} style={{ color: "var(--accent)", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
-                      {t("blogPage.read")}
-                    </Link>
+                    <a href={art.url} target={art.url.startsWith("/") ? undefined : "_blank"} rel={art.url.startsWith("/") ? undefined : "noopener noreferrer"} style={{ color: "var(--accent)", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
+                      {t("blogPage.read")} {!art.url.startsWith("/") && "↗"}
+                    </a>
                   </div>
                 </div>
               </div>
