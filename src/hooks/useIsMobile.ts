@@ -1,9 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
+
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
+  useIsoLayoutEffect(() => {
     const check = () => setIsMobile(window.innerWidth < breakpoint);
     check();
     window.addEventListener("resize", check);
@@ -14,30 +16,33 @@ export function useIsMobile(breakpoint = 768) {
 
 export type ScreenSize = "mobile" | "tablet" | "desktop";
 
+function detectSize(): ScreenSize {
+  const w = window.innerWidth;
+  if (w < 480) return "mobile";
+  if (w < 1024) return "tablet";
+  return "desktop";
+}
+
 // "mobile" < 480px | "tablet" 480-1024px | "desktop" > 1024px
+// Uses useLayoutEffect to set the correct size BEFORE browser paint
 export function useScreenSize(): ScreenSize {
   const [size, setSize] = useState<ScreenSize>("desktop");
-  useEffect(() => {
-    const check = () => {
-      const w = window.innerWidth;
-      if (w < 480) setSize("mobile");
-      else if (w < 1024) setSize("tablet");
-      else setSize("desktop");
-    };
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+
+  useIsoLayoutEffect(() => {
+    setSize(detectSize());
+    // Reveal content — layout is now correct
+    document.documentElement.classList.add("hydrated");
+
+    const onResize = () => setSize(detectSize());
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
+
   return size;
 }
 
-/**
- * Hook that returns true once the component has hydrated on the client.
- * Use this to prevent layout shift: wrap your page content in a div
- * with opacity 0 until hydrated.
- */
 export function useHydrated(): boolean {
   const [hydrated, setHydrated] = useState(false);
-  useEffect(() => { setHydrated(true); }, []);
+  useIsoLayoutEffect(() => { setHydrated(true); }, []);
   return hydrated;
 }
