@@ -3,6 +3,7 @@ import { useCart } from "@/context/CartContext";
 import NavbarCart from "@/components/NavbarCart";
 import { useState, useEffect, useRef } from "react";
 import { useScreenSize } from "@/hooks/useIsMobile";
+import HydrationGuard from "@/components/HydrationGuard";
 import { useLocale } from "@/context/LocaleContext";
 
 function Countdown() {
@@ -1041,7 +1042,7 @@ export default function Astaxanthine() {
   ];
 
   return (
-    <div style={{ background: "var(--asta-bg)", color: "var(--asta-text)", overflowX: "hidden" }}>
+    <HydrationGuard bg="var(--asta-bg)" style={{ color: "var(--asta-text)", overflowX: "hidden" }}>
 
       {/* BANDEAU PROMO */}
       <div style={{
@@ -2393,6 +2394,6 @@ export default function Astaxanthine() {
         </div>
       </footer>
 
-    </div>
+    </HydrationGuard>
   );
 }

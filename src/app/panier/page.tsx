@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
+import HydrationGuard from "@/components/HydrationGuard";
 import { useLocale } from "@/context/LocaleContext";
 
 export default function Panier() {
@@ -13,7 +14,7 @@ export default function Panier() {
   const px = isMobile ? "16px" : sc === "tablet" ? "28px" : "60px";
 
   return (
-    <div style={{ background: "#fff", color: "#1a1a1a", minHeight: "100vh" }}>
+    <HydrationGuard bg="#fff" style={{ color: "#1a1a1a", minHeight: "100vh" }}>
 
       {/* NAVBAR */}
       <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: `0 ${px}`, height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
@@ -187,6 +188,6 @@ export default function Panier() {
         </div>
       </footer>
 
-    </div>
+    </HydrationGuard>
   );
 }

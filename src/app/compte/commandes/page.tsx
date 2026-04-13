@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { medusa } from "@/lib/medusa";
 import { useLocale } from "@/context/LocaleContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
+import HydrationGuard from "@/components/HydrationGuard";
 
 export default function Commandes() {
   const { t } = useLocale();
@@ -34,7 +35,7 @@ export default function Commandes() {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8f9fa" }}>
+    <HydrationGuard bg="#f8f9fa" style={{ minHeight: "100vh" }}>
       <nav style={{ background: "#7D0806", padding: isMobile ? "0 16px" : "0 60px", height: isMobile ? 56 : 68, display: "flex", alignItems: "center", gap: isMobile ? 10 : 16 }}>
         <Link href="/compte" style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: isMobile ? 12 : 14 }}>{t("account.backToAccount")}</Link>
         <span style={{ color: "rgba(255,255,255,0.4)" }}>|</span>
@@ -75,6 +76,6 @@ export default function Commandes() {
           </div>
         )}
       </div>
-    </div>
+    </HydrationGuard>
   );
 }

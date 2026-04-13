@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
+import HydrationGuard from "@/components/HydrationGuard";
 import BoutonGoogle from "@/components/BoutonGoogle";
 import { useLocale } from "@/context/LocaleContext";
 
@@ -167,7 +168,7 @@ export default function Checkout() {
   }
 
   return (
-    <div style={{ background: "#f8f9fa", color: "#1a1a1a", minHeight: "100vh" }}>
+    <HydrationGuard bg="#f8f9fa" style={{ color: "#1a1a1a", minHeight: "100vh" }}>
 
       {/* NAVBAR */}
       <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: `0 ${px}`, height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -436,6 +437,6 @@ export default function Checkout() {
         </div>
 
       </div>
-    </div>
+    </HydrationGuard>
   );
 }

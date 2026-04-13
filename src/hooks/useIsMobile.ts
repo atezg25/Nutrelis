@@ -12,9 +12,11 @@ export function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
+export type ScreenSize = "mobile" | "tablet" | "desktop";
+
 // "mobile" < 480px | "tablet" 480-1024px | "desktop" > 1024px
-export function useScreenSize() {
-  const [size, setSize] = useState<"mobile" | "tablet" | "desktop">("desktop");
+export function useScreenSize(): ScreenSize {
+  const [size, setSize] = useState<ScreenSize>("desktop");
   useEffect(() => {
     const check = () => {
       const w = window.innerWidth;
@@ -27,4 +29,15 @@ export function useScreenSize() {
     return () => window.removeEventListener("resize", check);
   }, []);
   return size;
+}
+
+/**
+ * Hook that returns true once the component has hydrated on the client.
+ * Use this to prevent layout shift: wrap your page content in a div
+ * with opacity 0 until hydrated.
+ */
+export function useHydrated(): boolean {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
+  return hydrated;
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import { useLocale } from "@/context/LocaleContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import HydrationGuard from "@/components/HydrationGuard";
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -78,7 +79,7 @@ export default function Homepage() {
   const py = isMobile ? "56px" : isTablet ? "72px" : "100px";
 
   return (
-    <main style={{ background: "var(--bg-primary)", color: "#fff", overflowX: "hidden" }}>
+    <HydrationGuard bg="var(--bg-primary)" style={{ color: "#fff", overflowX: "hidden" }}>
       <Navbar />
 
       {/* Badge langue fixe — mobile uniquement */}
@@ -405,6 +406,6 @@ export default function Homepage() {
           </div>
         </div>
       </footer>
-    </main>
+    </HydrationGuard>
   );
 }

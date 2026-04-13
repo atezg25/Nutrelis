@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useLocale } from "@/context/LocaleContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
+import HydrationGuard from "@/components/HydrationGuard";
 
 export default function Compte() {
   const { t } = useLocale();
@@ -31,7 +32,7 @@ export default function Compte() {
   const initiales = `${customer.first_name?.charAt(0) || ""}${customer.last_name?.charAt(0) || ""}`.toUpperCase();
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8f5f5" }}>
+    <HydrationGuard bg="#f8f5f5" style={{ minHeight: "100vh" }}>
 
       {/* NAVBAR */}
       <nav style={{ background: "#fff", borderBottom: "1px solid #f0e8e8", padding: isMobile ? "0 16px" : "0 40px", height: isMobile ? 56 : 68, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 12px rgba(125,8,6,0.06)" }}>
@@ -100,6 +101,6 @@ export default function Compte() {
           </Link>
         </div>
       </div>
-    </div>
+    </HydrationGuard>
   );
 }

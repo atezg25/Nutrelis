@@ -3,6 +3,7 @@ import Link from "next/link";
 import NavbarCart from "@/components/NavbarCart";
 import { useLocale } from "@/context/LocaleContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
+import HydrationGuard from "@/components/HydrationGuard";
 
 const couleurCategorie: Record<string, string> = {
   Science: "#1db954",
@@ -79,7 +80,7 @@ export default function Blog() {
   const reste = articles.slice(1);
 
   return (
-    <div style={{ background: "#fff", color: "#1a1a1a", overflowX: "hidden" }}>
+    <HydrationGuard bg="#fff" style={{ color: "#1a1a1a", overflowX: "hidden" }}>
 
       {/* NAVBAR */}
       <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: isMobile ? "0 12px" : isSmall ? "0 24px" : "0 60px", height: isMobile ? 56 : 68, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
@@ -230,6 +231,6 @@ export default function Blog() {
         </div>
       </footer>
 
-    </div>
+    </HydrationGuard>
   );
 }
