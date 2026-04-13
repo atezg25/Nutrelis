@@ -436,6 +436,7 @@ const fr: Record<string, any> = {
     yourOrder: "Votre commande",
     backToCart: "Panier",
     orderConfirmed: "Commande confirmée !",
+    fillRequired: "Veuillez remplir tous les champs obligatoires (*)",
   },
 
   // SUCCÈS

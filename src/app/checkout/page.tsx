@@ -20,7 +20,7 @@ export default function Checkout() {
 
   // Pré-remplir le formulaire si connecté via Google
   useEffect(() => {
-    if (customer && !form.nom && !form.prenom) {
+    if (customer) {
       setForm(prev => ({
         ...prev,
         nom: prev.nom || customer.last_name || "",
@@ -39,8 +39,14 @@ export default function Checkout() {
   const [chargement, setChargement] = useState(false);
   const [erreur, setErreur] = useState("");
 
+  const [formErreur, setFormErreur] = useState("");
+
   const handleSubmit = () => {
-    if (!form.nom || !form.prenom || !form.telephone || !form.adresse) return;
+    if (!form.nom || !form.prenom || !form.telephone || !form.adresse) {
+      setFormErreur(t("checkout.fillRequired") || "Please fill all required fields");
+      return;
+    }
+    setFormErreur("");
     setEtape("paiement");
   };
 
@@ -280,6 +286,8 @@ export default function Checkout() {
                 ))}
               </div>
             </div>
+
+            {formErreur && <p style={{ color: "#e53e3e", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{formErreur}</p>}
 
             <button
               onClick={handleSubmit}
