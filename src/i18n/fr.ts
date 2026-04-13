@@ -437,6 +437,15 @@ const fr: Record<string, any> = {
     backToCart: "Panier",
     orderConfirmed: "Commande confirmée !",
     fillRequired: "Veuillez remplir tous les champs obligatoires (*)",
+    mtnStep1: "Composez *126# sur votre téléphone MTN",
+    mtnStep2: "Sélectionnez \"Paiement marchand\"",
+    mtnStep3: "Entrez le code marchand : NUTRELIS",
+    mtnStep5: "Confirmez avec votre code PIN",
+    orangeStep1: "Composez #144# sur votre téléphone Orange",
+    orangeStep2: "Sélectionnez \"Paiement\"",
+    orangeStep3: "Entrez le code marchand : NUTRELIS",
+    orangeStep5: "Confirmez avec votre code PIN",
+    amount: "Montant",
   },
 
   // SUCCÈS

@@ -351,19 +351,19 @@ export default function Checkout() {
                   <strong>{t("checkout.paymentInstructions")}</strong>
                 </p>
                 <ol style={{ paddingLeft: 20, fontSize: 14, color: "#555", lineHeight: 2 }}>
-                  {modePaiement === "mobile_money" ? [
-                    "Composez *126# sur votre téléphone MTN",
-                    "Sélectionnez \"Paiement marchand\"",
-                    `Entrez le code marchand : NUTRELIS`,
-                    `Montant : ${totalPrix.toLocaleString()} FCFA`,
-                    "Confirmez avec votre code PIN",
+                  {(modePaiement === "mobile_money" ? [
+                    t("checkout.mtnStep1"),
+                    t("checkout.mtnStep2"),
+                    t("checkout.mtnStep3"),
+                    `${t("checkout.amount")} : ${totalPrix.toLocaleString()} FCFA`,
+                    t("checkout.mtnStep5"),
                   ] : [
-                    "Composez #144# sur votre téléphone Orange",
-                    "Sélectionnez \"Paiement\"",
-                    `Entrez le code marchand : NUTRELIS`,
-                    `Montant : ${totalPrix.toLocaleString()} FCFA`,
-                    "Confirmez avec votre code PIN",
-                  ].map((step, i) => <li key={i}>{step}</li>)}
+                    t("checkout.orangeStep1"),
+                    t("checkout.orangeStep2"),
+                    t("checkout.orangeStep3"),
+                    `${t("checkout.amount")} : ${totalPrix.toLocaleString()} FCFA`,
+                    t("checkout.orangeStep5"),
+                  ]).map((step, i) => <li key={i}>{step}</li>)}
                 </ol>
               </div>
             )}

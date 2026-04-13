@@ -437,6 +437,15 @@ const en: Record<string, any> = {
     backToCart: "Cart",
     orderConfirmed: "Order confirmed!",
     fillRequired: "Please fill in all required fields (*)",
+    mtnStep1: "Dial *126# on your MTN phone",
+    mtnStep2: "Select \"Merchant payment\"",
+    mtnStep3: "Enter merchant code: NUTRELIS",
+    mtnStep5: "Confirm with your PIN code",
+    orangeStep1: "Dial #144# on your Orange phone",
+    orangeStep2: "Select \"Payment\"",
+    orangeStep3: "Enter merchant code: NUTRELIS",
+    orangeStep5: "Confirm with your PIN code",
+    amount: "Amount",
   },
 
   // SUCCESS
