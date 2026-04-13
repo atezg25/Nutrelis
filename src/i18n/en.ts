@@ -870,9 +870,30 @@ const en: Record<string, any> = {
 
   // RETURNS PAGE
   returns: {
-    title: "Returns",
-    desc: "This page is under construction.",
-    backHome: "← Back to home",
+    heroTag: "RETURNS & REFUNDS",
+    heroTitle: "Returns Policy",
+    heroDesc: "Your satisfaction is our top priority.",
+    guaranteeTitle: "🛡️ 90-Day Guarantee — Satisfied or Refunded",
+    guaranteeContent: "If you don't see visible improvements within 90 days of your purchase, contact our customer service. We'll refund you in full — no questions asked, no return shipping costs.",
+    hygieneTitle: "⚠️ Hygiene Policy",
+    hygieneContent: "For hygiene and food safety reasons, dietary supplements cannot be returned or exchanged outside of the 90-day guarantee. This policy complies with applicable health regulations.",
+    processTitle: "📋 How to Request a Refund",
+    step1: "Contact us by email at contact@nutrelis.bio or via WhatsApp",
+    step2: "Provide your order number and purchase date",
+    step3: "Briefly explain your experience with the product",
+    step4: "Our team processes your request within 48 hours",
+    step5: "The refund is issued via the same payment method (Mobile Money)",
+    delayTitle: "⏱️ Refund Timeline",
+    delayContent: "Once your request is approved, the refund is processed within 5 to 10 business days depending on your operator (MTN MoMo or Orange Money).",
+    damagedTitle: "���� Product Damaged on Arrival",
+    damagedContent: "If you receive a damaged or defective product, contact us within 48 hours of delivery with a photo of the product. We'll send a free replacement via ATEZ Express.",
+    contactTitle: "💬 Need Help?",
+    contactContent: "Our customer service is available Monday to Saturday to answer all your questions.",
+    contactEmail: "Email: contact@nutrelis.bio",
+    contactWhatsapp: "WhatsApp: available",
+    footerHome: "Home",
+    footerFaq: "FAQ",
+    footerContact: "Contact",
   },
 
   // AUTHENTICATION

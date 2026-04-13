@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useLocale } from "@/context/LocaleContext";
 import { useState } from "react";
 
-const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "141147213471-sr4hs2m7467k3hfh2nhfr218760ck819.apps.googleusercontent.com";
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
 
 function GoogleButton({ onSuccess }: { onSuccess?: () => void }) {
   const { connexionGoogle } = useAuth();

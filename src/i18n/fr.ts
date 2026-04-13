@@ -870,9 +870,30 @@ const fr: Record<string, any> = {
 
   // PAGE RETOURS
   returns: {
-    title: "Retours",
-    desc: "Cette page est en cours de construction.",
-    backHome: "← Retour à l'accueil",
+    heroTag: "RETOURS & REMBOURSEMENTS",
+    heroTitle: "Politique de retours",
+    heroDesc: "Votre satisfaction est notre priorité absolue.",
+    guaranteeTitle: "🛡️ Garantie 90 jours — Satisfait ou remboursé",
+    guaranteeContent: "Si vous ne constatez pas d'améliorations visibles dans les 90 jours suivant votre achat, contactez notre service client. Nous vous remboursons intégralement, sans poser de questions, sans frais de retour à votre charge.",
+    hygieneTitle: "⚠️ Politique d'hygiène",
+    hygieneContent: "Pour des raisons d'hygiène et de sécurité alimentaire, les compléments alimentaires vendus ne peuvent être ni retournés, ni échangés en dehors de la garantie 90 jours. Cette politique est conforme aux réglementations sanitaires en vigueur.",
+    processTitle: "📋 Comment demander un remboursement",
+    step1: "Contactez-nous par email à contact@nutrelis.bio ou par WhatsApp",
+    step2: "Indiquez votre numéro de commande et la date d'achat",
+    step3: "Expliquez brièvement votre expérience avec le produit",
+    step4: "Notre équipe traite votre demande sous 48 heures",
+    step5: "Le remboursement est effectué via le même moyen de paiement (Mobile Money)",
+    delayTitle: "⏱️ Délais de remboursement",
+    delayContent: "Une fois votre demande approuvée, le remboursement est effectué sous 5 à 10 jours ouvrés selon votre opérateur (MTN MoMo ou Orange Money).",
+    damagedTitle: "📦 Produit endommagé à la réception",
+    damagedContent: "Si vous recevez un produit endommagé ou défectueux, contactez-nous dans les 48 heures suivant la réception avec une photo du produit. Nous vous enverrons un remplacement sans frais via ATEZ Express.",
+    contactTitle: "💬 Besoin d'aide ?",
+    contactContent: "Notre service client est disponible du lundi au samedi pour répondre à toutes vos questions.",
+    contactEmail: "Email : contact@nutrelis.bio",
+    contactWhatsapp: "WhatsApp : disponible",
+    footerHome: "Accueil",
+    footerFaq: "FAQ",
+    footerContact: "Contact",
   },
 
   // AUTHENTIFICATION

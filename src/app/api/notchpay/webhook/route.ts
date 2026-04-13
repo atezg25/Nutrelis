@@ -14,8 +14,23 @@ function escapeHtml(str: string): string {
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL!;
 const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!;
 
-// Éviter les doublons d'emails (en mémoire, suffit pour la plupart des cas)
+// Déduplication en mémoire (protection intra-instance) + vérification Notchpay (inter-instances)
 const referencesTraitees = new Set<string>();
+
+// Vérifier le statut réel de la transaction via l'API Notchpay
+async function verifierTransactionNotchpay(reference: string): Promise<boolean> {
+  try {
+    const res = await fetch(`https://api.notchpay.co/payments/${reference}`, {
+      headers: { Authorization: process.env.NOTCHPAY_PUBLIC_KEY || "" },
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    const s = data.transaction?.status;
+    return s === "complete" || s === "completed" || s === "success";
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -58,12 +73,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true, skipped: true });
     }
 
-    // Dédoublonnage
+    // Dédoublonnage intra-instance (protection rapide)
     if (reference && referencesTraitees.has(reference)) {
-      console.log("Webhook: référence déjà traitée:", reference);
+      console.log("Webhook: référence déjà traitée (cache local):", reference);
       return NextResponse.json({ received: true, duplicate: true });
     }
-    if (reference) referencesTraitees.add(reference);
+
+    // Double vérification : confirmer le statut via l'API Notchpay
+    if (reference) {
+      const confirme = await verifierTransactionNotchpay(reference);
+      if (!confirme) {
+        console.warn("Webhook: transaction non confirmée par l'API Notchpay:", reference);
+        return NextResponse.json({ error: "Transaction non confirmée" }, { status: 400 });
+      }
+      referencesTraitees.add(reference);
+    }
 
     const metadata = transaction?.metadata || {};
     const items = (() => {
@@ -76,9 +100,9 @@ export async function POST(req: NextRequest) {
     envoyerEmail({ nom, prenom, email, telephone, adresse, ville, quartier, items, total, reference })
       .catch(e => console.error("Webhook email erreur:", e));
 
-    // --- Création commande Medusa (fire and forget) ---
+    // --- Création commande Medusa (idempotent, avec référence en metadata) ---
     if (items.length > 0) {
-      creerCommandeMedusa(items).catch(e => console.error("Webhook Medusa erreur:", e));
+      creerCommandeMedusa(items, reference).catch(e => console.error("Webhook Medusa erreur:", e));
     }
 
     return NextResponse.json({ received: true });
@@ -162,11 +186,11 @@ async function envoyerEmail({
   });
 }
 
-async function creerCommandeMedusa(items: any[]) {
+async function creerCommandeMedusa(items: any[], reference?: string) {
   const cartRes = await fetch(`${BACKEND}/store/carts`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-publishable-api-key": PUB_KEY },
-    body: JSON.stringify({ currency_code: "xaf" }),
+    body: JSON.stringify({ currency_code: "xaf", metadata: { notchpay_reference: reference || "" } }),
   });
   const cartData = await cartRes.json();
   const cartId = cartData.cart?.id;
