@@ -27,7 +27,7 @@ function Navbar() {
       background: "rgba(6,15,8,0.95)",
       backdropFilter: "blur(12px)",
       borderBottom: "1px solid rgba(29,185,84,0.1)",
-      transition: "all 0.3s",
+      transition: "background 0.3s, border-color 0.3s",
       padding: isMobile ? "0 16px" : isTablet ? "0 32px" : "0 60px",
       height: isMobile ? 58 : isTablet ? 64 : 70,
       display: "flex", alignItems: "center", justifyContent: "space-between",

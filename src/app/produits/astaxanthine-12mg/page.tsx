@@ -49,7 +49,7 @@ function Navbar() {
       borderBottom: "1px solid var(--asta-border)",
       backdropFilter: "blur(12px)",
       boxShadow: scrolled ? "0 2px 20px rgba(125,8,6,0.08)" : "none",
-      transition: "all 0.3s",
+      transition: "background 0.3s, box-shadow 0.3s, border-color 0.3s",
     }}>
       <div style={{
         maxWidth: 1280,
