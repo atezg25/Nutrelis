@@ -17,13 +17,17 @@ export default function LanguageSwitcher() {
         width: 34,
         height: 34,
         cursor: "pointer",
-        fontSize: 20,
         transition: "all 0.2s",
         padding: 0,
+        overflow: "hidden",
       }}
       title={locale === "fr" ? "Switch to English" : "Passer en Français"}
     >
-      {locale === "fr" ? "🇬🇧" : "🇫🇷"}
+      <img
+        src={locale === "fr" ? "/images/flag-en.svg" : "/images/flag-fr.svg"}
+        alt={locale === "fr" ? "English" : "Français"}
+        style={{ width: 22, height: 22, borderRadius: "50%", objectFit: "cover" }}
+      />
     </button>
   );
 }
