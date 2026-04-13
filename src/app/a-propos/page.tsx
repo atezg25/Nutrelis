@@ -46,7 +46,7 @@ export default function APropos() {
       </section>
 
       {/* MISSION */}
-      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#fff" }}>
+      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#fff", color: "#1a1a1a" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 32 : 80, alignItems: "center" }}>
           <div>
             <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("about.missionTag")}</p>
@@ -79,7 +79,7 @@ export default function APropos() {
       </section>
 
       {/* VALEURS */}
-      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#f0faf2" }}>
+      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#f0faf2", color: "#1a1a1a" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 64 }}>
             <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("about.valuesTag")}</p>
@@ -105,7 +105,7 @@ export default function APropos() {
       </section>
 
       {/* FONDATEUR */}
-      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#fff" }}>
+      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#fff", color: "#1a1a1a" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
           <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("about.founderTag")}</p>
           <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.6rem, 2.5vw, 2.2rem)", fontWeight: 800, marginBottom: isMobile ? 24 : 40 }}>{t("about.founderTitle")}</h2>

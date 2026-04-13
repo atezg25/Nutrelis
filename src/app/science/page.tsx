@@ -46,7 +46,7 @@ export default function Science() {
       </section>
 
       {/* QU'EST-CE QUE L'ASTAXANTHINE */}
-      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#fff" }}>
+      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#fff", color: "#1a1a1a" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 64 }}>
             <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("sciencePage.basicsTag")}</p>
@@ -73,7 +73,7 @@ export default function Science() {
       </section>
 
       {/* MÉCANISME D'ACTION */}
-      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#f0faf2" }}>
+      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#f0faf2", color: "#1a1a1a" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 64 }}>
             <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("sciencePage.mechanismTag")}</p>
@@ -96,7 +96,7 @@ export default function Science() {
       </section>
 
       {/* BÉNÉFICES CLINIQUES */}
-      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#fff" }}>
+      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#fff", color: "#1a1a1a" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 64 }}>
             <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("sciencePage.benefitsTag")}</p>
@@ -125,7 +125,7 @@ export default function Science() {
       </section>
 
       {/* POURQUOI 12MG */}
-      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#f0faf2" }}>
+      <section style={{ padding: `${isMobile ? "48px" : isSmall ? "64px" : "96px"} ${px}`, background: "#f0faf2", color: "#1a1a1a" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
           <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("sciencePage.dosageTag")}</p>
           <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, marginBottom: isMobile ? 16 : 24 }}>{t("sciencePage.dosageTitle")}</h2>
