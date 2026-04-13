@@ -2,7 +2,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import NavbarCart from "@/components/NavbarCart";
+import { useLocale } from "@/context/LocaleContext";
+
 export default function Contact() {
+  const { t } = useLocale();
   const [sent, setSent] = useState(false);
   const [form, setForm] = useState({ nom: "", email: "", sujet: "", message: "" });
 
@@ -16,26 +19,26 @@ export default function Contact() {
           <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 20, letterSpacing: 3, color: "#f0fff4" }}>NUTRELIS</span>
         </Link>
         <div style={{ display: "flex", gap: 32 }}>
-          {[{ label: "Produits", href: "/produits/astaxanthine-12mg" }, { label: "Science", href: "/science" }, { label: "FAQ", href: "/faq" }].map(item => (
-            <Link key={item.label} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
+          {[{ label: t("nav.products"), href: "/produits/astaxanthine-12mg" }, { label: t("nav.science"), href: "/science" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
+            <Link key={item.href} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-  <NavbarCart />
-  <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: "10px 24px", borderRadius: 8, fontSize: 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
-    Commander →
-  </Link>
-</div>
+          <NavbarCart />
+          <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: "10px 24px", borderRadius: 8, fontSize: 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
+            {t("nav.orderArrow")}
+          </Link>
+        </div>
       </nav>
 
       {/* HERO */}
       <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: "72px 60px", textAlign: "center" }}>
-        <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>CONTACTEZ-NOUS</p>
+        <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("contactPage.heroTag")}</p>
         <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
-          Une question ?{" "}
-          <span style={{ color: "var(--accent)" }}>On est là.</span>
+          {t("contactPage.heroTitle1")}
+          <span style={{ color: "var(--accent)" }}>{t("contactPage.heroTitleHighlight")}</span>
         </h1>
-        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 16 }}>Notre équipe répond en moins de 24 heures</p>
+        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 16 }}>{t("contactPage.heroDesc")}</p>
       </section>
 
       {/* CONTENU */}
@@ -44,12 +47,12 @@ export default function Contact() {
 
           {/* Infos contact */}
           <div>
-            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.6rem", fontWeight: 800, marginBottom: 32 }}>Nos coordonnées</h2>
+            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.6rem", fontWeight: 800, marginBottom: 32 }}>{t("contactPage.infoTitle")}</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               {[
-                { icon: "📧", titre: "Email", val: "contact@nutrelis.com", desc: "Réponse sous 24h ouvrées" },
-                { icon: "📱", titre: "WhatsApp", val: "+237 6XX XXX XXX", desc: "Lun–Ven, 8h–18h (heure Cameroun)" },
-                { icon: "📍", titre: "Siège", val: "Douala, Cameroun", desc: "Livraison via ATEZ Express" },
+                { icon: "📧", titre: t("contactPage.emailTitle"), val: t("contactPage.emailVal"), desc: t("contactPage.emailDesc") },
+                { icon: "📱", titre: t("contactPage.whatsappTitle"), val: t("contactPage.whatsappVal"), desc: t("contactPage.whatsappDesc") },
+                { icon: "📍", titre: t("contactPage.addressTitle"), val: t("contactPage.addressVal"), desc: t("contactPage.addressDesc") },
               ].map((c, i) => (
                 <div key={i} style={{ display: "flex", gap: 16, padding: "20px", background: "#f8fffe", borderRadius: 14, border: "1px solid #c8e6d0" }}>
                   <span style={{ fontSize: 28, flexShrink: 0 }}>{c.icon}</span>
@@ -64,13 +67,13 @@ export default function Contact() {
 
             <div style={{ marginTop: 36, background: "#f0faf2", borderRadius: 16, padding: 28, border: "1px solid #c8e6d0" }}>
               <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 15, marginBottom: 12 }}>
-                Questions fréquentes
+                {t("contactPage.faqBoxTitle")}
               </h3>
               <p style={{ color: "#555", fontSize: 14, lineHeight: 1.7, marginBottom: 16 }}>
-                Avant de nous écrire, consultez notre FAQ — la réponse à votre question s'y trouve peut-être déjà.
+                {t("contactPage.faqBoxDesc")}
               </p>
               <Link href="/faq" style={{ color: "var(--accent)", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
-                Voir la FAQ →
+                {t("contactPage.faqBoxLink")}
               </Link>
             </div>
           </div>
@@ -78,31 +81,31 @@ export default function Contact() {
           {/* Formulaire */}
           <div>
             <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.6rem", fontWeight: 800, marginBottom: 32 }}>
-              Envoyez-nous un message
+              {t("contactPage.formTitle")}
             </h2>
 
             {sent ? (
               <div style={{ background: "#e8f5eb", border: "1.5px solid var(--accent)", borderRadius: 20, padding: "56px", textAlign: "center" }}>
                 <div style={{ fontSize: 56, marginBottom: 20 }}>✅</div>
                 <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: "1.3rem", marginBottom: 12 }}>
-                  Message envoyé !
+                  {t("contactPage.sentTitle")}
                 </h3>
                 <p style={{ color: "#555", fontSize: 15, marginBottom: 28 }}>
-                  Nous vous répondrons dans les 24 heures ouvrées.
+                  {t("contactPage.sentDesc")}
                 </p>
                 <button
                   onClick={() => { setSent(false); setForm({ nom: "", email: "", sujet: "", message: "" }); }}
                   style={{ background: "var(--accent)", color: "#060f08", border: "none", padding: "12px 28px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
                 >
-                  Envoyer un autre message
+                  {t("contactPage.sendAnother")}
                 </button>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   {[
-                    { key: "nom", label: "Nom complet *", type: "text", placeholder: "Jean Dupont" },
-                    { key: "email", label: "Adresse email *", type: "email", placeholder: "jean@email.com" },
+                    { key: "nom", label: t("contactPage.nameLabel"), type: "text", placeholder: t("contactPage.namePlaceholder") },
+                    { key: "email", label: t("contactPage.emailLabel"), type: "email", placeholder: t("contactPage.emailPlaceholder") },
                   ].map(field => (
                     <div key={field.key}>
                       <label style={{ display: "block", fontWeight: 600, fontSize: 14, marginBottom: 8, color: "#333" }}>{field.label}</label>
@@ -120,10 +123,10 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontWeight: 600, fontSize: 14, marginBottom: 8, color: "#333" }}>Sujet</label>
+                  <label style={{ display: "block", fontWeight: 600, fontSize: 14, marginBottom: 8, color: "#333" }}>{t("contactPage.subjectLabel")}</label>
                   <input
                     type="text"
-                    placeholder="Ex : Question sur la livraison"
+                    placeholder={t("contactPage.subjectPlaceholder")}
                     value={form.sujet}
                     onChange={e => setForm({ ...form, sujet: e.target.value })}
                     style={{ width: "100%", padding: "13px 16px", borderRadius: 10, border: "1.5px solid #ddd", fontSize: 15, outline: "none", boxSizing: "border-box" }}
@@ -133,9 +136,9 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontWeight: 600, fontSize: 14, marginBottom: 8, color: "#333" }}>Message *</label>
+                  <label style={{ display: "block", fontWeight: 600, fontSize: 14, marginBottom: 8, color: "#333" }}>{t("contactPage.messageLabel")}</label>
                   <textarea
-                    placeholder="Décrivez votre question ou votre demande..."
+                    placeholder={t("contactPage.messagePlaceholder")}
                     rows={6}
                     value={form.message}
                     onChange={e => setForm({ ...form, message: e.target.value })}
@@ -149,11 +152,11 @@ export default function Contact() {
                   onClick={() => { if (form.nom && form.email && form.message) setSent(true); }}
                   style={{ background: "var(--accent)", color: "#060f08", border: "none", padding: "18px", borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: "pointer", fontFamily: "var(--font-sora), sans-serif", letterSpacing: 0.3 }}
                 >
-                  Envoyer le message →
+                  {t("contactPage.sendBtn")}
                 </button>
 
                 <p style={{ color: "#aaa", fontSize: 12, textAlign: "center" }}>
-                  En envoyant ce formulaire, vous acceptez notre politique de confidentialité.
+                  {t("contactPage.privacyNote")}
                 </p>
               </div>
             )}
@@ -163,10 +166,10 @@ export default function Contact() {
 
       <footer style={{ background: "#060f08", padding: "40px 60px", borderTop: "1px solid #1a3522" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>© 2026 NUTRELIS — Tous droits réservés</span>
+          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>{t("home.footerRights")}</span>
           <div style={{ display: "flex", gap: 24 }}>
-            {[{ label: "Accueil", href: "/" }, { label: "FAQ", href: "/faq" }, { label: "Livraison", href: "/livraison" }].map(l => (
-              <Link key={l.label} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>{l.label}</Link>
+            {[{ label: t("contactPage.footerHome"), href: "/" }, { label: t("contactPage.footerFaq"), href: "/faq" }, { label: t("contactPage.footerShipping"), href: "/livraison" }].map(l => (
+              <Link key={l.href} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>{l.label}</Link>
             ))}
           </div>
         </div>

@@ -1,63 +1,7 @@
 "use client";
 import Link from "next/link";
 import NavbarCart from "@/components/NavbarCart";
-const articles = [
-  {
-    slug: "astaxanthine-guide-complet",
-    categorie: "Science",
-    titre: "Guide complet sur l'Astaxanthine : tout ce que vous devez savoir",
-    extrait: "L'astaxanthine est l'antioxydant le plus puissant de la nature. Découvrez son mode d'action, ses bénéfices prouvés et pourquoi le dosage est crucial pour des résultats réels.",
-    date: "15 Mars 2026",
-    duree: "8 min",
-    img: "/images/astaxanthine/NUT2.png",
-    vedette: true,
-  },
-  {
-    slug: "peau-lumineuse-naturellement",
-    categorie: "Beauté",
-    titre: "5 conseils pour une peau lumineuse naturellement",
-    extrait: "La peau éclatante ne vient pas d'une crème miracle. Elle vient de l'intérieur. Voici comment nourrir votre peau en profondeur avec les bons actifs naturels.",
-    date: "8 Mars 2026",
-    duree: "5 min",
-    img: "/images/astaxanthine/NUT3.png",
-  },
-  {
-    slug: "antioxydants-comparaison",
-    categorie: "Science",
-    titre: "Vitamine C vs CoQ10 vs Astaxanthine : lequel choisir ?",
-    extrait: "Tous les antioxydants ne se valent pas. Comparaison complète des mécanismes, des preuves cliniques et des cas d'usage de chaque antioxydant majeur.",
-    date: "1 Mars 2026",
-    duree: "7 min",
-    img: "/images/astaxanthine/NUT4.png",
-  },
-  {
-    slug: "complement-alimentaire-bien-choisir",
-    categorie: "Santé",
-    titre: "Comment bien choisir un complément alimentaire : 6 critères essentiels",
-    extrait: "Le marché des compléments est saturé de produits sous-dosés et synthétiques. Voici les 6 questions à poser avant tout achat pour ne pas jeter votre argent.",
-    date: "22 Février 2026",
-    duree: "6 min",
-    img: "/images/astaxanthine/NUT5.png",
-  },
-  {
-    slug: "temoignage-marie-ange",
-    categorie: "Témoignage",
-    titre: "\"Ma peau n'a jamais été aussi lumineuse\" — Le témoignage de Marie Ange",
-    extrait: "Après 3 semaines d'Astaxanthine NUTRELIS, Marie Ange partage sa transformation. De la fatigue chronique à un teint éclatant — son histoire complète.",
-    date: "15 Février 2026",
-    duree: "3 min",
-    img: "/images/astaxanthine/Ast2.png",
-  },
-  {
-    slug: "astaxanthine-yeux-ecrans",
-    categorie: "Santé",
-    titre: "Fatigue oculaire et écrans : pourquoi l'astaxanthine est la réponse naturelle",
-    extrait: "8h par jour sur écran, c'est la moyenne des professionnels africains. Découvrez comment l'astaxanthine protège vos yeux de la lumière bleue et réduit la fatigue visuelle.",
-    date: "5 Février 2026",
-    duree: "5 min",
-    img: "/images/astaxanthine/img4A.png",
-  },
-];
+import { useLocale } from "@/context/LocaleContext";
 
 const couleurCategorie: Record<string, string> = {
   Science: "#1db954",
@@ -67,6 +11,66 @@ const couleurCategorie: Record<string, string> = {
 };
 
 export default function Blog() {
+  const { t } = useLocale();
+
+  const articles = [
+    {
+      slug: "astaxanthine-guide-complet",
+      categorie: "Science",
+      titre: t("blogPage.art1Title"),
+      extrait: t("blogPage.art1Excerpt"),
+      date: t("blogPage.art1Date"),
+      duree: t("blogPage.art1Duration"),
+      img: "/images/astaxanthine/NUT2.png",
+      vedette: true,
+    },
+    {
+      slug: "peau-lumineuse-naturellement",
+      categorie: "Beauté",
+      titre: t("blogPage.art2Title"),
+      extrait: t("blogPage.art2Excerpt"),
+      date: t("blogPage.art2Date"),
+      duree: t("blogPage.art2Duration"),
+      img: "/images/astaxanthine/NUT3.png",
+    },
+    {
+      slug: "antioxydants-comparaison",
+      categorie: "Science",
+      titre: t("blogPage.art3Title"),
+      extrait: t("blogPage.art3Excerpt"),
+      date: t("blogPage.art3Date"),
+      duree: t("blogPage.art3Duration"),
+      img: "/images/astaxanthine/NUT4.png",
+    },
+    {
+      slug: "complement-alimentaire-bien-choisir",
+      categorie: "Santé",
+      titre: t("blogPage.art4Title"),
+      extrait: t("blogPage.art4Excerpt"),
+      date: t("blogPage.art4Date"),
+      duree: t("blogPage.art4Duration"),
+      img: "/images/astaxanthine/NUT5.png",
+    },
+    {
+      slug: "temoignage-marie-ange",
+      categorie: "Témoignage",
+      titre: t("blogPage.art5Title"),
+      extrait: t("blogPage.art5Excerpt"),
+      date: t("blogPage.art5Date"),
+      duree: t("blogPage.art5Duration"),
+      img: "/images/astaxanthine/Ast2.png",
+    },
+    {
+      slug: "astaxanthine-yeux-ecrans",
+      categorie: "Santé",
+      titre: t("blogPage.art6Title"),
+      extrait: t("blogPage.art6Excerpt"),
+      date: t("blogPage.art6Date"),
+      duree: t("blogPage.art6Duration"),
+      img: "/images/astaxanthine/img4A.png",
+    },
+  ];
+
   const vedette = articles[0];
   const reste = articles.slice(1);
 
@@ -80,34 +84,34 @@ export default function Blog() {
           <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 20, letterSpacing: 3, color: "#f0fff4" }}>NUTRELIS</span>
         </Link>
         <div style={{ display: "flex", gap: 32 }}>
-          {[{ label: "Produits", href: "/produits/astaxanthine-12mg" }, { label: "Science", href: "/science" }, { label: "FAQ", href: "/faq" }].map(item => (
-            <Link key={item.label} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
+          {[{ label: t("nav.products"), href: "/produits/astaxanthine-12mg" }, { label: t("nav.science"), href: "/science" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
+            <Link key={item.href} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-  <NavbarCart />
-  <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: "10px 24px", borderRadius: 8, fontSize: 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
-    Commander →
-  </Link>
-</div>
+          <NavbarCart />
+          <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: "10px 24px", borderRadius: 8, fontSize: 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
+            {t("nav.orderArrow")}
+          </Link>
+        </div>
       </nav>
 
       {/* HERO */}
       <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: "72px 60px", textAlign: "center" }}>
-        <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>LE BLOG NUTRELIS</p>
+        <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("blogPage.heroTag")}</p>
         <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
-          Science, santé &{" "}
-          <span style={{ color: "var(--accent)" }}>bien-être</span>
+          {t("blogPage.heroTitle1")}
+          <span style={{ color: "var(--accent)" }}>{t("blogPage.heroTitleHighlight")}</span>
         </h1>
         <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 16 }}>
-          Des articles fondés sur la science pour prendre soin de vous intelligemment
+          {t("blogPage.heroDesc")}
         </p>
       </section>
 
       {/* ARTICLE EN VEDETTE */}
       <section style={{ padding: "72px 60px", background: "#f0faf2" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 24 }}>À LA UNE</p>
+          <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 24 }}>{t("blogPage.featuredTag")}</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, background: "#fff", borderRadius: 24, overflow: "hidden", border: "1px solid #c8e6d0", boxShadow: "0 4px 32px rgba(29,185,84,0.06)" }}>
             <div style={{ background: "#fdf5f3", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 320, padding: 48 }}>
               <img src={vedette.img} alt={vedette.titre} style={{ width: "100%", maxWidth: 300, objectFit: "contain" }} />
@@ -123,11 +127,11 @@ export default function Blog() {
                 {vedette.extrait}
               </p>
               <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 32 }}>
-                <span style={{ color: "#888", fontSize: 13 }}>📅 {vedette.date}</span>
-                <span style={{ color: "#888", fontSize: 13 }}>⏱️ {vedette.duree} de lecture</span>
+                <span style={{ color: "#888", fontSize: 13 }}>{"📅 " + vedette.date}</span>
+                <span style={{ color: "#888", fontSize: 13 }}>{"⏱️ " + vedette.duree + " " + t("blogPage.readTime")}</span>
               </div>
               <Link href={`/blog/${vedette.slug}`} style={{ background: "var(--accent)", color: "#060f08", padding: "14px 32px", borderRadius: 10, fontSize: 14, fontWeight: 800, textDecoration: "none", display: "inline-block", width: "fit-content" }}>
-                Lire l'article →
+                {t("blogPage.readArticle")}
               </Link>
             </div>
           </div>
@@ -139,10 +143,10 @@ export default function Blog() {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 48, flexWrap: "wrap", gap: 20 }}>
             <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.8rem", fontWeight: 800 }}>
-              Tous les articles
+              {t("blogPage.allArticles")}
             </h2>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              {["Tous", "Science", "Beauté", "Santé", "Témoignage"].map((cat, i) => (
+              {[t("blogPage.filterAll"), t("blogPage.filterScience"), t("blogPage.filterBeauty"), t("blogPage.filterHealth"), t("blogPage.filterTestimonial")].map((cat, i) => (
                 <span key={i} style={{ padding: "8px 18px", borderRadius: 20, border: "1.5px solid", borderColor: i === 0 ? "var(--accent)" : "#ddd", background: i === 0 ? "#e8f5eb" : "#fff", color: i === 0 ? "var(--accent)" : "#555", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                   {cat}
                 </span>
@@ -170,16 +174,16 @@ export default function Blog() {
                     <span style={{ background: "#e8f5eb", color: couleurCategorie[art.categorie] ?? "var(--accent)", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, letterSpacing: 1 }}>
                       {art.categorie.toUpperCase()}
                     </span>
-                    <span style={{ color: "#bbb", fontSize: 12 }}>⏱️ {art.duree}</span>
+                    <span style={{ color: "#bbb", fontSize: 12 }}>{"⏱️ " + art.duree}</span>
                   </div>
                   <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: 15, fontWeight: 800, marginBottom: 10, lineHeight: 1.4 }}>
                     {art.titre}
                   </h3>
                   <p style={{ color: "#666", fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>{art.extrait}</p>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ color: "#aaa", fontSize: 12 }}>📅 {art.date}</span>
+                    <span style={{ color: "#aaa", fontSize: 12 }}>{"📅 " + art.date}</span>
                     <Link href={`/blog/${art.slug}`} style={{ color: "var(--accent)", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
-                      Lire →
+                      {t("blogPage.read")}
                     </Link>
                   </div>
                 </div>
@@ -191,31 +195,31 @@ export default function Blog() {
 
       {/* NEWSLETTER */}
       <section style={{ background: "#f0faf2", padding: "72px 60px", textAlign: "center", borderTop: "1px solid #c8e6d0" }}>
-        <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>NEWSLETTER</p>
+        <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("blogPage.newsletterTag")}</p>
         <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.8rem", fontWeight: 800, marginBottom: 12 }}>
-          Recevez nos articles en avant-première
+          {t("blogPage.newsletterTitle")}
         </h2>
-        <p style={{ color: "#555", fontSize: 15, marginBottom: 36 }}>Conseils santé, nouveaux produits et offres exclusives. Pas de spam.</p>
+        <p style={{ color: "#555", fontSize: 15, marginBottom: 36 }}>{t("blogPage.newsletterDesc")}</p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", maxWidth: 480, margin: "0 auto" }}>
           <input
             type="email"
-            placeholder="votre@email.com"
+            placeholder={t("blogPage.newsletterPlaceholder")}
             style={{ flex: 1, padding: "14px 18px", borderRadius: 10, border: "1.5px solid #c8e6d0", fontSize: 15, outline: "none" }}
             onFocus={e => e.currentTarget.style.borderColor = "var(--accent)"}
             onBlur={e => e.currentTarget.style.borderColor = "#c8e6d0"}
           />
           <button style={{ background: "var(--accent)", color: "#060f08", border: "none", padding: "14px 28px", borderRadius: 10, fontSize: 14, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "var(--font-sora), sans-serif" }}>
-            S'abonner →
+            {t("blogPage.newsletterBtn")}
           </button>
         </div>
       </section>
 
       <footer style={{ background: "#060f08", padding: "40px 60px", borderTop: "1px solid #1a3522" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>© 2026 NUTRELIS — Tous droits réservés</span>
+          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>{t("home.footerRights")}</span>
           <div style={{ display: "flex", gap: 24 }}>
-            {[{ label: "Accueil", href: "/" }, { label: "Produits", href: "/produits/astaxanthine-12mg" }, { label: "Contact", href: "/contact" }].map(l => (
-              <Link key={l.label} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>{l.label}</Link>
+            {[{ label: t("blogPage.footerHome"), href: "/" }, { label: t("blogPage.footerProducts"), href: "/produits/astaxanthine-12mg" }, { label: t("blogPage.footerContact"), href: "/contact" }].map(l => (
+              <Link key={l.href} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>{l.label}</Link>
             ))}
           </div>
         </div>

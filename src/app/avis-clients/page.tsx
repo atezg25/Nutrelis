@@ -2,30 +2,32 @@
 import { useState } from "react";
 import Link from "next/link";
 import NavbarCart from "@/components/NavbarCart";
-
-const avis = [
-  { nom: "Marie Ange", ville: "Douala", stars: 5, titre: "Ma peau n'a jamais été aussi lumineuse", texte: "Depuis que j'ai commencé l'astaxanthine NUTRELIS, mon teint est éclatant et uniforme. Les imperfections ont disparu. Je reçois des compliments chaque jour. Je n'aurais jamais cru qu'un complément puisse avoir un tel effet sur ma peau.", semaines: "3 semaines", img: "/images/astaxanthine/Ast2.png", pack: "2 Boîtes" },
-  { nom: "Christine", ville: "Yaoundé", stars: 5, titre: "Un vrai boost d'énergie au quotidien", texte: "Depuis que j'ai intégré l'astaxanthine Nutrelis à ma routine, je me sens plus énergique et concentrée toute la journée. Ma fatigue a disparu et ma peau est plus nette, mes cheveux tombent beaucoup moins.", semaines: "6 semaines", img: "/images/astaxanthine/Ast3.png", pack: "3 Boîtes" },
-  { nom: "Audrey", ville: "Bafoussam", stars: 5, titre: "Une peau plus ferme et visiblement rajeunie", texte: "Après quelques semaines, ma peau est plus ferme et mes ridules sont nettement moins visibles. Mon visage paraît tonique et reposé, et mes proches remarquent la différence. Je me sens plus jeune chaque jour.", semaines: "8 semaines", img: "/images/astaxanthine/Ast4.png", pack: "2 Boîtes" },
-  { nom: "Alex", ville: "Douala", stars: 5, titre: "Des résultats visibles sur mes cheveux et ma peau", texte: "En quelques semaines, mes cheveux sont plus forts, moins cassants et tombent beaucoup moins. Ma peau est plus douce, mieux hydratée et rayonne de santé. Nutrelis est facile à intégrer et les résultats sont durables.", semaines: "5 semaines", img: "/images/astaxanthine/Asta1.png", pack: "1 Boîte" },
-  { nom: "Sandrine", ville: "Kribi", stars: 5, titre: "Je recommande à toutes mes amies", texte: "J'étais sceptique au début mais après 3 semaines, mes amies m'ont demandé ce que j'utilisais. Mon teint est lumineux, ma peau est hydratée et je me sens pleine d'énergie. NUTRELIS est devenu mon secret beauté.", semaines: "3 semaines", img: "/images/astaxanthine/Asta2.png", pack: "2 Boîtes" },
-  { nom: "Patrick", ville: "Ngaoundéré", stars: 5, titre: "Excellent pour la récupération sportive", texte: "Je fais du sport régulièrement et depuis que je prends l'astaxanthine NUTRELIS, ma récupération est nettement meilleure. Moins de courbatures, plus d'énergie à l'entraînement. Un produit que je recommande à tous les sportifs.", semaines: "4 semaines", img: "/images/astaxanthine/Asta3.png", pack: "3 Boîtes" },
-  { nom: "Isabelle", ville: "Douala", stars: 5, titre: "Ma peau résiste mieux au soleil", texte: "Travaillant beaucoup en extérieur, j'avais des problèmes de teint inégal et de taches. Depuis NUTRELIS, ma peau est plus uniforme et résiste mieux au soleil. Un vrai bouclier naturel !", semaines: "10 semaines", img: "/images/astaxanthine/Ast2.png", pack: "3 Boîtes" },
-  { nom: "Thomas", ville: "Yaoundé", stars: 4, titre: "Bons résultats, livraison rapide", texte: "Les résultats sont là — peau plus claire et énergie améliorée. La livraison via ATEZ Express était rapide. Je retire une étoile car j'aurais aimé plus d'infos sur le suivi de commande, mais le produit est excellent.", semaines: "7 semaines", img: "/images/astaxanthine/Asta1.png", pack: "2 Boîtes" },
-  { nom: "Céleste", ville: "Buea", stars: 5, titre: "Transformation visible en moins d'un mois", texte: "Je n'espérais pas des résultats aussi rapides. Dès la 2ème semaine, mon entourage remarquait que j'avais l'air plus reposée et lumineuse. Après un mois, la transformation est complète. Merci NUTRELIS !", semaines: "4 semaines", img: "/images/astaxanthine/Asta2.png", pack: "2 Boîtes" },
-];
-
-const stats = [
-  { value: "12 000+", label: "Clients satisfaits" },
-  { value: "4.8/5", label: "Note moyenne" },
-  { value: "96%", label: "Recommandent NUTRELIS" },
-  { value: "94%", label: "Résultats visibles" },
-];
+import { useLocale } from "@/context/LocaleContext";
 
 export default function AvisClients() {
+  const { t } = useLocale();
   const [filtre, setFiltre] = useState(0);
 
-  const filtres = ["Tous les avis", "⭐⭐⭐⭐⭐ 5 étoiles", "⭐⭐⭐⭐ 4 étoiles"];
+  const avis = [
+    { nom: t("reviewsPage.review1Name"), ville: t("reviewsPage.review1City"), stars: 5, titre: t("reviewsPage.review1Title"), texte: t("reviewsPage.review1Text"), semaines: t("reviewsPage.review1Weeks"), img: "/images/astaxanthine/Ast2.png", pack: t("reviewsPage.review1Pack") },
+    { nom: t("reviewsPage.review2Name"), ville: t("reviewsPage.review2City"), stars: 5, titre: t("reviewsPage.review2Title"), texte: t("reviewsPage.review2Text"), semaines: t("reviewsPage.review2Weeks"), img: "/images/astaxanthine/Ast3.png", pack: t("reviewsPage.review2Pack") },
+    { nom: t("reviewsPage.review3Name"), ville: t("reviewsPage.review3City"), stars: 5, titre: t("reviewsPage.review3Title"), texte: t("reviewsPage.review3Text"), semaines: t("reviewsPage.review3Weeks"), img: "/images/astaxanthine/Ast4.png", pack: t("reviewsPage.review3Pack") },
+    { nom: t("reviewsPage.review4Name"), ville: t("reviewsPage.review4City"), stars: 5, titre: t("reviewsPage.review4Title"), texte: t("reviewsPage.review4Text"), semaines: t("reviewsPage.review4Weeks"), img: "/images/astaxanthine/Asta1.png", pack: t("reviewsPage.review4Pack") },
+    { nom: t("reviewsPage.review5Name"), ville: t("reviewsPage.review5City"), stars: 5, titre: t("reviewsPage.review5Title"), texte: t("reviewsPage.review5Text"), semaines: t("reviewsPage.review5Weeks"), img: "/images/astaxanthine/Asta2.png", pack: t("reviewsPage.review5Pack") },
+    { nom: t("reviewsPage.review6Name"), ville: t("reviewsPage.review6City"), stars: 5, titre: t("reviewsPage.review6Title"), texte: t("reviewsPage.review6Text"), semaines: t("reviewsPage.review6Weeks"), img: "/images/astaxanthine/Asta3.png", pack: t("reviewsPage.review6Pack") },
+    { nom: t("reviewsPage.review7Name"), ville: t("reviewsPage.review7City"), stars: 5, titre: t("reviewsPage.review7Title"), texte: t("reviewsPage.review7Text"), semaines: t("reviewsPage.review7Weeks"), img: "/images/astaxanthine/Ast2.png", pack: t("reviewsPage.review7Pack") },
+    { nom: t("reviewsPage.review8Name"), ville: t("reviewsPage.review8City"), stars: 4, titre: t("reviewsPage.review8Title"), texte: t("reviewsPage.review8Text"), semaines: t("reviewsPage.review8Weeks"), img: "/images/astaxanthine/Asta1.png", pack: t("reviewsPage.review8Pack") },
+    { nom: t("reviewsPage.review9Name"), ville: t("reviewsPage.review9City"), stars: 5, titre: t("reviewsPage.review9Title"), texte: t("reviewsPage.review9Text"), semaines: t("reviewsPage.review9Weeks"), img: "/images/astaxanthine/Asta2.png", pack: t("reviewsPage.review9Pack") },
+  ];
+
+  const stats = [
+    { value: "12 000+", label: t("reviewsPage.statClients") },
+    { value: "4.8/5", label: t("reviewsPage.statRating") },
+    { value: "96%", label: t("reviewsPage.statRecommend") },
+    { value: "94%", label: t("reviewsPage.statResults") },
+  ];
+
+  const filtres = [t("reviewsPage.filterAll"), "⭐⭐⭐⭐⭐ " + t("reviewsPage.filter5Stars"), "⭐⭐⭐⭐ " + t("reviewsPage.filter4Stars")];
   const avisFiltres = filtre === 0 ? avis : avis.filter(a => a.stars === (filtre === 1 ? 5 : 4));
 
   return (
@@ -38,27 +40,27 @@ export default function AvisClients() {
           <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 20, letterSpacing: 3, color: "#f0fff4" }}>NUTRELIS</span>
         </Link>
         <div style={{ display: "flex", gap: 32 }}>
-          {[{ label: "Produits", href: "/produits/astaxanthine-12mg" }, { label: "Science", href: "/science" }, { label: "Avis clients", href: "/avis-clients" }, { label: "FAQ", href: "/faq" }].map(item => (
-            <Link key={item.label} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
+          {[{ label: t("nav.products"), href: "/produits/astaxanthine-12mg" }, { label: t("nav.science"), href: "/science" }, { label: t("nav.reviews"), href: "/avis-clients" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
+            <Link key={item.href} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
           ))}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <NavbarCart />
           <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: "10px 24px", borderRadius: 8, fontSize: 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
-            Commander →
+            {t("nav.orderArrow")}
           </Link>
         </div>
       </nav>
 
       {/* HERO */}
       <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: "72px 60px", textAlign: "center" }}>
-        <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>TÉMOIGNAGES CLIENTS</p>
+        <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("reviewsPage.heroTag")}</p>
         <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
-          Ils ont essayé,{" "}
-          <span style={{ color: "var(--accent)" }}>ils ont adopté</span>
+          {t("reviewsPage.heroTitle1")}
+          <span style={{ color: "var(--accent)" }}>{t("reviewsPage.heroTitleHighlight")}</span>
         </h1>
         <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 16 }}>
-          Des vrais clients, des vrais résultats — sans filtre
+          {t("reviewsPage.heroDesc")}
         </p>
       </section>
 
@@ -80,7 +82,7 @@ export default function AvisClients() {
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: "6rem", fontWeight: 900, color: "var(--accent)", fontFamily: "var(--font-sora), sans-serif", lineHeight: 1 }}>4.8</div>
             <div style={{ color: "#f5a623", fontSize: 32, margin: "12px 0 8px", letterSpacing: 4 }}>★★★★★</div>
-            <div style={{ color: "#888", fontSize: 14 }}>sur 650+ avis vérifiés</div>
+            <div style={{ color: "#888", fontSize: 14 }}>{t("reviewsPage.verifiedReviews")}</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[
@@ -105,8 +107,6 @@ export default function AvisClients() {
       {/* FILTRES + AVIS */}
       <section style={{ padding: "0 60px 80px", background: "#f8f9fa" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-
-          {/* Filtres */}
           <div style={{ display: "flex", gap: 12, paddingTop: 48, marginBottom: 48, flexWrap: "wrap" }}>
             {filtres.map((f, i) => (
               <button key={i} onClick={() => setFiltre(i)} style={{
@@ -120,11 +120,10 @@ export default function AvisClients() {
               </button>
             ))}
             <span style={{ marginLeft: "auto", color: "#888", fontSize: 14, alignSelf: "center" }}>
-              {avisFiltres.length} avis
+              {avisFiltres.length} {t("reviewsPage.reviewsCount")}
             </span>
           </div>
 
-          {/* Grille avis */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
             {avisFiltres.map((a, i) => (
               <div key={i} style={{ background: "#fff", borderRadius: 20, padding: 28, border: "1px solid #eee", boxShadow: "0 2px 16px rgba(0,0,0,0.04)", transition: "all 0.3s" }}
@@ -147,18 +146,18 @@ export default function AvisClients() {
                     </div>
                     <div>
                       <div style={{ fontWeight: 700, fontSize: 13 }}>{a.nom}</div>
-                      <div style={{ color: "#aaa", fontSize: 11 }}>📍 {a.ville}</div>
+                      <div style={{ color: "#aaa", fontSize: 11 }}>{"📍 " + a.ville}</div>
                     </div>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <div style={{ background: "#e8f5eb", color: "var(--accent)", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, marginBottom: 4 }}>
-                      ✅ Vérifié
+                      {"✅ " + t("reviewsPage.verified")}
                     </div>
                     <div style={{ color: "#bbb", fontSize: 11 }}>{a.semaines}</div>
                   </div>
                 </div>
                 <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #f0f0f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "#aaa", fontSize: 11 }}>Pack acheté :</span>
+                  <span style={{ color: "#aaa", fontSize: 11 }}>{t("reviewsPage.packBought")}</span>
                   <span style={{ color: "#555", fontSize: 12, fontWeight: 600 }}>{a.pack}</span>
                 </div>
               </div>
@@ -170,22 +169,22 @@ export default function AvisClients() {
       {/* CTA */}
       <section style={{ background: "var(--accent)", padding: "72px 60px", textAlign: "center" }}>
         <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 900, color: "#060f08", marginBottom: 16 }}>
-          Rejoignez nos 12 000+ clients satisfaits
+          {t("reviewsPage.ctaTitle")}
         </h2>
         <p style={{ color: "rgba(6,15,8,0.75)", fontSize: 16, marginBottom: 36 }}>
-          Garantie 90 jours satisfait ou remboursé — sans risque
+          {t("reviewsPage.ctaDesc")}
         </p>
         <Link href="/produits/astaxanthine-12mg" style={{ display: "inline-block", background: "#060f08", color: "#fff", padding: "18px 52px", borderRadius: 12, fontSize: 16, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
-          Commander maintenant →
+          {t("reviewsPage.ctaBtn")}
         </Link>
       </section>
 
       <footer style={{ background: "#060f08", padding: "40px 60px", borderTop: "1px solid #1a3522" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>© 2026 NUTRELIS — Tous droits réservés</span>
+          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>{t("home.footerRights")}</span>
           <div style={{ display: "flex", gap: 24 }}>
-            {[{ label: "Accueil", href: "/" }, { label: "Produits", href: "/produits/astaxanthine-12mg" }, { label: "Contact", href: "/contact" }].map(l => (
-              <Link key={l.label} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>{l.label}</Link>
+            {[{ label: t("reviewsPage.footerHome"), href: "/" }, { label: t("reviewsPage.footerProducts"), href: "/produits/astaxanthine-12mg" }, { label: t("reviewsPage.footerContact"), href: "/contact" }].map(l => (
+              <Link key={l.href} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>{l.label}</Link>
             ))}
           </div>
         </div>

@@ -3,6 +3,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useLocale } from "@/context/LocaleContext";
 export const dynamic = "force-dynamic";
 
 function SuccessContent() {
@@ -12,6 +13,7 @@ function SuccessContent() {
   const [statut, setStatut] = useState<"chargement" | "succès" | "échec">("chargement");
   const [emailEnvoye, setEmailEnvoye] = useState(false);
   const { viderPanier } = useCart();
+  const { t } = useLocale();
 
   const confirmerCommande = async (ref: string) => {
     if (emailEnvoye) return;
@@ -64,7 +66,7 @@ function SuccessContent() {
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
         <p style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: 18, fontWeight: 700 }}>
-          Vérification du paiement...
+          {t("success.verifying")}
         </p>
       </div>
     );
@@ -75,17 +77,17 @@ function SuccessContent() {
       <div style={{ textAlign: "center", maxWidth: 480, padding: "60px 40px" }}>
         <div style={{ fontSize: 64, marginBottom: 24 }}>❌</div>
         <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.8rem", fontWeight: 900, marginBottom: 16 }}>
-          Paiement non confirmé
+          {t("success.failed")}
         </h1>
         <p style={{ color: "#555", fontSize: 15, marginBottom: 36, lineHeight: 1.8 }}>
-          Nous n'avons pas pu confirmer votre paiement. Réessayez ou contactez-nous.
+          {t("success.failedDesc")}
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/checkout" style={{ background: "#7D0806", color: "#fff", padding: "14px 28px", borderRadius: 10, fontSize: 14, fontWeight: 800, textDecoration: "none" }}>
-            Réessayer →
+            {t("success.retry")}
           </Link>
           <Link href="/contact" style={{ background: "#f0f0f0", color: "#333", padding: "14px 28px", borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
-            Nous contacter
+            {t("success.contact")}
           </Link>
         </div>
       </div>
@@ -96,31 +98,32 @@ function SuccessContent() {
     <div style={{ textAlign: "center", maxWidth: 560, padding: "60px 24px" }}>
       <div style={{ fontSize: 72, marginBottom: 24 }}>🎉</div>
       <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "2rem", fontWeight: 900, marginBottom: 16, color: "#1a1a1a" }}>
-        Paiement confirmé !
+        {t("success.title")}
       </h1>
       <p style={{ color: "#555", fontSize: 16, lineHeight: 1.8, marginBottom: 12 }}>
-        Votre commande a été reçue et sera expédiée via <strong>ATEZ Express</strong> dans les 24h.
+        {t("success.desc")} <strong>ATEZ Express</strong> {t("success.in24h")}
       </p>
       <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 16, padding: "20px", marginBottom: 16 }}>
-        <p style={{ fontSize: 13, color: "#555", margin: 0 }}>Référence : <strong>{reference}</strong></p>
+        <p style={{ fontSize: 13, color: "#555", margin: 0 }}>{t("success.reference")} <strong>{reference}</strong></p>
       </div>
       <p style={{ color: "#888", fontSize: 13, marginBottom: 32 }}>
-        📧 Un email de confirmation vous a été envoyé.
+        📧 {t("success.emailSent")}
       </p>
       <Link href="/" style={{ background: "var(--accent)", color: "#060f08", padding: "16px 40px", borderRadius: 10, fontSize: 15, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
-        Retour à l'accueil →
+        {t("success.backHome")}
       </Link>
     </div>
   );
 }
 
 export default function CheckoutSuccess() {
+  const { t } = useLocale();
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff" }}>
       <Suspense fallback={
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
-          <p style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: 18, fontWeight: 700 }}>Chargement...</p>
+          <p style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: 18, fontWeight: 700 }}>{t("common.loading")}</p>
         </div>
       }>
         <SuccessContent />

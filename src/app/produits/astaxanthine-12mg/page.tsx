@@ -3,6 +3,7 @@ import { useCart } from "@/context/CartContext";
 import NavbarCart from "@/components/NavbarCart";
 import { useState, useEffect, useRef } from "react";
 import { useScreenSize } from "@/hooks/useIsMobile";
+import { useLocale } from "@/context/LocaleContext";
 
 function Countdown() {
   const [time, setTime] = useState({ h: 5, m: 47, s: 59 });
@@ -32,6 +33,7 @@ function Navbar() {
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
   const isSmall = sc === "mobile" || sc === "tablet";
+  const { t } = useLocale();
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", fn);
@@ -85,14 +87,19 @@ function Navbar() {
         </a>
         {!isSmall && (
           <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-            {["Produits", "Science", "Avis clients", "FAQ"].map((item) => (
-              <a key={item} href="#" style={{
+            {[
+              { label: t("nav.products"), href: "/produits/astaxanthine-12mg" },
+              { label: t("nav.science"), href: "/science" },
+              { label: t("nav.reviews"), href: "/avis-clients" },
+              { label: t("nav.faq"), href: "/faq" },
+            ].map((item) => (
+              <a key={item.href} href={item.href} style={{
                 color: "var(--asta-text2)",
                 fontSize: 14,
                 fontWeight: 500,
                 textDecoration: "none",
               }}>
-                {item}
+                {item.label}
               </a>
             ))}
           </div>
@@ -110,7 +117,7 @@ function Navbar() {
             boxShadow: "0 4px 14px rgba(125,8,6,0.25)",
             fontFamily: "var(--font-sora), sans-serif",
           }}>
-            {isMobile ? "Commander" : "Commander →"}
+            {isMobile ? t("nav.order") : t("nav.orderArrow")}
           </a>
         </div>
       </div>
@@ -175,6 +182,7 @@ function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original
   const { ajouterArticle } = useCart();
   const scPS = useScreenSize();
   const isMobilePS = scPS === "mobile";
+  const { t } = useLocale();
 useEffect(() => {
     const pack = packs.find(p => p.id === selected)!;
     if (onPackChange) onPackChange(
@@ -186,9 +194,9 @@ useEffect(() => {
   const packs = [
     {
       id: 1,
-      label: "DÉCOUVERTE",
-      capsules: "1 Boîte · 60 capsules",
-      cure: "Cure de 60 jours",
+      label: t("product.packDiscovery"),
+      capsules: t("product.capsules1"),
+      cure: t("product.cure1"),
       prix: 15000,
       ancien: 18750,
       aboPrix: 14250,
@@ -200,9 +208,9 @@ useEffect(() => {
     },
     {
       id: 2,
-      label: "RÉSULTATS",
-      capsules: "2 Boîtes · 120 capsules",
-      cure: "Cure de 120 jours",
+      label: t("product.packResults"),
+      capsules: t("product.capsules2"),
+      cure: t("product.cure2"),
       prix: 27000,
       ancien: 33750,
       aboPrix: 25650,
@@ -214,9 +222,9 @@ useEffect(() => {
     },
     {
       id: 3,
-      label: "TRANSFORMATION",
-      capsules: "3 Boîtes · 180 capsules",
-      cure: "Cure de 180 jours",
+      label: t("product.packTransformation"),
+      capsules: t("product.capsules3"),
+      cure: t("product.cure3"),
       prix: 36000,
       ancien: 45000,
       aboPrix: 34200,
@@ -251,8 +259,8 @@ useEffect(() => {
         border: "1px solid var(--asta-border)",
       }}>
         {[
-          { id: "unique", label: "Achat unique" },
-          { id: "abonnement", label: "⭐ Abonnement −15%" },
+          { id: "unique", label: t("product.oneTimePurchase") },
+          { id: "abonnement", label: "⭐ " + t("product.subscription") },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -296,13 +304,13 @@ useEffect(() => {
         }}>
           📦{" "}
           <strong style={{ color: "var(--asta-text)" }}>
-            Livraison automatique mensuelle
+            {t("product.autoDelivery")}
           </strong>{" "}
           via ATEZ Express &nbsp;·&nbsp; 💰{" "}
-          <strong style={{ color: "var(--asta-text)" }}>−15% à vie</strong>
+          <strong style={{ color: "var(--asta-text)" }}>{t("product.lifetimeDiscount")}</strong>
           &nbsp;·&nbsp; ✅{" "}
           <strong style={{ color: "var(--asta-text)" }}>
-            Annulable à tout moment
+            {t("product.cancelAnytime")}
           </strong>
         </div>
       )}
@@ -345,7 +353,7 @@ useEffect(() => {
                 padding: "3px 10px",
                 borderRadius: 20,
               }}>
-                LE PLUS POPULAIRE
+                {t("product.mostPopular")}
               </div>
             )}
             <div style={{
@@ -392,7 +400,7 @@ useEffect(() => {
                   borderRadius: 20,
                   marginTop: 6,
                 }}>
-                  Économisez {pack.eco}
+                  {t("product.save")} {pack.eco}
                 </span>
               )}
                 </div>
@@ -408,7 +416,7 @@ useEffect(() => {
               </div>
               {mode === "abonnement" && (
                 <div style={{ fontSize: 11, color: "var(--asta-gold)", fontWeight: 700 }}>
-                  /mois
+                  {t("product.perMonth")}
                 </div>
               )}
             </div>
@@ -448,7 +456,7 @@ useEffect(() => {
           display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           transition: "all 0.3s",
         }}>
-        {`⚡ ${mode === "abonnement" ? "S'ABONNER — ÉCONOMISER 15%" : "ACHETER MAINTENANT"}`}
+        {`⚡ ${mode === "abonnement" ? t("common.subscribe") : t("common.buyNow")}`}
       </button>
 
       <button
@@ -474,7 +482,7 @@ useEffect(() => {
           fontFamily: "var(--font-sora), sans-serif",
           display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
         }}>
-        🛒 AJOUTER AU PANIER
+        🛒 {t("common.addToCart")}
       </button>
 
       <div style={{
@@ -485,9 +493,9 @@ useEffect(() => {
         color: "var(--asta-text2)",
         flexWrap: "wrap",
       }}>
-        <span>🔒 Paiement sécurisé</span>
-        <span>📦 Livraison ATEZ Express</span>
-        <span>↩️ Garanti 90 jours</span>
+        <span>{t("common.securePaymentIcon")}</span>
+        <span>{t("common.deliveryIcon")}</span>
+        <span>{t("common.guarantee90Icon")}</span>
       </div>
     </div>
   );
@@ -497,35 +505,36 @@ function RaisonsSection() {
   const [active, setActive] = useState<number | null>(null);
   const scR = useScreenSize();
   const colsR = scR === "mobile" ? "repeat(2, 1fr)" : scR === "tablet" ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
+  const { t } = useLocale();
   const raisons = [
     {
       num: "01",
-      title: "6000× plus puissante que la Vitamine C",
-      text: "12mg validés cliniquement pour l'élasticité, l'énergie et la protection cellulaire. Là où d'autres réduisent les doses, nous choisissons l'excellence. Sans compromis.",
+      title: t("product.reason1Title"),
+      text: t("product.reason1Text"),
       img: "/images/astaxanthine/Sld2.png",
     },
     {
       num: "02",
-      title: "Dose clinique de 12mg validée par les études",
-      text: "95% de l'astaxanthine vendue en ligne est synthétique. La nôtre est cultivée naturellement à Hawaï sous le soleil, ce qui la rend plus puissante et mieux absorbée.",
+      title: t("product.reason2Title"),
+      text: t("product.reason2Text"),
       img: "/images/astaxanthine/Sld3.webp",
     },
     {
       num: "03",
-      title: "Cultivée naturellement, jamais synthétique",
-      text: "Puissance et biodisponibilité supérieures. Vrai produit naturel, pas d'imitation. Votre corps mérite ce qu'il y a de mieux.",
+      title: t("product.reason3Title"),
+      text: t("product.reason3Text"),
       img: "/images/astaxanthine/Sld4.webp",
     },
     {
       num: "04",
-      title: "Pénètre le cerveau, les yeux et la peau",
-      text: "Elle traverse les barrières naturelles et protège de l'intérieur, contrairement aux autres antioxydants. Protection cellulaire complète.",
+      title: t("product.reason4Title"),
+      text: t("product.reason4Text"),
       img: "/images/astaxanthine/Sld5.webp",
     },
     {
       num: "05",
-      title: "Transparence totale sur toute la chaîne",
-      text: "Chaque lot testé par un laboratoire tiers indépendant. Ingrédients clairs, sans additifs, sans mélanges cachés — astaxanthine pure d'Hawaï, au dosage clinique.",
+      title: t("product.reason5Title"),
+      text: t("product.reason5Text"),
       img: "/images/astaxanthine/img_sla.png",
     },
   ];
@@ -559,7 +568,7 @@ function RaisonsSection() {
                 padding: "3px 10px", borderRadius: 20, marginBottom: 10,
                 border: "1px solid var(--asta-border)",
               }}>
-                RAISON {r.num}
+                {t("product.reason")} {r.num}
               </div>
               <h3 style={{
                 fontSize: 13, fontWeight: 700,
@@ -588,7 +597,7 @@ function RaisonsSection() {
                   fontSize: 11, fontWeight: 700, letterSpacing: 1,
                   padding: "3px 10px", borderRadius: 20, marginBottom: 10,
                 }}>
-                  RAISON {r.num}
+                  {t("product.reason")} {r.num}
                 </div>
                 <h3 style={{
                   fontSize: 13, fontWeight: 800,
@@ -614,7 +623,7 @@ function RaisonsSection() {
                     fontFamily: "var(--font-sora), sans-serif",
                   }}
                 >
-                  COMMANDER →
+                  {t("product.orderArrow")}
                 </a>
                 <div style={{ textAlign: "center", color: "var(--asta-text2)", fontSize: 16, transform: "rotate(180deg)" }}>▼</div>
               </div>
@@ -697,6 +706,7 @@ function ProductFaqItem({ icon, q, a }: { icon: string; q: string; a: React.Reac
 }
 function ProductGallery() {
   const [main, setMain] = useState(0);
+  const { t } = useLocale();
   const images = [
     "/images/astaxanthine/img_transparent.png",
     "/images/astaxanthine/img1A.png",
@@ -737,7 +747,7 @@ function ProductGallery() {
           fontSize: 12, fontWeight: 600, padding: "6px 12px",
           borderRadius: 20,
         }}>
-          100+ Vendus Aujourd&apos;hui
+          {t("product.soldToday")}
         </div>
         <img
           src={images[main]}
@@ -781,7 +791,7 @@ function ProductGallery() {
        {[
           {
             icon: "💊",
-            q: "C'est quoi exactement l'astaxanthine ?",
+            q: t("product.galleryFaq1Q"),
             a: (
               <div>
                 <p style={{ marginBottom: 10 }}>L'Astaxanthine est un <strong>antioxydant naturel extrêmement puissant</strong>, extrait d'une micro-algue appelée <strong>Haematococcus pluvialis</strong>. C'est elle qui donne leur couleur rouge aux saumons sauvages et aux flamants roses.</p>
@@ -800,7 +810,7 @@ function ProductGallery() {
           },
           {
             icon: "📅",
-            q: "Combien de temps avant de voir les premiers résultats ?",
+            q: t("product.galleryFaq2Q"),
             a: (
               <div>
                 <p style={{ marginBottom: 12 }}>La majorité remarque des effets après <strong>10 à 15 jours</strong> : peau plus lumineuse, moins de fatigue visuelle, énergie plus stable.</p>
@@ -825,7 +835,7 @@ function ProductGallery() {
           },
           {
             icon: "🛡️",
-            q: "Est-ce que c'est vraiment sans danger ?",
+            q: t("product.galleryFaq3Q"),
             a: (
               <div>
                 <p>100% safe. L'astaxanthine est l'un des compléments les plus étudiés et les plus sûrs au monde. <strong>Aucun effet secondaire connu</strong>, même à long terme. Des millions de personnes en prennent quotidiennement au Japon depuis des décennies.</p>
@@ -834,7 +844,7 @@ function ProductGallery() {
           },
           {
             icon: "✨",
-            q: "Quel sont les bénéfices clés de l'Astaxanthine ?",
+            q: t("product.galleryFaq4Q"),
             a: (
               <div>
                 {[
@@ -865,7 +875,7 @@ function ProductGallery() {
           },
           {
             icon: "🔬",
-            q: "Composition",
+            q: t("product.galleryFaq5Q"),
             a: (
               <div>
                 <p>Notre unique ingrédient actif est l'<strong>Astaxanthine</strong>, issue de la micro-algue <em>Haematococcus pluvialis</em>. L'enveloppe de la gélule est composée de <strong>Gélatine</strong> et d'<strong>Eau Purifiée</strong> — chaque capsule est conçue pour une pureté et une performance maximales.</p>
@@ -874,7 +884,7 @@ function ProductGallery() {
           },
           {
             icon: "📦",
-            q: "Livraison",
+            q: t("product.galleryFaq6Q"),
             a: (
               <div>
                 <div style={{ marginBottom: 12 }}>
@@ -904,6 +914,7 @@ function StatsSection() {
   const [progress, setProgress] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const scSt = useScreenSize();
+  const { t } = useLocale();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -922,10 +933,10 @@ function StatsSection() {
   }, []);
 
   const stats = [
-    { value: 94, label: "Ont constaté une peau plus ferme et plus élastique", desc: "après 8+ semaines de prise régulière" },
-    { value: 96, label: "Recommanderaient NUTRELIS à un proche", desc: "pour la protection cellulaire et le vieillissement en santé" },
-    { value: 92, label: "Ont noté une meilleure énergie et clarté mentale", desc: "particulièrement en après-midi" },
-    { value: 89, label: "Préfèrent NUTRELIS aux autres suppléments essayés", desc: "grâce à la pureté et la puissance des ingrédients" },
+    { value: 94, label: t("product.stat1Label"), desc: t("product.stat1Desc") },
+    { value: 96, label: t("product.stat2Label"), desc: t("product.stat2Desc") },
+    { value: 92, label: t("product.stat3Label"), desc: t("product.stat3Desc") },
+    { value: 89, label: t("product.stat4Label"), desc: t("product.stat4Desc") },
   ];
 
   return (
@@ -1030,6 +1041,7 @@ export default function Astaxanthine() {
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
   const isSmall = sc === "mobile" || sc === "tablet";
+  const { t } = useLocale();
   const px = isMobile ? "16px" : sc === "tablet" ? "28px" : "60px";
   const py = isMobile ? "48px" : sc === "tablet" ? "64px" : "96px";
 
@@ -1065,8 +1077,8 @@ export default function Astaxanthine() {
         lineHeight: 1.5,
       }}>
         {isMobile
-          ? <>🎉 −70% — Expire dans <Countdown /></>
-          : <>🎉 VENTE SPÉCIALE — Achetez maintenant et économisez jusqu'à 70% aujourd'hui ! &nbsp;·&nbsp; Expire dans <Countdown /></>
+          ? <>🎉 {t("product.promoShort")} <Countdown /></>
+          : <>🎉 {t("product.promoText")} &nbsp;·&nbsp; {t("product.expiresIn")} <Countdown /></>
         }
       </div>
 
@@ -1125,9 +1137,9 @@ export default function Astaxanthine() {
             boxShadow: "0 4px 16px rgba(125,8,6,0.2)",
           }}>
             <span style={{ color: "var(--asta-accent)", fontSize: isMobile ? 20 : 28, fontWeight: 900, lineHeight: 1 }}>90</span>
-            <span style={{ color: "var(--asta-accent)", fontSize: isMobile ? 8 : 11, fontWeight: 800, letterSpacing: 0.5 }}>JOURS</span>
+            <span style={{ color: "var(--asta-accent)", fontSize: isMobile ? 8 : 11, fontWeight: 800, letterSpacing: 0.5 }}>{t("common.days")}</span>
             {!isMobile && <span style={{ color: "#888", fontSize: 7, textAlign: "center", padding: "0 6px", lineHeight: 1.3 }}>
-              Satisfait ou<br />Remboursé
+              {t("common.satisfiedOrRefunded").split("\n").map((line: string, i: number) => <span key={i}>{i > 0 && <br />}{line}</span>)}
             </span>}
           </div>
           <div style={{
@@ -1142,7 +1154,7 @@ export default function Astaxanthine() {
           }}>
             <span style={{ fontSize: isMobile ? 14 : 20 }}>🌿</span>
             <span style={{ color: "#1a7a3c", fontSize: isMobile ? 7 : 9, fontWeight: 800, textAlign: "center", lineHeight: 1.3, padding: "0 6px" }}>
-              100%<br />NATUREL
+              {t("common.natural100").split("\n").map((line: string, i: number) => <span key={i}>{i > 0 && <br />}{line}</span>)}
             </span>
           </div>
           <img
@@ -1204,11 +1216,11 @@ export default function Astaxanthine() {
             border: "1px solid #eee",
           }}>
             <span style={{ color: "#00b67a", fontSize: 15, letterSpacing: -1 }}>★★★★★</span>
-            <span style={{ color: "#333", fontSize: 13, fontWeight: 600 }}>Noté 4.8/5</span>
+            <span style={{ color: "#333", fontSize: 13, fontWeight: 600 }}>{t("product.rated")}</span>
             <span style={{ color: "#ccc" }}>|</span>
             <span style={{ color: "#555", fontSize: 13 }}>
-              Approuvé par{" "}
-              <strong style={{ color: "#0d0d0d" }}>12 000+</strong> clients
+              {t("product.approvedBy")}{" "}
+              <strong style={{ color: "#0d0d0d" }}>12 000+</strong> {t("product.clients")}
             </span>
           </div>
 
@@ -1221,9 +1233,9 @@ export default function Astaxanthine() {
             color: "#0d0d0d",
             letterSpacing: -0.5,
           }}>
-            Regardez et ressentez{" "}
-            <span style={{ color: "var(--asta-accent)" }}>votre meilleur vous</span>{" "}
-            avec l'antioxydant le plus puissant au monde.
+            {t("product.heroTitle")}{" "}
+            <span style={{ color: "var(--asta-accent)" }}>{t("product.heroHighlight")}</span>{" "}
+            {t("product.heroTitleEnd")}
           </h1>
 
           <p style={{
@@ -1233,16 +1245,15 @@ export default function Astaxanthine() {
             marginBottom: 28,
             maxWidth: 460,
           }}>
-            Notre Astaxanthine naturelle à la pleine dose clinique de{" "}
-            <strong style={{ color: "#0d0d0d" }}>12mg</strong> — issue de
-            micro-algues hawaïennes. Pure, puissante, en gélule quotidienne.
+            {t("product.heroDesc")}{" "}
+            <strong style={{ color: "#0d0d0d" }}>12mg</strong>{t("product.heroDescEnd")}
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
             {[
-              "6000× plus puissant que la Vitamine C",
-              "Résultats visibles dès 2 semaines",
-              "Garantie satisfait ou remboursé 90 jours",
+              t("product.point1"),
+              t("product.point2"),
+              t("product.point3"),
             ].map((point, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{
@@ -1279,7 +1290,7 @@ export default function Astaxanthine() {
             width: isSmall ? "100%" : "fit-content",
             fontFamily: "var(--font-sora), sans-serif",
           }}>
-            {isMobile ? "COMMANDER — 70% OFF" : "COMMANDER MAINTENANT — 70% OFF"}
+            {isMobile ? t("product.ctaOrderShort") : t("product.ctaOrder")}
           </a>
 
           <div style={{
@@ -1290,9 +1301,9 @@ export default function Astaxanthine() {
             color: "#999",
             flexWrap: "wrap",
           }}>
-            <span>🔒 Paiement sécurisé</span>
-            <span>📦 Livraison ATEZ Express</span>
-            <span>↩️ 90 jours remboursé</span>
+            <span>{t("common.securePaymentIcon")}</span>
+            <span>{t("common.deliveryIcon")}</span>
+            <span>{t("common.guarantee90Refunded")}</span>
           </div>
         </div>
       </section>
@@ -1306,9 +1317,9 @@ export default function Astaxanthine() {
           gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
         }}>
           {[
-            { label: "FORMULE CLINIQUEMENT PROUVÉE", svg: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
-            { label: "CERTIFIÉ TIERS INDÉPENDANT", svg: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
-            { label: "INGRÉDIENTS 100% NATURELS", svg: "M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064" },
+            { label: t("product.badge1"), svg: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
+            { label: t("product.badge2"), svg: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+            { label: t("product.badge3"), svg: "M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064" },
           ].map((b, i) => (
             <div key={i} style={{
               display: "flex",
@@ -1358,7 +1369,7 @@ export default function Astaxanthine() {
           fontSize: 13,
           letterSpacing: 2,
         }}>
-          ★★★★★ &nbsp; Vraies Histoires, Vrais Résultats
+          ★★★★★ &nbsp; {t("product.realStories")}
         </p>
         <div style={{ overflow: "hidden" }}>
           <div style={{
@@ -1389,10 +1400,10 @@ export default function Astaxanthine() {
       <section style={{ background: "#fff", padding: `${py} ${px}` }}>
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
           <p style={{ color: "var(--asta-gold)", fontSize: 13, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
-            ★★★★★ Noté 4.8/5 | Approuvé par 12 000+ clients
+            ★★★★★ {t("product.rated")} | {t("product.approvedBy")} 12 000+ {t("product.clients")}
           </p>
           <h2 style={{ fontSize: "clamp(1.6rem, 2.5vw, 2.2rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: 40 }}>
-            Découvrez notre Astaxanthine à dose clinique premium.
+            {t("product.discoverTitle")}
           </h2>
 
           {/* Carte produit */}
@@ -1451,7 +1462,7 @@ export default function Astaxanthine() {
             {/* Info produit */}
             <div style={{ marginBottom: 20 }}>
               <p style={{ color: "var(--asta-text2)", fontSize: 13, marginBottom: 8 }}>
-                NUTRELIS Astaxanthine 12mg — Protection cellulaire & Soutien anti-stress oxydatif
+                NUTRELIS Astaxanthine 12mg — {t("product.productSubtitle")}
               </p>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
                 <span style={{ color: "var(--asta-accent)", fontSize: 36, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>
@@ -1465,7 +1476,7 @@ export default function Astaxanthine() {
 
             {/* Badges */}
             <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 28, flexWrap: "wrap" }}>
-              {["✅ Vegan", "✅ Sans gluten", "✅ 100% naturel", "✅ Non-GMO"].map((b, i) => (
+              {[t("product.badgeVegan"), t("product.badgeGlutenFree"), t("product.badgeNatural"), t("product.badgeNonGMO")].map((b, i) => (
                 <span key={i} style={{
                   background: "#fff", border: "1px solid var(--asta-border)",
                   borderRadius: 20, padding: "5px 14px",
@@ -1486,11 +1497,11 @@ export default function Astaxanthine() {
               fontFamily: "var(--font-sora), sans-serif",
               letterSpacing: 0.5,
             }}>
-              COMMANDER MAINTENANT — 70% OFF
+              {t("product.ctaOrder")}
             </a>
 
             <p style={{ color: "#aaa", fontSize: 12, marginTop: 16 }}>
-              🔒 Paiement sécurisé &nbsp;|&nbsp; ↩️ Garantie 90 jours satisfait ou remboursé
+              {t("common.securePaymentIcon")} &nbsp;|&nbsp; {t("product.guarantee90Full")}
             </p>
           </div>
         </div>
@@ -1501,18 +1512,18 @@ export default function Astaxanthine() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
-              ILS ONT ESSAYÉ, ILS ONT ADOPTÉ
+              {t("product.reviewsTag")}
             </p>
             <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
-              Ils ont ressenti la différence.{" "}
-              <span style={{ color: "var(--asta-accent)" }}>Vous aussi.</span>
+              {t("product.reviewsTitle")}{" "}
+              <span style={{ color: "var(--asta-accent)" }}>{t("product.reviewsHighlight")}</span>
             </h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 28 }}>
             {[
-              { name: "Marie Ange", semaines: "3 semaines", titre: "Ma peau n'a jamais été aussi lumineuse", text: "Depuis que j'ai commencé l'astaxanthine NUTRELIS, mon teint est éclatant et uniforme. Les imperfections ont disparu. Je reçois des compliments chaque jour.", img: "/images/astaxanthine/Ast2.png" },
-              { name: "Christine", semaines: "6 semaines", titre: "Un vrai boost d'énergie au quotidien", text: "Je me sens plus énergique et concentrée. Ma fatigue a disparu. Ma peau est plus nette, mes cheveux tombent moins. NUTRELIS est devenu indispensable.", img: "/images/astaxanthine/Ast3.png" },
-              { name: "Audrey", semaines: "8 semaines", titre: "Une peau plus ferme et visiblement rajeunie", text: "Après quelques semaines, ma peau est plus ferme et mes ridules moins visibles. Mon visage paraît plus jeune. Des résultats naturels et durables.", img: "/images/astaxanthine/Ast4.png" },
+              { name: t("product.review1Name"), semaines: t("product.review1Weeks"), titre: t("product.review1Title"), text: t("product.review1Text"), img: "/images/astaxanthine/Ast2.png" },
+              { name: t("product.review2Name"), semaines: t("product.review2Weeks"), titre: t("product.review2Title"), text: t("product.review2Text"), img: "/images/astaxanthine/Ast3.png" },
+              { name: t("product.review3Name"), semaines: t("product.review3Weeks"), titre: t("product.review3Title"), text: t("product.review3Text"), img: "/images/astaxanthine/Ast4.png" },
             ].map((avis, i) => (
               <div key={i} style={{
                 background: "#fff",
@@ -1542,7 +1553,7 @@ export default function Astaxanthine() {
                     </div>
                     <div>
                       <div style={{ fontWeight: 700, fontSize: 14 }}>{avis.name}</div>
-                      <div style={{ color: "var(--asta-text2)", fontSize: 12 }}>✅ Client vérifié</div>
+                      <div style={{ color: "var(--asta-text2)", fontSize: 12 }}>✅ {t("product.verifiedClient")}</div>
                     </div>
                   </div>
                   <div style={{
@@ -1567,18 +1578,18 @@ export default function Astaxanthine() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 52 }}>
             <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
-              POURQUOI NOUS FAIRE CONFIANCE
+              {t("product.whyTag")}
             </p>
             <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", color: "#fff" }}>
-              Pourquoi choisir NUTRELIS comme partenaire santé ?
+              {t("product.whyTitle")}
             </h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 24 }}>
             {[
-              { icon: "🔬", label: "Dosage clinique 12mg", desc: "Dose validée par les études scientifiques" },
-              { icon: "🌺", label: "Source hawaïenne", desc: "Micro-algues cultivées sous le soleil d'Hawaï" },
-              { icon: "🧪", label: "Testé en laboratoire", desc: "Chaque lot analysé par des tiers indépendants" },
-              { icon: "💊", label: "Biodisponibilité max", desc: "Gélule premium pour absorption optimale" },
+              { icon: "🔬", label: t("product.whyClinical"), desc: t("product.whyClinicalDesc") },
+              { icon: "🌺", label: t("product.whyHawaii"), desc: t("product.whyHawaiiDesc") },
+              { icon: "🧪", label: t("product.whyLab"), desc: t("product.whyLabDesc") },
+              { icon: "💊", label: t("product.whyBio"), desc: t("product.whyBioDesc") },
             ].map((item, i) => (
               <div key={i} style={{
                 background: "rgba(255,255,255,0.12)",
@@ -1601,10 +1612,10 @@ export default function Astaxanthine() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
-              5 RAISONS POUR LESQUELLES
+              {t("product.fiveReasonsTag")}
             </p>
             <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
-              L'Astaxanthine NUTRELIS est différente de tout ce que vous avez essayé
+              {t("product.fiveReasonsTitle")}
             </h2>
           </div>
           <RaisonsSection />
@@ -1630,10 +1641,10 @@ export default function Astaxanthine() {
           fontFamily: "var(--font-sora), sans-serif",
           marginBottom: 16,
         }}>
-          Essayez sans risque dès aujourd&apos;hui
+          {t("product.tryRiskFree")}
         </a>
         <p style={{ color: "var(--asta-text2)", fontSize: 13 }}>
-          <span>✅ Garantie satisfait ou remboursé pendant 90 jours</span>
+          <span>{t("product.guarantee90Full")}</span>
         </p>
       </div>
 
@@ -1642,11 +1653,11 @@ export default function Astaxanthine() {
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
-              TÉMOIGNAGES VIDÉO
+              {t("product.videoTestimonials")}
             </p>
             <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
-              Vraies histoires,{" "}
-              <span style={{ color: "var(--asta-accent)" }}>vrais résultats</span>
+              {t("product.trueStoriesTitle")}{" "}
+              <span style={{ color: "var(--asta-accent)" }}>{t("product.trueStoriesHighlight")}</span>
             </h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 20 }}>
@@ -1688,7 +1699,7 @@ export default function Astaxanthine() {
                     padding: "3px 10px",
                     borderRadius: 10,
                   }}>
-                    CLIENT VÉRIFIÉ
+                    {t("product.clientVerified")}
                   </span>
                 </div>
               </div>
@@ -1716,10 +1727,10 @@ export default function Astaxanthine() {
           fontFamily: "var(--font-sora), sans-serif",
           marginBottom: 16,
         }}>
-          Essayez sans risque dès aujourd&apos;hui
+          {t("product.tryRiskFree")}
         </a>
         <p style={{ color: "var(--asta-text2)", fontSize: 13 }}>
-          <span>✅ Garantie satisfait ou remboursé pendant 90 jours</span>
+          <span>{t("product.guarantee90Full")}</span>
         </p>
       </div>
 
@@ -1743,7 +1754,7 @@ export default function Astaxanthine() {
               padding: "6px 16px",
               borderRadius: 20,
             }}>
-              LA PROTECTION CELLULAIRE COMMENCE ICI
+              {t("product.cellProtection")}
             </span>
           </div>
 
@@ -1757,7 +1768,7 @@ export default function Astaxanthine() {
             marginBottom: 48,
             lineHeight: 1.2,
           }}>
-            De Fatigué Et Vieillissant À Plein D&apos;énergie Et Épanoui 💪
+            {t("product.tiredToEnergized")}
           </h2>
 
           {/* Deux colonnes */}
@@ -1781,12 +1792,12 @@ export default function Astaxanthine() {
                 letterSpacing: 1.5,
                 marginBottom: 20,
               }}>
-                VOTRE PROBLÈME
+                {t("product.yourProblem")}
               </p>
               {[
-                "Se sentir plus vieux, pas en meilleure forme",
-                "Énergie en berne, esprit confus, problèmes de peau",
-                "Des compléments qui ne tiennent jamais leurs promesses",
+                t("product.problem1"),
+                t("product.problem2"),
+                t("product.problem3"),
               ].map((p, i) => (
                 <div key={i} style={{
                   display: "flex",
@@ -1814,12 +1825,12 @@ export default function Astaxanthine() {
                 letterSpacing: 1.5,
                 marginBottom: 20,
               }}>
-                NOTRE SOLUTION
+                {t("product.ourSolution")}
               </p>
               {[
-                "Aiguisé, plein d'énergie et rajeuni",
-                "Protégé au niveau cellulaire",
-                "Confiant et maître de votre santé",
+                t("product.solution1"),
+                t("product.solution2"),
+                t("product.solution3"),
               ].map((s, i) => (
                 <div key={i} style={{
                   display: "flex",
@@ -1849,7 +1860,7 @@ export default function Astaxanthine() {
               fontWeight: 700,
               color: "var(--asta-accent)",
             }}>
-              Dès 2 mois →
+              {t("product.from2Months")}
             </div>
             <img
               src="/images/astaxanthine/Rajeu-Photo-1.png"
@@ -1871,13 +1882,13 @@ export default function Astaxanthine() {
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 52 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
-              LES RÉSULTATS PARLENT D&apos;EUX-MÊMES
+              {t("product.statsTag")}
             </p>
             <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: 16 }}>
-              Les Chiffres Le Prouvent
+              {t("product.statsTitle")}
             </h2>
             <p style={{ color: "var(--asta-text2)", fontSize: 15 }}>
-              Quand des ingrédients naturels et cliniquement dosés se combinent, les résultats sont indéniables.
+              {t("product.statsDesc")}
             </p>
           </div>
           <StatsSection />
@@ -1919,7 +1930,7 @@ export default function Astaxanthine() {
                   <p style={{ color: "#fff", fontWeight: 800, fontSize: 15, textAlign: "center", marginBottom: 20, letterSpacing: 1 }}>
                     NUTRELIS
                   </p>
-                  {["Gélule Premium, Absorption Optimale", "Vegan & Sans Gluten"].map((item, i) => (
+                  {[t("product.nutrelisPremium"), t("product.nutrelisVegan")].map((item, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < 1 ? "1px solid rgba(255,255,255,0.1)" : "none" }}>
                       <span style={{ color: "#1db954", fontSize: 16, flexShrink: 0 }}>✓</span>
                       <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 13 }}>{item}</span>
@@ -1935,9 +1946,9 @@ export default function Astaxanthine() {
                 padding: "32px 20px",
               }}>
                 <p style={{ color: "var(--asta-text)", fontWeight: 800, fontSize: 15, textAlign: "center", marginBottom: 20, letterSpacing: 1 }}>
-                  AUTRES MARQUES
+                  {t("product.otherBrands")}
                 </p>
-                {["Mauvaise Absorption (Comprimés, Poudres, Gummies)", "Sucres, Arômes, Liants"].map((item, i) => (
+                {[t("product.otherAbsorption"), t("product.otherAdditives")].map((item, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderBottom: i < 1 ? "1px solid var(--asta-border)" : "none" }}>
                     <span style={{ color: "#e53e3e", fontSize: 16, flexShrink: 0 }}>✗</span>
                     <span style={{ color: "var(--asta-text2)", fontSize: 13 }}>{item}</span>
@@ -1957,14 +1968,14 @@ export default function Astaxanthine() {
               lineHeight: 1.2,
             }}>
               <span style={{ color: "var(--asta-gold)" }}>NUTRELIS</span>
-              <span style={{ color: "#fff" }}> Vs. Autres Marques</span>
+              <span style={{ color: "#fff" }}> {t("product.nutrelisVsOthers")}</span>
             </h2>
 
             <div style={{ marginBottom: 40 }}>
               {[
-                "Ingrédients propres – efficacité prouvée",
-                "Résultats visibles en quelques semaines",
-                "Santé durable, pas de solution rapide",
+                t("product.vsClean"),
+                t("product.vsResults"),
+                t("product.vsDurable"),
               ].map((item, i) => (
                 <div key={i} style={{
                   display: "flex", alignItems: "center", gap: 12,
@@ -1990,10 +2001,10 @@ export default function Astaxanthine() {
               fontFamily: "var(--font-sora), sans-serif",
               marginBottom: 14,
             }}>
-              Essayez sans risque dès aujourd&apos;hui
+              {t("product.tryRiskFree")}
             </a>
             <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 13 }}>
-              <span>✅ Garantie satisfait ou remboursé pendant 90 jours</span>
+              <span>{t("product.guarantee90Full")}</span>
             </p>
           </div>
         </div>
@@ -2004,13 +2015,13 @@ export default function Astaxanthine() {
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 52 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
-              COMMANDEZ MAINTENANT
+              {t("product.orderNow")}
             </p>
             <h2 style={{ fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: 12 }}>
-              Choisissez votre formule
+              {t("product.chooseFormula")}
             </h2>
             <p style={{ color: "var(--asta-text2)", fontSize: 15 }}>
-              Achat unique ou abonnement mensuel avec livraison automatique ATEZ Express
+              {t("product.chooseFormulaDesc")}
             </p>
           </div>
 
@@ -2026,12 +2037,12 @@ export default function Astaxanthine() {
               {/* Note */}
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <span style={{ color: "#f5a623", fontSize: 16 }}>★★★★★</span>
-                <span style={{ color: "var(--asta-text2)", fontSize: 13 }}>4.9/5 · 6 000+ clients satisfaits</span>
+                <span style={{ color: "var(--asta-text2)", fontSize: 13 }}>4.9/5 · 6 000+ {t("product.satisfiedClients")}</span>
               </div>
 
               {/* Titre produit */}
               <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 20, marginBottom: 8, lineHeight: 1.3 }}>
-                NUTRELIS ASTAXANTHINE 12mg — COMPLEXE ANTI-AGE INTENSE & PROTECTION CELLULAIRE
+                NUTRELIS ASTAXANTHINE 12mg — {t("product.antiAgeComplex")}
               </h3>
 
               {/* Prix */}
@@ -2046,13 +2057,13 @@ export default function Astaxanthine() {
 
               {/* Description courte */}
               <p style={{ color: "var(--asta-text2)", fontSize: 14, lineHeight: 1.7, marginBottom: 20, borderLeft: "3px solid var(--asta-accent)", paddingLeft: 12 }}>
-                L'astaxanthine est un puissant antioxydant naturel. Elle protège les cellules du vieillissement, améliore l'élasticité de la peau et favorise une peau plus lumineuse, ferme et hydratée.
+                {t("product.productLongDesc")}
               </p>
 
               {/* Bénéfices */}
               <div style={{ marginBottom: 24 }}>
                 <p style={{ fontWeight: 700, fontSize: 13, letterSpacing: 1, marginBottom: 12, color: "var(--asta-text)" }}>
-                  CHOISISSEZ VOTRE PACK :
+                  {t("product.chooseYourPack")}
                 </p>
               </div>
 
@@ -2065,14 +2076,14 @@ export default function Astaxanthine() {
               {/* Bénéfices liste */}
               <div style={{ marginTop: 24, padding: "16px 20px", background: "var(--asta-bg2)", borderRadius: 12, border: "1px solid var(--asta-border)" }}>
                 <p style={{ fontSize: 13, color: "var(--asta-text2)", marginBottom: 12, fontWeight: 600 }}>
-                  La seule solution naturelle qui agit là où les crèmes ne peuvent pas aller : à l&apos;intérieur de vos cellules
+                  {t("product.benefitIntro")}
                 </p>
                 {[
-                  "Teint lumineux instantané — résultats visibles dès 2-3 semaines",
-                  "Protection cellulaire 6000× supérieure à la Vitamine C",
-                  "Énergie stable toute la journée",
-                  "Confort visuel maximal — idéal pour les écrans",
-                  "12mg de dosage premium — forme la plus biodisponible",
+                  t("product.benefit1"),
+                  t("product.benefit2"),
+                  t("product.benefit3"),
+                  t("product.benefit4"),
+                  t("product.benefit5"),
                 ].map((b, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
                     <span style={{ color: "#1db954", fontSize: 14, flexShrink: 0, marginTop: 2 }}>✓</span>
@@ -2131,7 +2142,7 @@ export default function Astaxanthine() {
                 fontWeight: 800, color: "var(--asta-accent)",
                 lineHeight: 1.3,
               }}>
-                Un antioxydant pour une peau plus jeune
+                {t("product.timelineTitle")}
               </h2>
             </div>
 
@@ -2141,38 +2152,38 @@ export default function Astaxanthine() {
                 {
                   icon: "✨",
                   bg: "#7D0806",
-                  titre: "SEMAINE 2–3 : ÉCLAT INSTANTANÉ",
-                  desc: "Teint lumineux naturel, ce \"glow\" que tout le monde remarque • Peau hydratée",
+                  titre: t("product.timeline1Title"),
+                  desc: t("product.timeline1Desc"),
                 },
                 {
                   icon: "🔥",
                   bg: "#c0392b",
-                  titre: "SEMAINE 4–6 : RIDES RÉDUITES",
-                  desc: "Traits plus lisses (front, contour des yeux) • Élasticité visiblement améliorée",
+                  titre: t("product.timeline2Title"),
+                  desc: t("product.timeline2Desc"),
                 },
                 {
                   icon: "💎",
                   bg: "#922b21",
-                  titre: "SEMAINE 8 : TRANSFORMATION COMPLÈTE",
-                  desc: "Peau plus ferme • Teint plus uniforme • Confort au quotidien",
+                  titre: t("product.timeline3Title"),
+                  desc: t("product.timeline3Desc"),
                 },
                 {
                   icon: "🛡️",
                   bg: "#7D0806",
-                  titre: "PROTECTION CELLULAIRE 6000×",
-                  desc: "Soutien antioxydant puissant • Aide face aux UV, pollution et lumière bleue",
+                  titre: t("product.timeline4Title"),
+                  desc: t("product.timeline4Desc"),
                 },
                 {
                   icon: "⚡",
                   bg: "#c0392b",
-                  titre: "ÉNERGIE STABLE TOUTE LA JOURNÉE",
-                  desc: "Moins de coups de fatigue • Sensation de vitalité plus régulière",
+                  titre: t("product.timeline5Title"),
+                  desc: t("product.timeline5Desc"),
                 },
                 {
                   icon: "👁️",
                   bg: "#922b21",
-                  titre: "PROTECTION DES YEUX",
-                  desc: "Confort visuel • Idéal si vous êtes souvent sur écran",
+                  titre: t("product.timeline6Title"),
+                  desc: t("product.timeline6Desc"),
                 },
               ].map((item, i) => (
                 <div key={i} style={{
@@ -2239,21 +2250,19 @@ export default function Astaxanthine() {
               style={{ width: 200, height: "auto", marginBottom: 20, display: "block", margin: "0 auto 20px", }}
             />
             <p style={{ color: "var(--asta-accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
-              RESSENTEZ LA DIFFÉRENCE
+              {t("product.feelDifference")}
             </p>
             <h2 style={{
               fontFamily: "var(--font-sora), sans-serif",
               fontSize: "2rem", fontWeight: 800, marginBottom: 20,
             }}>
-              Garantie 90 jours
+              {t("product.guarantee")}
             </h2>
             <p style={{
               color: "var(--asta-text2)", fontSize: 15,
               lineHeight: 1.8, maxWidth: 400, margin: "0 auto 32px",
             }}>
-              Si vous ne constatez pas d&apos;améliorations visibles dans les 90 jours,
-              retournez simplement votre commande pour un remboursement intégral
-              sans poser de questions.
+              {t("product.guaranteeDesc")}
             </p>
             <a href="#commander" style={{
               display: "inline-block",
@@ -2264,10 +2273,10 @@ export default function Astaxanthine() {
               fontFamily: "var(--font-sora), sans-serif",
               marginBottom: 24,
             }}>
-              Essayez sans risque dès aujourd&apos;hui
+              {t("product.tryRiskFree")}
             </a>
             <p style={{ color: "var(--asta-text2)", fontSize: 13 }}>
-              <span>✅ Garantie satisfait ou remboursé pendant 90 jours</span>
+              <span>{t("product.guarantee90Full")}</span>
             </p>
           </div>
 
@@ -2299,7 +2308,7 @@ export default function Astaxanthine() {
               fontWeight: 800, color: "#fff",
               letterSpacing: 4,
             }}>
-              FOIRE AUX QUESTIONS
+              {t("product.faqTitle")}
             </h2>
           </div>
 
@@ -2307,43 +2316,43 @@ export default function Astaxanthine() {
             {[
               {
                 icon: "🌿",
-                q: "Pourquoi choisir NUTRELIS plutôt qu'une autre marque ?",
-                a: "NUTRELIS utilise uniquement de l'astaxanthine naturelle issue de micro-algues, avec un dosage premium de 12mg, réputé pour sa haute efficacité et biodisponibilité. Sans additifs inutiles, sans compromis.",
+                q: t("product.faq1Q"),
+                a: t("product.faq1A"),
               },
               {
                 icon: "👁️",
-                q: "Comment dois-je la prendre ?",
-                a: "1 gélule par jour pendant un repas, idéalement toujours au même moment, pour une absorption optimale.",
+                q: t("product.faq2Q"),
+                a: t("product.faq2A"),
               },
               {
                 icon: "✨",
-                q: "Est-ce que c'est bon pour la peau ?",
-                a: "Oui. L'Astaxanthine stimule l'éclat naturel, améliore l'hydratation et aide à réduire l'apparition des ridules. C'est un des rares antioxydants capables d'agir aussi profondément sur la qualité de la peau.",
+                q: t("product.faq3Q"),
+                a: t("product.faq3A"),
               },
               {
                 icon: "🌸",
-                q: "Est-ce adapté si j'ai la peau sensible ?",
-                a: "Oui. L'Astaxanthine aide justement à réduire l'inflammation et les rougeurs. Beaucoup de clients sensibles la préfèrent à d'autres antioxydants plus irritants.",
+                q: t("product.faq4Q"),
+                a: t("product.faq4A"),
               },
               {
                 icon: "☀️",
-                q: "Est-ce que ça protège du soleil ?",
-                a: "L'Astaxanthine agit comme un bouclier interne contre les UV. Elle ne remplace pas une crème solaire, mais elle réduit l'impact du stress solaire et aide la peau à mieux se défendre.",
+                q: t("product.faq5Q"),
+                a: t("product.faq5A"),
               },
               {
                 icon: "💊",
-                q: "Est-ce que c'est compatible avec d'autres compléments ?",
-                a: "Oui dans la majorité des cas. L'Astaxanthine se combine très bien avec collagène, oméga-3, magnésium, zinc, etc. Si vous suivez un traitement médical, demandez toujours conseil à votre médecin.",
+                q: t("product.faq6Q"),
+                a: t("product.faq6A"),
               },
               {
                 icon: "🔬",
-                q: "Composition",
-                a: "Notre unique ingrédient actif est l'Astaxanthine, issue de la micro-algue Haematococcus pluvialis. L'enveloppe de la gélule est composée de Gélatine et d'Eau Purifiée — chaque capsule est conçue pour une pureté et une performance maximales.",
+                q: t("product.faq7Q"),
+                a: t("product.faq7A"),
               },
               {
                 icon: "📦",
-                q: "Livraison",
-                a: "Livraison standard gratuite : réception en 4 à 7 jours ouvrés via Atez Express. Les commandes sont expédiées sous 24 heures. Livraison express payante : réception en 1 à 2 jours ouvrés via Atez Express.",
+                q: t("product.faq8Q"),
+                a: t("product.faq8A"),
               },
             ].map((faq, i) => (
               <FaqItemWhite key={i} icon={faq.icon} q={faq.q} a={faq.a} />
@@ -2377,21 +2386,36 @@ export default function Astaxanthine() {
                 </span>
               </div>
               <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, lineHeight: 1.8, marginBottom: 24, maxWidth: 280 }}>
-                Des compléments alimentaires d'excellence, formulés à partir des actifs naturels les plus puissants pour votre santé.
+                {t("product.footerDesc")}
               </p>
             </div>
             {[
-              { title: "PRODUITS", links: ["Astaxanthine 12mg", "Tous les produits", "Abonnements", "Offres spéciales"] },
-              { title: "INFORMATIONS", links: ["À propos de NUTRELIS", "Science & recherche", "Blog santé", "Contact"] },
-              { title: "SERVICE CLIENT", links: ["FAQ", "Livraison", "Remboursements", "Conditions générales"] },
+              { title: t("product.footerProducts"), links: [
+                { label: "Astaxanthine 12mg", href: "/produits/astaxanthine-12mg" },
+                { label: t("product.footerAllProducts"), href: "/produits/astaxanthine-12mg" },
+                { label: t("product.footerSubscriptions"), href: "/produits/astaxanthine-12mg" },
+                { label: t("product.footerSpecialOffers"), href: "/produits/astaxanthine-12mg" },
+              ]},
+              { title: t("product.footerInfo"), links: [
+                { label: t("product.footerAbout"), href: "/a-propos" },
+                { label: t("product.footerScience"), href: "/science" },
+                { label: t("product.footerBlog"), href: "/blog" },
+                { label: t("product.footerContact"), href: "/contact" },
+              ]},
+              { title: t("product.footerService"), links: [
+                { label: t("product.footerFaq"), href: "/faq" },
+                { label: t("product.footerShipping"), href: "/livraison" },
+                { label: t("product.footerRefunds"), href: "/livraison" },
+                { label: t("product.footerTerms"), href: "/livraison" },
+              ]},
             ].map((col, i) => (
               <div key={i}>
                 <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 11, fontWeight: 700, letterSpacing: 2, marginBottom: 20 }}>
                   {col.title}
                 </p>
                 {col.links.map((link, j) => (
-                  <a key={j} href="#" style={{ display: "block", color: "rgba(255,255,255,0.65)", fontSize: 14, textDecoration: "none", marginBottom: 12 }}>
-                    {link}
+                  <a key={j} href={link.href} style={{ display: "block", color: "rgba(255,255,255,0.65)", fontSize: 14, textDecoration: "none", marginBottom: 12 }}>
+                    {link.label}
                   </a>
                 ))}
               </div>
@@ -2399,10 +2423,10 @@ export default function Astaxanthine() {
           </div>
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 24, display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 8 : 0 }}>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>
-              © 2026 NUTRELIS — Tous droits réservés
+              {t("product.footerRights")}
             </p>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>
-              Livraison assurée par ATEZ Express 📦
+              {t("product.footerDelivery")}
             </p>
           </div>
         </div>

@@ -3,6 +3,7 @@ import NavbarCart from "@/components/NavbarCart";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useScreenSize } from "@/hooks/useIsMobile";
+import { useLocale } from "@/context/LocaleContext";
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -10,6 +11,7 @@ function Navbar() {
   const isMobile = screen === "mobile";
   const isTablet = screen === "tablet";
   const isSmall = isMobile || isTablet;
+  const { t } = useLocale();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -44,10 +46,10 @@ function Navbar() {
       {!isSmall && (
         <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
           {[
-            { label: "Produits", href: "/produits/astaxanthine-12mg" },
-            { label: "Science", href: "/science" },
-            { label: "Avis clients", href: "/avis-clients" },
-            { label: "FAQ", href: "/faq" },
+            { label: t("nav.products"), href: "/produits/astaxanthine-12mg" },
+            { label: t("nav.science"), href: "/science" },
+            { label: t("nav.reviews"), href: "/avis-clients" },
+            { label: t("nav.faq"), href: "/faq" },
           ].map((item) => (
             <Link key={item.label} href={item.href} style={{ color: "rgba(255,255,255,0.75)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
               {item.label}
@@ -65,7 +67,7 @@ function Navbar() {
           fontFamily: "var(--font-sora), sans-serif",
           whiteSpace: "nowrap",
         }}>
-          {isMobile ? "Commander" : "Commander →"}
+          {isMobile ? t("nav.order") : t("nav.orderArrow")}
         </Link>
       </div>
     </nav>
@@ -77,6 +79,7 @@ export default function Homepage() {
   const isMobile = screen === "mobile";
   const isTablet = screen === "tablet";
   const isDesktop = screen === "desktop";
+  const { t } = useLocale();
 
   const px = isMobile ? "16px" : isTablet ? "32px" : "60px";
   const py = isMobile ? "56px" : isTablet ? "72px" : "100px";
@@ -111,7 +114,7 @@ export default function Homepage() {
                 boxShadow: "0 4px 16px rgba(29,185,84,0.25)",
               }}>
                 <span style={{ fontSize: isMobile ? 14 : 18 }}>🌿</span>
-                <span style={{ color: "#1a7a3c", fontSize: isMobile ? 6 : 8, fontWeight: 800, textAlign: "center" }}>100%<br />NATUREL</span>
+                <span style={{ color: "#1a7a3c", fontSize: isMobile ? 6 : 8, fontWeight: 800, textAlign: "center" }}>{t("common.natural100").split("\n").map((line, i, arr) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</span>
               </div>
               <div style={{
                 position: "absolute", top: "8%", right: isMobile ? "2%" : "5%", zIndex: 2,
@@ -122,8 +125,8 @@ export default function Homepage() {
                 boxShadow: "0 4px 16px rgba(29,185,84,0.25)",
               }}>
                 <span style={{ color: "var(--accent)", fontSize: isMobile ? 16 : 22, fontWeight: 900, lineHeight: 1 }}>90</span>
-                <span style={{ color: "var(--accent)", fontSize: isMobile ? 6 : 8, fontWeight: 800 }}>JOURS</span>
-                <span style={{ color: "#888", fontSize: 6, textAlign: "center" }}>Satisfait ou<br />Remboursé</span>
+                <span style={{ color: "var(--accent)", fontSize: isMobile ? 6 : 8, fontWeight: 800 }}>{t("common.days")}</span>
+                <span style={{ color: "#888", fontSize: 6, textAlign: "center" }}>{t("common.satisfiedOrRefunded").split("\n").map((line, i, arr) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</span>
               </div>
               <img
                 src="/images/astaxanthine/img_transparent.png"
@@ -145,7 +148,7 @@ export default function Homepage() {
                 borderRadius: 20, padding: "6px 14px", marginBottom: 20,
               }}>
                 <span style={{ color: "var(--accent)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 1 }}>
-                  ★★★★★ NOTÉ 4.8/5 · 12 000+ CLIENTS
+                  {t("home.ratedBadge")}
                 </span>
               </div>
 
@@ -155,9 +158,9 @@ export default function Homepage() {
                 fontWeight: 900, lineHeight: 1.15,
                 marginBottom: 18, letterSpacing: -0.5,
               }}>
-                La Nature à Son{" "}
-                <span style={{ color: "var(--accent)" }}>Plus Puissant</span>
-                {" "}Pour Votre Corps.
+                {t("home.heroTitlePart1")}{" "}
+                <span style={{ color: "var(--accent)" }}>{t("home.heroTitleHighlight")}</span>
+                {" "}{t("home.heroTitlePart2")}
               </h1>
 
               <p style={{
@@ -167,7 +170,7 @@ export default function Homepage() {
                 maxWidth: isMobile ? "100%" : 480,
                 margin: isMobile ? "0 auto 28px" : "0 0 28px 0",
               }}>
-                Des compléments alimentaires premium, cliniquement dosés, issus de la nature.
+                {t("home.heroShortDesc")}
               </p>
 
               <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 32, justifyContent: isMobile ? "center" : "flex-start", flexWrap: "wrap" }}>
@@ -178,15 +181,15 @@ export default function Homepage() {
                   fontFamily: "var(--font-sora), sans-serif",
                   boxShadow: "0 8px 32px rgba(29,185,84,0.35)",
                 }}>
-                  Découvrir nos produits →
+                  {t("home.discoverProducts")}
                 </Link>
               </div>
 
               <div style={{ display: "flex", gap: isMobile ? 20 : 40, justifyContent: isMobile ? "center" : "flex-start", flexWrap: "wrap" }}>
                 {[
-                  { val: "12 000+", label: "Clients" },
-                  { val: "4.8/5", label: "Note moyenne" },
-                  { val: "90j", label: "Garantie" },
+                  { val: "12 000+", label: t("home.statClients") },
+                  { val: "4.8/5", label: t("home.statRating") },
+                  { val: "90j", label: t("home.statGuarantee") },
                 ].map((stat, i) => (
                   <div key={i} style={{ textAlign: isMobile ? "center" : "left" }}>
                     <div style={{ color: "var(--accent)", fontSize: isMobile ? 17 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>{stat.val}</div>
@@ -203,10 +206,10 @@ export default function Homepage() {
       <section style={{ background: "rgba(29,185,84,0.08)", borderTop: "1px solid rgba(29,185,84,0.15)", borderBottom: "1px solid rgba(29,185,84,0.15)", padding: `18px ${px}` }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "center", gap: isMobile ? 12 : 40, flexWrap: "wrap" }}>
           {[
-            { icon: "🔬", label: isMobile ? "Formule clinique" : "Formule cliniquement prouvée" },
-            { icon: "✅", label: isMobile ? "Certifié" : "Certifié tiers indépendant" },
-            { icon: "🌿", label: "100% naturels" },
-            { icon: "🚚", label: isMobile ? "Livraison rapide" : "Livraison ATEZ Express" },
+            { icon: "🔬", label: isMobile ? t("home.clinicalFormulaShort") : t("home.clinicalFormula") },
+            { icon: "✅", label: isMobile ? t("home.certifiedShort") : t("home.certified") },
+            { icon: "🌿", label: t("home.naturalIngredients") },
+            { icon: "🚚", label: isMobile ? t("home.expressDeliveryShort") : t("home.expressDeliveryLabel") },
           ].map((b, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ fontSize: isMobile ? 14 : 18 }}>{b.icon}</span>
@@ -220,9 +223,9 @@ export default function Homepage() {
       <section id="produits" style={{ padding: `${py} ${px}` }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 36 : 56 }}>
-            <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>NOS PRODUITS</p>
+            <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("home.productsTag")}</p>
             <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.4rem" : isTablet ? "1.8rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800 }}>
-              Science & Nature au Service de Votre Santé
+              {t("home.scienceNature")}
             </h2>
           </div>
 
@@ -235,13 +238,13 @@ export default function Homepage() {
                   style={{ width: "55%", maxWidth: 160, height: "auto", objectFit: "contain", margin: "16px auto 0", display: "block" }} />
               </div>
               <div style={{ padding: isMobile ? "20px" : "28px" }}>
-                <p style={{ color: "var(--accent)", fontSize: 11, fontWeight: 700, letterSpacing: 1.5, marginBottom: 8 }}>ANTIOXYDANT PREMIUM</p>
-                <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>Astaxanthine 12mg</h3>
+                <p style={{ color: "var(--accent)", fontSize: 11, fontWeight: 700, letterSpacing: 1.5, marginBottom: 8 }}>{t("home.premiumAntioxidant")}</p>
+                <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>{t("home.astaxanthin12mg")}</h3>
                 <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, lineHeight: 1.7, marginBottom: 16 }}>
-                  L'antioxydant le plus puissant au monde. 6000× plus efficace que la Vitamine C.
+                  {t("home.astaxanthinDesc")}
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
-                  {["Peau", "Yeux", "Énergie", "Anti-âge"].map((tag, i) => (
+                  {[t("home.tagSkin"), t("home.tagEyes"), t("home.tagEnergy"), t("home.tagAntiAge")].map((tag, i) => (
                     <span key={i} style={{ background: "rgba(29,185,84,0.1)", color: "var(--accent)", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20, border: "1px solid rgba(29,185,84,0.2)" }}>{tag}</span>
                   ))}
                 </div>
@@ -253,25 +256,25 @@ export default function Homepage() {
                   <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>★★★★★</div>
                 </div>
                 <Link href="/produits/astaxanthine-12mg" style={{ display: "block", textAlign: "center", background: "var(--accent)", color: "#fff", padding: "14px", borderRadius: 10, fontSize: 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
-                  Découvrir →
+                  {t("home.discover")}
                 </Link>
               </div>
             </div>
 
             {/* Produits à venir */}
             {[
-              { nom: "Collagène Marin", desc: "Fermeté et élasticité de la peau.", emoji: "🧴" },
-              { nom: "Complexe Oméga-3", desc: "Santé cardiovasculaire et cerveau.", emoji: "🫀" },
+              { nom: t("home.collagenName"), desc: t("home.collagenDesc"), emoji: "🧴" },
+              { nom: t("home.omega3Name"), desc: t("home.omega3Desc"), emoji: "🫀" },
             ].map((p, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, overflow: "hidden", opacity: 0.6, position: "relative" }}>
-                <div style={{ position: "absolute", top: 16, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "4px 14px", borderRadius: 20, zIndex: 2, whiteSpace: "nowrap" }}>BIENTÔT DISPONIBLE</div>
+                <div style={{ position: "absolute", top: 16, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "4px 14px", borderRadius: 20, zIndex: 2, whiteSpace: "nowrap" }}>{t("home.comingSoon")}</div>
                 <div style={{ padding: "40px", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
                   <span style={{ fontSize: 56, opacity: 0.3 }}>{p.emoji}</span>
                 </div>
                 <div style={{ padding: isMobile ? "20px" : "28px" }}>
                   <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 17 : 20, fontWeight: 800, marginBottom: 10 }}>{p.nom}</h3>
                   <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14, lineHeight: 1.7, marginBottom: 16 }}>{p.desc}</p>
-                  <button style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", padding: "13px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "not-allowed" }}>Bientôt disponible</button>
+                  <button style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", padding: "13px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "not-allowed" }}>{t("home.comingSoonBtn")}</button>
                 </div>
               </div>
             ))}
@@ -283,17 +286,17 @@ export default function Homepage() {
       <section style={{ padding: `${py} ${px}`, background: "rgba(29,185,84,0.04)", borderTop: "1px solid rgba(29,185,84,0.1)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 48 }}>
-            <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>NOTRE PHILOSOPHIE</p>
+            <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("home.philosophyTag")}</p>
             <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.4rem" : isTablet ? "1.8rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800 }}>
-              Pourquoi Choisir NUTRELIS ?
+              {t("home.whyChoose")}
             </h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : isTablet ? "1fr 1fr" : "repeat(4, 1fr)", gap: isMobile ? 14 : 24 }}>
             {[
-              { icon: "🔬", titre: "Dosage clinique", desc: "Dosé selon les standards cliniques." },
-              { icon: "🌿", titre: "100% Naturel", desc: "Ingrédients purs, sans additifs." },
-              { icon: "✅", titre: "Testé & Certifié", desc: "Chaque lot analysé en laboratoire." },
-              { icon: "🛡️", titre: "Garanti 90 jours", desc: "Satisfait ou remboursé." },
+              { icon: "🔬", titre: t("home.clinicalDosage"), desc: t("home.clinicalDosageDesc") },
+              { icon: "🌿", titre: t("home.natural"), desc: t("home.naturalDesc") },
+              { icon: "✅", titre: t("home.testedCertified"), desc: t("home.testedCertifiedDesc") },
+              { icon: "🛡️", titre: t("home.guaranteed90"), desc: t("home.guaranteed90Desc") },
             ].map((item, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(29,185,84,0.15)", borderRadius: isMobile ? 16 : 20, padding: isMobile ? "16px 14px" : "32px 28px" }}>
                 <div style={{ width: isMobile ? 40 : 52, height: isMobile ? 40 : 52, borderRadius: 12, background: "rgba(29,185,84,0.1)", border: "1px solid rgba(29,185,84,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: isMobile ? 18 : 24, marginBottom: 14 }}>{item.icon}</div>
@@ -309,16 +312,16 @@ export default function Homepage() {
       <section style={{ padding: `${py} ${px}` }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 48 }}>
-            <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>TÉMOIGNAGES</p>
+            <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("home.testimonialsTag")}</p>
             <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.4rem" : isTablet ? "1.8rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800 }}>
-              Ils Ont Transformé Leur Santé
+              {t("home.transformedHealth")}
             </h2>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 16 : 24 }}>
             {[
-              { nom: "Marie Ange", img: "/images/astaxanthine/designfreek-ai-generated-8702314-1.jpg", texte: "Ma peau n'a jamais été aussi lumineuse. Mon teint est éclatant et mes imperfections ont disparu.", semaines: "3 semaines" },
-              { nom: "Christine", img: "/images/astaxanthine/counselling-woman-628928-1.jpg", texte: "Un vrai boost d'énergie. Ma fatigue a disparu. NUTRELIS est devenu indispensable.", semaines: "6 semaines" },
-              { nom: "Audrey", img: "/images/astaxanthine/awala-bride-5521283-1.jpg", texte: "Ma peau est plus ferme et mes ridules moins visibles. Des résultats naturels et durables.", semaines: "8 semaines" },
+              { nom: "Marie Ange", img: "/images/astaxanthine/designfreek-ai-generated-8702314-1.jpg", texte: t("home.review1Text"), semaines: t("home.review1Weeks") },
+              { nom: "Christine", img: "/images/astaxanthine/counselling-woman-628928-1.jpg", texte: t("home.review2Text"), semaines: t("home.review2Weeks") },
+              { nom: "Audrey", img: "/images/astaxanthine/awala-bride-5521283-1.jpg", texte: t("home.review3Text"), semaines: t("home.review3Weeks") },
             ].map((avis, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(29,185,84,0.15)", borderRadius: 20, padding: isMobile ? "20px" : "28px" }}>
                 <div style={{ color: "var(--accent)", fontSize: 16, marginBottom: 12 }}>★★★★★</div>
@@ -330,7 +333,7 @@ export default function Homepage() {
                     </div>
                     <div>
                       <p style={{ fontWeight: 700, fontSize: 13 }}>{avis.nom}</p>
-                      <p style={{ color: "var(--accent)", fontSize: 11, fontWeight: 600 }}>✓ Client vérifié</p>
+                      <p style={{ color: "var(--accent)", fontSize: 11, fontWeight: 600 }}>✓ {t("home.verifiedClient")}</p>
                     </div>
                   </div>
                   <span style={{ background: "rgba(29,185,84,0.1)", color: "var(--accent)", fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 20, flexShrink: 0 }}>{avis.semaines}</span>
@@ -344,12 +347,12 @@ export default function Homepage() {
       {/* CTA FINAL */}
       <section style={{ padding: `${py} ${px}`, background: "radial-gradient(ellipse at 50% 50%, rgba(29,185,84,0.12) 0%, transparent 70%)", textAlign: "center", borderTop: "1px solid rgba(29,185,84,0.1)" }}>
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
-          <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>COMMENCEZ AUJOURD&apos;HUI</p>
+          <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("home.startToday")}</p>
           <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.6rem" : isTablet ? "2rem" : "clamp(2rem, 3.5vw, 3rem)", fontWeight: 900, marginBottom: 20, lineHeight: 1.2 }}>
-            Transformez Votre Santé avec NUTRELIS
+            {t("home.transformHealth")}
           </h2>
           <p style={{ color: "rgba(255,255,255,0.6)", fontSize: isMobile ? 14 : 17, lineHeight: 1.8, marginBottom: 32 }}>
-            Rejoignez plus de 12 000 clients qui ont déjà transformé leur quotidien.
+            {t("home.join12000")}
           </p>
           <Link href="/produits/astaxanthine-12mg" style={{
             display: "inline-block", background: "var(--accent)", color: "#fff",
@@ -358,10 +361,10 @@ export default function Homepage() {
             fontFamily: "var(--font-sora), sans-serif",
             boxShadow: "0 8px 40px rgba(29,185,84,0.4)", marginBottom: 16,
           }}>
-            Commander maintenant — 70% OFF →
+            {t("home.orderNow70")}
           </Link>
           <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>
-            ✅ Garantie 90 jours · Livraison gratuite
+            {t("home.guarantee90Free")}
           </p>
         </div>
       </section>
@@ -376,13 +379,13 @@ export default function Homepage() {
                 <span style={{ color: "#fff", fontWeight: 800, fontSize: 17, fontFamily: "var(--font-sora), sans-serif" }}>NUTRELIS</span>
               </div>
               <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, lineHeight: 1.8, maxWidth: 280 }}>
-                Compléments alimentaires premium, formulés avec des ingrédients naturels.
+                {t("home.footerShortDesc")}
               </p>
             </div>
             {[
-              { titre: "Produits", liens: [{ label: "Astaxanthine 12mg", href: "/produits/astaxanthine-12mg" }, { label: "Collagène Marin", href: "#" }, { label: "Oméga-3", href: "#" }] },
-              { titre: "Entreprise", liens: [{ label: "À propos", href: "/a-propos" }, { label: "Science", href: "/science" }, { label: "Blog", href: "/blog" }] },
-              { titre: "Support", liens: [{ label: "FAQ", href: "/faq" }, { label: "Contact", href: "/contact" }, { label: "Livraison", href: "/livraison" }] },
+              { titre: t("home.footerProducts"), liens: [{ label: t("home.astaxanthin12mg"), href: "/produits/astaxanthine-12mg" }, { label: t("home.collagenName"), href: "#" }, { label: t("home.omega3Name"), href: "#" }] },
+              { titre: t("home.footerCompany"), liens: [{ label: t("home.footerAbout"), href: "/a-propos" }, { label: t("home.footerScience"), href: "/science" }, { label: t("home.footerBlog"), href: "/blog" }] },
+              { titre: t("home.footerSupport"), liens: [{ label: t("home.footerFaq"), href: "/faq" }, { label: t("home.footerContact"), href: "/contact" }, { label: t("home.footerShipping"), href: "/livraison" }] },
             ].map((col, i) => (
               <div key={i}>
                 <p style={{ color: "#fff", fontWeight: 700, fontSize: 13, marginBottom: 14 }}>{col.titre}</p>
@@ -393,7 +396,7 @@ export default function Homepage() {
             ))}
           </div>
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 18, textAlign: "center" }}>
-            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>© 2026 NUTRELIS — Tous droits réservés · Livraison assurée par ATEZ Express 📦</p>
+            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>{t("home.footerCopyright")}</p>
           </div>
         </div>
       </footer>
