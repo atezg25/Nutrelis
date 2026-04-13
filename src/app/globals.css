@@ -48,6 +48,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Cache le contenu jusqu'à hydration React — évite le flash layout shift */
+html:not(.hydrated) body {
+  visibility: hidden;
+}
+html.hydrated body {
+  visibility: visible;
+}
+
 @keyframes scrollLeft {
   0% { transform: translateX(0); }
   100% { transform: translateX(-20%); }

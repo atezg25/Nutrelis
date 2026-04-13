@@ -1,9 +1,12 @@
 "use client";
+import { useEffect } from "react";
 import { useHydrated } from "@/hooks/useIsMobile";
+
+let revealed = false;
 
 export default function HydrationGuard({
   children,
-  bg = "transparent",
+  bg,
   style,
 }: {
   children: React.ReactNode;
@@ -12,12 +15,15 @@ export default function HydrationGuard({
 }) {
   const hydrated = useHydrated();
 
+  useEffect(() => {
+    if (hydrated && !revealed) {
+      revealed = true;
+      document.documentElement.classList.add("hydrated");
+    }
+  }, [hydrated]);
+
   return (
-    <div style={{
-      ...style,
-      background: bg,
-      visibility: hydrated ? "visible" : "hidden",
-    }}>
+    <div style={{ ...style, background: bg }}>
       {children}
     </div>
   );
