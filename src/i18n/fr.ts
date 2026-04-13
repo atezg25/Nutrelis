@@ -23,6 +23,7 @@ const fr: Record<string, any> = {
   common: {
     brand: "NUTRELIS",
     addToCart: "AJOUTER AU PANIER",
+    addedToCart: "Ajouté au panier !",
     buyNow: "ACHETER MAINTENANT",
     subscribe: "S'ABONNER — ÉCONOMISER 15%",
     securePayment: "Paiement sécurisé",

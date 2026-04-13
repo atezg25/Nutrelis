@@ -158,6 +158,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original: number, mode: string) => void }) {
   const [mode, setMode] = useState("unique");
   const [selected, setSelected] = useState(2);
+  const [toast, setToast] = useState(false);
   const { ajouterArticle } = useCart();
   const scPS = useScreenSize();
   const isMobilePS = scPS === "mobile";
@@ -451,7 +452,8 @@ useEffect(() => {
             image: pack.img,
             mode: mode as "unique" | "abonnement",
           });
-          window.location.href = "/panier";
+          setToast(true);
+          setTimeout(() => setToast(false), 2500);
         }}
         style={{
           width: "100%", background: "transparent", color: "var(--asta-accent)",
@@ -463,6 +465,21 @@ useEffect(() => {
         }}>
         🛒 {t("common.addToCart")}
       </button>
+
+      {/* Toast confirmation */}
+      {toast && (
+        <div style={{
+          position: "fixed", top: isMobilePS ? 66 : 80, left: "50%", transform: "translateX(-50%)",
+          background: "#1db954", color: "#fff",
+          padding: isMobilePS ? "10px 20px" : "12px 28px",
+          borderRadius: 10, fontSize: isMobilePS ? 13 : 14, fontWeight: 700,
+          boxShadow: "0 6px 24px rgba(0,0,0,0.2)",
+          zIndex: 200, display: "flex", alignItems: "center", gap: 8,
+          animation: "fadeInDown 0.3s ease-out",
+        }}>
+          ✓ {t("common.addedToCart")}
+        </div>
+      )}
 
       <div style={{
         display: "flex",

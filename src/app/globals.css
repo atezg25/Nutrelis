@@ -56,6 +56,11 @@ html.hydrated body {
   visibility: visible;
 }
 
+@keyframes fadeInDown {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 @keyframes scrollLeft {
   0% { transform: translateX(0); }
   100% { transform: translateX(-20%); }

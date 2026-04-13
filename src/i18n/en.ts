@@ -23,6 +23,7 @@ const en: Record<string, any> = {
   common: {
     brand: "NUTRELIS",
     addToCart: "ADD TO CART",
+    addedToCart: "Added to cart!",
     buyNow: "BUY NOW",
     subscribe: "SUBSCRIBE — SAVE 15%",
     securePayment: "Secure payment",
