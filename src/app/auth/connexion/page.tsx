@@ -34,7 +34,7 @@ export default function Connexion() {
 
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 12, background: "#7D0806", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 20, margin: "0 auto 12px" }}>N</div>
+          <img src="/images/logo-product.png" alt="Nutrelis" style={{ height: 48, width: "auto", margin: "0 auto 12px", display: "block" }} />
           <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.6rem", fontWeight: 800, marginBottom: 8 }}>{t("auth.loginTitle")}</h1>
           <p style={{ color: "#888", fontSize: 14 }}>{t("auth.loginDesc")}</p>
         </div>
