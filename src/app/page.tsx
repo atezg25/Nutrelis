@@ -6,6 +6,7 @@ import { useScreenSize } from "@/hooks/useIsMobile";
 import { useLocale } from "@/context/LocaleContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import HydrationGuard from "@/components/HydrationGuard";
+import FloatingActions from "@/components/FloatingActions";
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -407,6 +408,8 @@ export default function Homepage() {
           </div>
         </div>
       </footer>
+
+      <FloatingActions accent="var(--accent)" />
     </HydrationGuard>
   );
 }

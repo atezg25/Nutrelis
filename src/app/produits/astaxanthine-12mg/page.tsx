@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import HydrationGuard from "@/components/HydrationGuard";
 import { useLocale } from "@/context/LocaleContext";
+import FloatingActions from "@/components/FloatingActions";
 
 function Countdown() {
   const [time, setTime] = useState({ h: 5, m: 47, s: 59 });
@@ -2395,6 +2396,7 @@ export default function Astaxanthine() {
         </div>
       </footer>
 
+      <FloatingActions accent="#7D0806" />
     </HydrationGuard>
   );
 }
