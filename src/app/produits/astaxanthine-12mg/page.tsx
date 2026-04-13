@@ -1453,12 +1453,13 @@ export default function Astaxanthine() {
             </div>
 
             {/* Badges */}
-            <div style={{ display: "flex", justifyContent: "center", gap: isMobile ? 8 : 16, marginBottom: isMobile ? 20 : 28, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: isMobile ? 4 : 16, marginBottom: isMobile ? 20 : 28, flexWrap: isMobile ? "nowrap" : "wrap" }}>
               {[t("product.badgeVegan"), t("product.badgeGlutenFree"), t("product.badgeNatural"), t("product.badgeNonGMO")].map((b, i) => (
                 <span key={i} style={{
                   background: "#fff", border: "1px solid var(--asta-border)",
-                  borderRadius: 20, padding: isMobile ? "4px 10px" : "5px 14px",
-                  fontSize: isMobile ? 10 : 12, color: "var(--asta-text2)", fontWeight: 600,
+                  borderRadius: 20, padding: isMobile ? "3px 6px" : "5px 14px",
+                  fontSize: isMobile ? 9 : 12, color: "var(--asta-text2)", fontWeight: 600,
+                  whiteSpace: "nowrap",
                 }}>
                   {b}
                 </span>
