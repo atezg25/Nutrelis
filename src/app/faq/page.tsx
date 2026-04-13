@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import NavbarCart from "@/components/NavbarCart";
 import { useLocale } from "@/context/LocaleContext";
+import { useScreenSize } from "@/hooks/useIsMobile";
 
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
@@ -21,6 +22,9 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function FAQ() {
   const { t } = useLocale();
+  const screen = useScreenSize();
+  const isMobile = screen === "mobile";
+  const isSmall = screen === "mobile" || screen === "tablet";
   const [activecat, setActivecat] = useState(0);
 
   const categories = [
@@ -75,20 +79,22 @@ export default function FAQ() {
     <div style={{ background: "#fff", color: "#1a1a1a", overflowX: "hidden" }}>
 
       {/* NAVBAR */}
-      <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: "0 60px", height: 68, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
-        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#060f08", fontWeight: 900, fontSize: 16 }}>N</div>
-          <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 20, letterSpacing: 3, color: "#f0fff4" }}>NUTRELIS</span>
+      <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: isMobile ? "0 12px" : isSmall ? "0 24px" : "0 60px", height: isMobile ? 56 : 68, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
+        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: isMobile ? 6 : 10, flexShrink: 0 }}>
+          <div style={{ width: isMobile ? 28 : 36, height: isMobile ? 28 : 36, borderRadius: 8, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#060f08", fontWeight: 900, fontSize: isMobile ? 13 : 16, fontFamily: "var(--font-sora), sans-serif" }}>N</div>
+          {!isMobile && <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isSmall ? 16 : 20, letterSpacing: 3, color: "#f0fff4" }}>NUTRELIS</span>}
         </Link>
-        <div style={{ display: "flex", gap: 32 }}>
-          {[{ label: t("nav.products"), href: "/produits/astaxanthine-12mg" }, { label: t("nav.science"), href: "/science" }, { label: t("nav.reviews"), href: "/avis-clients" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
-            <Link key={item.href} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
-          ))}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {!isSmall && (
+          <div style={{ display: "flex", gap: 32 }}>
+            {[{ label: t("nav.products"), href: "/produits/astaxanthine-12mg" }, { label: t("nav.science"), href: "/science" }, { label: t("nav.reviews"), href: "/avis-clients" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
+              <Link key={item.href} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
+            ))}
+          </div>
+        )}
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12 }}>
           <NavbarCart />
-          <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: "10px 24px", borderRadius: 8, fontSize: 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
-            {t("nav.orderArrow")}
+          <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: isMobile ? "8px 12px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>
+            {isMobile ? t("nav.order") : t("nav.orderArrow")}
           </Link>
         </div>
       </nav>

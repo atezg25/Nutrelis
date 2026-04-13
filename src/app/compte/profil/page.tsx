@@ -5,9 +5,11 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { medusa } from "@/lib/medusa";
 import { useLocale } from "@/context/LocaleContext";
+import { useScreenSize } from "@/hooks/useIsMobile";
 
 export default function Profil() {
   const { t } = useLocale();
+  const isMobile = useScreenSize() === "mobile";
   const { customer, loading } = useAuth();
   const router = useRouter();
   const [form, setForm] = useState({ first_name: "", last_name: "", email: "", phone: "" });
@@ -31,10 +33,10 @@ export default function Profil() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8f9fa" }}>
-      <nav style={{ background: "#7D0806", padding: "0 60px", height: 68, display: "flex", alignItems: "center", gap: 16 }}>
-        <Link href="/compte" style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: 14 }}>{t("account.backToAccount")}</Link>
+      <nav style={{ background: "#7D0806", padding: isMobile ? "0 16px" : "0 60px", height: isMobile ? 56 : 68, display: "flex", alignItems: "center", gap: isMobile ? 10 : 16 }}>
+        <Link href="/compte" style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: isMobile ? 12 : 14 }}>{t("account.backToAccount")}</Link>
         <span style={{ color: "rgba(255,255,255,0.4)" }}>|</span>
-        <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 16, color: "#fff" }}>{t("account.profileTitle")}</span>
+        <span style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isMobile ? 14 : 16, color: "#fff" }}>{t("account.profileTitle")}</span>
       </nav>
 
       <div style={{ maxWidth: 600, margin: "0 auto", padding: "48px 24px" }}>
