@@ -10,21 +10,20 @@ export default function LanguageSwitcher() {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 6,
+        justifyContent: "center",
         background: "rgba(255,255,255,0.1)",
         border: "1px solid rgba(255,255,255,0.25)",
-        borderRadius: 8,
-        padding: "6px 12px",
+        borderRadius: "50%",
+        width: 34,
+        height: 34,
         cursor: "pointer",
-        fontSize: 13,
-        fontWeight: 700,
-        color: "#fff",
-        letterSpacing: 1,
+        fontSize: 20,
         transition: "all 0.2s",
+        padding: 0,
       }}
       title={locale === "fr" ? "Switch to English" : "Passer en Français"}
     >
-      {locale === "fr" ? "🇬🇧 EN" : "🇫🇷 FR"}
+      {locale === "fr" ? "🇬🇧" : "🇫🇷"}
     </button>
   );
 }
