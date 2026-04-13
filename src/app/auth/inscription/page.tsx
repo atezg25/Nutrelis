@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useLocale } from "@/context/LocaleContext";
+import BoutonGoogle from "@/components/BoutonGoogle";
 
 export default function Inscription() {
   const { t } = useLocale();
@@ -37,6 +38,16 @@ export default function Inscription() {
           <div style={{ width: 48, height: 48, borderRadius: 12, background: "#7D0806", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 20, margin: "0 auto 12px" }}>N</div>
           <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.6rem", fontWeight: 800, marginBottom: 8 }}>{t("auth.registerTitle")}</h1>
           <p style={{ color: "#888", fontSize: 14 }}>{t("auth.registerDesc")}</p>
+        </div>
+
+        {/* Inscription rapide avec Google */}
+        <div style={{ marginBottom: 24 }}>
+          <BoutonGoogle onSuccess={() => router.push("/compte")} />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+          <div style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
+          <span style={{ color: "#aaa", fontSize: 13, fontWeight: 600 }}>{t("checkout.orManual")}</span>
+          <div style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
         </div>
 
         <form onSubmit={handleSubmit}>
