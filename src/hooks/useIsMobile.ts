@@ -29,6 +29,12 @@ export function useScreenSize(): ScreenSize {
   const [size, setSize] = useState<ScreenSize>("desktop");
 
   useIsoLayoutEffect(() => {
+    // Prevent browser from restoring stale scroll position
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+
     setSize(detectSize());
     // Reveal content — layout is now correct
     document.documentElement.classList.add("hydrated");
