@@ -238,31 +238,31 @@ export default function Homepage() {
 
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 20 : 24 }}>
             {/* Produit vedette */}
-            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(29,185,84,0.3)", borderRadius: 24, overflow: "hidden" }}>
-              <div style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(29,185,84,0.12) 0%, rgba(6,15,8,0.8) 100%)", padding: "32px", textAlign: "center", position: "relative" }}>
-                <div style={{ position: "absolute", top: 16, right: 16, background: "var(--accent)", color: "#fff", fontSize: 12, fontWeight: 800, padding: "4px 12px", borderRadius: 20 }}>−20%</div>
+            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(29,185,84,0.3)", borderRadius: isMobile ? 16 : 24, overflow: "hidden" }}>
+              <div style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(29,185,84,0.12) 0%, rgba(6,15,8,0.8) 100%)", padding: isMobile ? "24px 20px" : "32px", textAlign: "center", position: "relative" }}>
+                <div style={{ position: "absolute", top: 12, right: 12, background: "var(--accent)", color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 10px", borderRadius: 20 }}>−20%</div>
                 <img src="/images/astaxanthine/img_transparent.png" alt="Astaxanthine"
-                  style={{ width: "55%", maxWidth: 160, height: "auto", objectFit: "contain", margin: "16px auto 0", display: "block" }} />
+                  style={{ width: isMobile ? "45%" : "55%", maxWidth: isMobile ? 130 : 160, height: "auto", objectFit: "contain", margin: "12px auto 0", display: "block" }} />
               </div>
-              <div style={{ padding: isMobile ? "20px" : "28px" }}>
+              <div style={{ padding: isMobile ? "16px" : "28px" }}>
                 <p style={{ color: "var(--accent)", fontSize: 11, fontWeight: 700, letterSpacing: 1.5, marginBottom: 8 }}>{t("home.premiumAntioxidant")}</p>
-                <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 18 : 20, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>{t("home.astaxanthin12mg")}</h3>
-                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, lineHeight: 1.7, marginBottom: 16 }}>
+                <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 16 : 20, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>{t("home.astaxanthin12mg")}</h3>
+                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: isMobile ? 13 : 14, lineHeight: 1.7, marginBottom: 14 }}>
                   {t("home.astaxanthinDesc")}
                 </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
                   {[t("home.tagSkin"), t("home.tagEyes"), t("home.tagEnergy"), t("home.tagAntiAge")].map((tag, i) => (
-                    <span key={i} style={{ background: "rgba(29,185,84,0.1)", color: "var(--accent)", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20, border: "1px solid rgba(29,185,84,0.2)" }}>{tag}</span>
+                    <span key={i} style={{ background: "rgba(29,185,84,0.1)", color: "var(--accent)", fontSize: isMobile ? 10 : 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20, border: "1px solid rgba(29,185,84,0.2)" }}>{tag}</span>
                   ))}
                 </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
                   <div>
                     <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, textDecoration: "line-through", marginRight: 6 }}>18 750 F</span>
-                    <span style={{ color: "var(--accent)", fontSize: isMobile ? 18 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>15 000 FCFA</span>
+                    <span style={{ color: "var(--accent)", fontSize: isMobile ? 16 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>15 000 FCFA</span>
                   </div>
                   <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>★★★★★</div>
                 </div>
-                <Link href="/produits/astaxanthine-12mg" style={{ display: "block", textAlign: "center", background: "var(--accent)", color: "#fff", padding: "14px", borderRadius: 10, fontSize: 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
+                <Link href="/produits/astaxanthine-12mg" style={{ display: "block", textAlign: "center", background: "var(--accent)", color: "#fff", padding: isMobile ? "12px" : "14px", borderRadius: 10, fontSize: isMobile ? 13 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
                   {t("home.discover")}
                 </Link>
               </div>
@@ -273,15 +273,15 @@ export default function Homepage() {
               { nom: t("home.collagenName"), desc: t("home.collagenDesc"), emoji: "🧴" },
               { nom: t("home.omega3Name"), desc: t("home.omega3Desc"), emoji: "🫀" },
             ].map((p, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, overflow: "hidden", opacity: 0.6, position: "relative" }}>
-                <div style={{ position: "absolute", top: 16, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "4px 14px", borderRadius: 20, zIndex: 2, whiteSpace: "nowrap" }}>{t("home.comingSoon")}</div>
-                <div style={{ padding: "40px", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", height: 200 }}>
-                  <span style={{ fontSize: 56, opacity: 0.3 }}>{p.emoji}</span>
+              <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: isMobile ? 16 : 24, overflow: "hidden", opacity: 0.6, position: "relative" }}>
+                <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "4px 14px", borderRadius: 20, zIndex: 2, whiteSpace: "nowrap" }}>{t("home.comingSoon")}</div>
+                <div style={{ padding: isMobile ? "28px 20px" : "40px", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", height: isMobile ? 140 : 200 }}>
+                  <span style={{ fontSize: isMobile ? 40 : 56, opacity: 0.3 }}>{p.emoji}</span>
                 </div>
-                <div style={{ padding: isMobile ? "20px" : "28px" }}>
-                  <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 17 : 20, fontWeight: 800, marginBottom: 10 }}>{p.nom}</h3>
-                  <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14, lineHeight: 1.7, marginBottom: 16 }}>{p.desc}</p>
-                  <button style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", padding: "13px", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: "not-allowed" }}>{t("home.comingSoonBtn")}</button>
+                <div style={{ padding: isMobile ? "16px" : "28px" }}>
+                  <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 15 : 20, fontWeight: 800, marginBottom: 8 }}>{p.nom}</h3>
+                  <p style={{ color: "rgba(255,255,255,0.4)", fontSize: isMobile ? 13 : 14, lineHeight: 1.7, marginBottom: 14 }}>{p.desc}</p>
+                  <button style={{ width: "100%", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", padding: isMobile ? "11px" : "13px", borderRadius: 10, fontSize: isMobile ? 13 : 14, fontWeight: 700, cursor: "not-allowed" }}>{t("home.comingSoonBtn")}</button>
                 </div>
               </div>
             ))}
