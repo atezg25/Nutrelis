@@ -17,6 +17,7 @@ export default function Blog() {
   const screen = useScreenSize();
   const isMobile = screen === "mobile";
   const isSmall = screen === "mobile" || screen === "tablet";
+  const px = isMobile ? "16px" : isSmall ? "24px" : "60px";
 
   const articles = [
     {
@@ -103,9 +104,9 @@ export default function Blog() {
       </nav>
 
       {/* HERO */}
-      <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: "72px 60px", textAlign: "center" }}>
+      <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px", textAlign: "center" }}>
         <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("blogPage.heroTag")}</p>
-        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
+        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.6rem" : isSmall ? "2rem" : "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
           {t("blogPage.heroTitle1")}
           <span style={{ color: "var(--accent)" }}>{t("blogPage.heroTitleHighlight")}</span>
         </h1>
@@ -115,18 +116,18 @@ export default function Blog() {
       </section>
 
       {/* ARTICLE EN VEDETTE */}
-      <section style={{ padding: "72px 60px", background: "#f0faf2" }}>
+      <section style={{ padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px", background: "#f0faf2" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 24 }}>{t("blogPage.featuredTag")}</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, background: "#fff", borderRadius: 24, overflow: "hidden", border: "1px solid #c8e6d0", boxShadow: "0 4px 32px rgba(29,185,84,0.06)" }}>
-            <div style={{ background: "#fdf5f3", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 320, padding: 48 }}>
+            <div style={{ background: "#fdf5f3", display: "flex", alignItems: "center", justifyContent: "center", minHeight: isMobile ? 200 : 320, padding: isMobile ? 24 : 48 }}>
               <img src={vedette.img} alt={vedette.titre} style={{ width: "100%", maxWidth: 300, objectFit: "contain" }} />
             </div>
-            <div style={{ padding: "52px 48px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <div style={{ padding: isMobile ? "28px 16px" : isSmall ? "36px 28px" : "52px 48px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <span style={{ background: "#e8f5eb", color: "var(--accent)", fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 20, letterSpacing: 1, display: "inline-block", width: "fit-content", marginBottom: 20 }}>
                 {vedette.categorie.toUpperCase()}
               </span>
-              <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(1.4rem, 2.5vw, 1.8rem)", fontWeight: 800, marginBottom: 16, lineHeight: 1.3 }}>
+              <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.1rem" : isSmall ? "1.3rem" : "clamp(1.4rem, 2.5vw, 1.8rem)", fontWeight: 800, marginBottom: 16, lineHeight: 1.3 }}>
                 {vedette.titre}
               </h2>
               <p style={{ color: "#555", fontSize: 15, lineHeight: 1.75, marginBottom: 28 }}>
@@ -145,7 +146,7 @@ export default function Blog() {
       </section>
 
       {/* TOUS LES ARTICLES */}
-      <section style={{ padding: "72px 60px" }}>
+      <section style={{ padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 48, flexWrap: "wrap", gap: 20 }}>
             <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.8rem", fontWeight: 800 }}>
@@ -160,7 +161,7 @@ export default function Blog() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isSmall ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 20 : 28 }}>
             {reste.map((art, i) => (
               <div key={i} style={{ background: "#fff", border: "1px solid #eee", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.04)", transition: "all 0.3s" }}
                 onMouseEnter={e => {
@@ -186,7 +187,7 @@ export default function Blog() {
                     {art.titre}
                   </h3>
                   <p style={{ color: "#666", fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>{art.extrait}</p>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0 }}>
                     <span style={{ color: "#aaa", fontSize: 12 }}>{"📅 " + art.date}</span>
                     <Link href={`/blog/${art.slug}`} style={{ color: "var(--accent)", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
                       {t("blogPage.read")}
@@ -200,9 +201,9 @@ export default function Blog() {
       </section>
 
       {/* NEWSLETTER */}
-      <section style={{ background: "#f0faf2", padding: "72px 60px", textAlign: "center", borderTop: "1px solid #c8e6d0" }}>
+      <section style={{ background: "#f0faf2", padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px", textAlign: "center", borderTop: "1px solid #c8e6d0" }}>
         <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("blogPage.newsletterTag")}</p>
-        <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.8rem", fontWeight: 800, marginBottom: 12 }}>
+        <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isSmall ? "1.5rem" : "1.8rem", fontWeight: 800, marginBottom: 12 }}>
           {t("blogPage.newsletterTitle")}
         </h2>
         <p style={{ color: "#555", fontSize: 15, marginBottom: 36 }}>{t("blogPage.newsletterDesc")}</p>
@@ -220,8 +221,8 @@ export default function Blog() {
         </div>
       </section>
 
-      <footer style={{ background: "#060f08", padding: "40px 60px", borderTop: "1px solid #1a3522" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <footer style={{ background: "#060f08", padding: isMobile ? "24px 16px" : "40px 60px", borderTop: "1px solid #1a3522" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0 }}>
           <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>{t("home.footerRights")}</span>
           <div style={{ display: "flex", gap: 24 }}>
             {[{ label: t("blogPage.footerHome"), href: "/" }, { label: t("blogPage.footerProducts"), href: "/produits/astaxanthine-12mg" }, { label: t("blogPage.footerContact"), href: "/contact" }].map(l => (

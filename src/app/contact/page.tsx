@@ -11,6 +11,7 @@ export default function Contact() {
   const screen = useScreenSize();
   const isMobile = screen === "mobile";
   const isSmall = screen === "mobile" || screen === "tablet";
+  const px = isMobile ? "16px" : isSmall ? "24px" : "60px";
   const [sent, setSent] = useState(false);
   const [form, setForm] = useState({ nom: "", email: "", sujet: "", message: "" });
 
@@ -38,9 +39,9 @@ export default function Contact() {
       </nav>
 
       {/* HERO */}
-      <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: "72px 60px", textAlign: "center" }}>
+      <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: isMobile ? "48px 16px" : isSmall ? "56px 24px" : "72px 60px", textAlign: "center" }}>
         <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("contactPage.heroTag")}</p>
-        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
+        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.6rem" : isSmall ? "2rem" : "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
           {t("contactPage.heroTitle1")}
           <span style={{ color: "var(--accent)" }}>{t("contactPage.heroTitleHighlight")}</span>
         </h1>
@@ -48,12 +49,12 @@ export default function Contact() {
       </section>
 
       {/* CONTENU */}
-      <section style={{ padding: "80px 60px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: 80 }}>
+      <section style={{ padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "80px 60px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1.5fr", gap: isMobile ? 32 : 80 }}>
 
           {/* Infos contact */}
           <div>
-            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.6rem", fontWeight: 800, marginBottom: 32 }}>{t("contactPage.infoTitle")}</h2>
+            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isSmall ? "1.5rem" : "1.6rem", fontWeight: 800, marginBottom: 32 }}>{t("contactPage.infoTitle")}</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               {[
                 { icon: "📧", titre: t("contactPage.emailTitle"), val: t("contactPage.emailVal"), desc: t("contactPage.emailDesc") },
@@ -86,7 +87,7 @@ export default function Contact() {
 
           {/* Formulaire */}
           <div>
-            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.6rem", fontWeight: 800, marginBottom: 32 }}>
+            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isSmall ? "1.5rem" : "1.6rem", fontWeight: 800, marginBottom: 32 }}>
               {t("contactPage.formTitle")}
             </h2>
 
@@ -108,7 +109,7 @@ export default function Contact() {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
                   {[
                     { key: "nom", label: t("contactPage.nameLabel"), type: "text", placeholder: t("contactPage.namePlaceholder") },
                     { key: "email", label: t("contactPage.emailLabel"), type: "email", placeholder: t("contactPage.emailPlaceholder") },
@@ -170,8 +171,8 @@ export default function Contact() {
         </div>
       </section>
 
-      <footer style={{ background: "#060f08", padding: "40px 60px", borderTop: "1px solid #1a3522" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <footer style={{ background: "#060f08", padding: isMobile ? "24px 16px" : "40px 60px", borderTop: "1px solid #1a3522" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0 }}>
           <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>{t("home.footerRights")}</span>
           <div style={{ display: "flex", gap: 24 }}>
             {[{ label: t("contactPage.footerHome"), href: "/" }, { label: t("contactPage.footerFaq"), href: "/faq" }, { label: t("contactPage.footerShipping"), href: "/livraison" }].map(l => (

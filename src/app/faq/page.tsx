@@ -26,6 +26,7 @@ export default function FAQ() {
   const screen = useScreenSize();
   const isMobile = screen === "mobile";
   const isSmall = screen === "mobile" || screen === "tablet";
+  const px = isMobile ? "16px" : isSmall ? "24px" : "60px";
   const [activecat, setActivecat] = useState(0);
 
   const categories = [
@@ -100,9 +101,9 @@ export default function FAQ() {
       </nav>
 
       {/* HERO */}
-      <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: "72px 60px", textAlign: "center" }}>
+      <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px", textAlign: "center" }}>
         <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("faqPage.heroTag")}</p>
-        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
+        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.6rem" : isSmall ? "2rem" : "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
           {t("faqPage.heroTitle1")}<br /><span style={{ color: "var(--accent)" }}>{t("faqPage.heroTitleHighlight")}</span>
         </h1>
         <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 16 }}>
@@ -112,7 +113,7 @@ export default function FAQ() {
       </section>
 
       {/* FAQ CONTENU */}
-      <section style={{ padding: "72px 60px" }}>
+      <section style={{ padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 56 }}>
             {categories.map((cat, i) => (
@@ -137,7 +138,7 @@ export default function FAQ() {
       </section>
 
       {/* CTA */}
-      <section style={{ background: "#f0faf2", padding: "72px 60px", textAlign: "center", borderTop: "1px solid #c8e6d0" }}>
+      <section style={{ background: "#f0faf2", padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px", textAlign: "center", borderTop: "1px solid #c8e6d0" }}>
         <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(1.6rem, 2.5vw, 2.2rem)", fontWeight: 800, marginBottom: 16 }}>
           {t("faqPage.ctaTitle")}
         </h2>
@@ -152,8 +153,8 @@ export default function FAQ() {
         </div>
       </section>
 
-      <footer style={{ background: "#060f08", padding: "40px 60px", borderTop: "1px solid #1a3522" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <footer style={{ background: "#060f08", padding: isMobile ? "24px 16px" : "40px 60px", borderTop: "1px solid #1a3522" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0 }}>
           <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>{t("home.footerRights")}</span>
           <div style={{ display: "flex", gap: 24 }}>
             {[{ label: t("faqPage.footerHome"), href: "/" }, { label: t("faqPage.footerAbout"), href: "/a-propos" }, { label: t("faqPage.footerContact"), href: "/contact" }].map(l => (

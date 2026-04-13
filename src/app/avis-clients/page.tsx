@@ -11,6 +11,7 @@ export default function AvisClients() {
   const screen = useScreenSize();
   const isMobile = screen === "mobile";
   const isSmall = screen === "mobile" || screen === "tablet";
+  const px = isMobile ? "16px" : isSmall ? "24px" : "60px";
   const [filtre, setFiltre] = useState(0);
 
   const avis = [
@@ -59,9 +60,9 @@ export default function AvisClients() {
       </nav>
 
       {/* HERO */}
-      <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: "72px 60px", textAlign: "center" }}>
+      <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px", textAlign: "center" }}>
         <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("reviewsPage.heroTag")}</p>
-        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
+        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.6rem" : isSmall ? "2rem" : "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
           {t("reviewsPage.heroTitle1")}
           <span style={{ color: "var(--accent)" }}>{t("reviewsPage.heroTitleHighlight")}</span>
         </h1>
@@ -72,7 +73,7 @@ export default function AvisClients() {
 
       {/* STATS */}
       <section style={{ background: "#f0faf2", borderBottom: "1px solid #c8e6d0" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)" }}>
           {stats.map((s, i) => (
             <div key={i} style={{ padding: "32px 24px", textAlign: "center", borderRight: i < 3 ? "1px solid #c8e6d0" : "none" }}>
               <div style={{ color: "var(--accent)", fontSize: "2.4rem", fontWeight: 900, fontFamily: "var(--font-sora), sans-serif", lineHeight: 1 }}>{s.value}</div>
@@ -83,7 +84,7 @@ export default function AvisClients() {
       </section>
 
       {/* NOTE GLOBALE */}
-      <section style={{ padding: "64px 60px", background: "#fff" }}>
+      <section style={{ padding: isMobile ? "36px 16px" : isSmall ? "48px 24px" : "64px 60px", background: "#fff" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: "6rem", fontWeight: 900, color: "var(--accent)", fontFamily: "var(--font-sora), sans-serif", lineHeight: 1 }}>4.8</div>
@@ -130,7 +131,7 @@ export default function AvisClients() {
             </span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isSmall ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 16 : 24 }}>
             {avisFiltres.map((a, i) => (
               <div key={i} style={{ background: "#fff", borderRadius: 20, padding: 28, border: "1px solid #eee", boxShadow: "0 2px 16px rgba(0,0,0,0.04)", transition: "all 0.3s" }}
                 onMouseEnter={e => {
@@ -162,7 +163,7 @@ export default function AvisClients() {
                     <div style={{ color: "#bbb", fontSize: 11 }}>{a.semaines}</div>
                   </div>
                 </div>
-                <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #f0f0f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #f0f0f0", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0 }}>
                   <span style={{ color: "#aaa", fontSize: 11 }}>{t("reviewsPage.packBought")}</span>
                   <span style={{ color: "#555", fontSize: 12, fontWeight: 600 }}>{a.pack}</span>
                 </div>
@@ -173,20 +174,20 @@ export default function AvisClients() {
       </section>
 
       {/* CTA */}
-      <section style={{ background: "var(--accent)", padding: "72px 60px", textAlign: "center" }}>
-        <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 900, color: "#060f08", marginBottom: 16 }}>
+      <section style={{ background: "var(--accent)", padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px", textAlign: "center" }}>
+        <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 900, color: "#060f08", marginBottom: 16 }}>
           {t("reviewsPage.ctaTitle")}
         </h2>
         <p style={{ color: "rgba(6,15,8,0.75)", fontSize: 16, marginBottom: 36 }}>
           {t("reviewsPage.ctaDesc")}
         </p>
-        <Link href="/produits/astaxanthine-12mg" style={{ display: "inline-block", background: "#060f08", color: "#fff", padding: "18px 52px", borderRadius: 12, fontSize: 16, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
+        <Link href="/produits/astaxanthine-12mg" style={{ display: "inline-block", background: "#060f08", color: "#fff", padding: isMobile ? "14px 32px" : "18px 52px", borderRadius: 12, fontSize: isMobile ? 14 : 16, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
           {t("reviewsPage.ctaBtn")}
         </Link>
       </section>
 
-      <footer style={{ background: "#060f08", padding: "40px 60px", borderTop: "1px solid #1a3522" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <footer style={{ background: "#060f08", padding: isMobile ? "24px 16px" : "40px 60px", borderTop: "1px solid #1a3522" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0 }}>
           <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>{t("home.footerRights")}</span>
           <div style={{ display: "flex", gap: 24 }}>
             {[{ label: t("reviewsPage.footerHome"), href: "/" }, { label: t("reviewsPage.footerProducts"), href: "/produits/astaxanthine-12mg" }, { label: t("reviewsPage.footerContact"), href: "/contact" }].map(l => (
