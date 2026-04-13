@@ -51,7 +51,7 @@ function Navbar() {
       )}
 
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <LanguageSwitcher />
+        {!isMobile && <LanguageSwitcher />}
         <NavbarCart />
         <Link href="/produits/astaxanthine-12mg" style={{
           background: "var(--accent)", color: "#fff",
@@ -80,6 +80,19 @@ export default function Homepage() {
   return (
     <main style={{ background: "var(--bg-primary)", color: "#fff", overflowX: "hidden" }}>
       <Navbar />
+
+      {/* Badge langue fixe — mobile uniquement */}
+      {isMobile && (
+        <div style={{
+          position: "fixed",
+          left: 0,
+          top: "50%",
+          transform: "translateY(-50%)",
+          zIndex: 99,
+        }}>
+          <LanguageSwitcher variant="badge" />
+        </div>
+      )}
 
       {/* HERO */}
       <section style={{
