@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
         "Accept": "application/json",
       },
       body: JSON.stringify({
-        email: email || `${telephone}@nutrelis.com`,
+        email: email || `${telephone}@nutrelis.bio`,
         phone: telephone,
         name: `${prenom} ${nom}`,
         amount: montant,

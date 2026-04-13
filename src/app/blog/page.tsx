@@ -194,7 +194,7 @@ export default function Blog() {
                     {art.titre}
                   </h3>
                   <p style={{ color: "#666", fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>{art.extrait}</p>
-                  <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0 }}>
+                  <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "center" : "space-between", alignItems: "center", gap: isMobile ? 10 : 0, textAlign: isMobile ? "center" : undefined }}>
                     <span style={{ color: "#aaa", fontSize: 12 }}>{"📅 " + art.date}</span>
                     <a href={art.url} target={art.url.startsWith("/") ? undefined : "_blank"} rel={art.url.startsWith("/") ? undefined : "noopener noreferrer"} style={{ color: "var(--accent)", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
                       {t("blogPage.read")} {!art.url.startsWith("/") && "↗"}
@@ -229,11 +229,11 @@ export default function Blog() {
       </section>
 
       <footer style={{ background: "#060f08", padding: isMobile ? "24px 16px" : "40px 60px", borderTop: "1px solid #1a3522" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0 }}>
-          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>{t("home.footerRights")}</span>
-          <div style={{ display: "flex", gap: 24 }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "center" : "space-between", alignItems: "center", gap: isMobile ? 10 : 0, textAlign: isMobile ? "center" : undefined }}>
+          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: isMobile ? 11 : 13 }}>{t("home.footerRights")}</span>
+          <div style={{ display: "flex", gap: isMobile ? 16 : 24 }}>
             {[{ label: t("blogPage.footerHome"), href: "/" }, { label: t("blogPage.footerProducts"), href: "/produits/astaxanthine-12mg" }, { label: t("blogPage.footerContact"), href: "/contact" }].map(l => (
-              <Link key={l.href} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>{l.label}</Link>
+              <Link key={l.href} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: isMobile ? 11 : 13, textDecoration: "none" }}>{l.label}</Link>
             ))}
           </div>
         </div>

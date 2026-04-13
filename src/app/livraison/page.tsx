@@ -187,7 +187,7 @@ export default function Livraison() {
       </section>
 
       <footer style={{ background: "#060f08", padding: isMobile ? "24px 16px" : "40px 60px", borderTop: "1px solid #1a3522" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? 12 : 0 }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "center" : "space-between", alignItems: "center", gap: isMobile ? 10 : 0, textAlign: isMobile ? "center" : undefined }}>
           <span style={{ color: "rgba(255,255,255,0.4)", fontSize: isMobile ? 12 : 13 }}>{t("home.footerRights")}</span>
           <div style={{ display: "flex", gap: isMobile ? 16 : 24 }}>
             {[{ label: t("shipping.footerHome"), href: "/" }, { label: t("shipping.footerFaq"), href: "/faq" }, { label: t("shipping.footerContact"), href: "/contact" }].map(l => (
