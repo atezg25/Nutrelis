@@ -7,6 +7,7 @@ import { useLocale } from "@/context/LocaleContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import HydrationGuard from "@/components/HydrationGuard";
 import FloatingActions from "@/components/FloatingActions";
+import { fetchProducts, getVariantPrice } from "@/lib/medusa-products";
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -75,6 +76,24 @@ export default function Homepage() {
   const isTablet = screen === "tablet";
   const isDesktop = screen === "desktop";
   const { t } = useLocale();
+  const [startPrice, setStartPrice] = useState(15000);
+  const [oldPrice, setOldPrice] = useState(18750);
+
+  // Charger le prix depuis Medusa
+  useEffect(() => {
+    fetchProducts().then(products => {
+      const astax = products.find(p => p.handle === "astaxanthine-12mg");
+      if (!astax) return;
+      const v1 = astax.variants.find(v => v.sku === "NUT-AX-1P");
+      if (v1) {
+        const price = getVariantPrice(v1);
+        if (price > 0) {
+          setStartPrice(price);
+          setOldPrice(Math.round(price * 1.25));
+        }
+      }
+    });
+  }, []);
 
   const px = isMobile ? "16px" : isTablet ? "32px" : "60px";
   const py = isMobile ? "56px" : isTablet ? "72px" : "100px";
@@ -258,8 +277,8 @@ export default function Homepage() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, textDecoration: "line-through", marginRight: 6 }}>18 750 F</span>
-                    <span style={{ color: "var(--accent)", fontSize: isMobile ? 16 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>15 000 FCFA</span>
+                    <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, textDecoration: "line-through", marginRight: 6 }}>{oldPrice.toLocaleString("fr-FR")} F</span>
+                    <span style={{ color: "var(--accent)", fontSize: isMobile ? 16 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>{startPrice.toLocaleString("fr-FR")} FCFA</span>
                   </div>
                   <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>★★★★★</div>
                 </div>

@@ -6,6 +6,7 @@ import { useScreenSize } from "@/hooks/useIsMobile";
 import HydrationGuard from "@/components/HydrationGuard";
 import { useLocale } from "@/context/LocaleContext";
 import FloatingActions from "@/components/FloatingActions";
+import { fetchProductByHandle, getVariantPrice, type MedusaProduct } from "@/lib/medusa-products";
 
 function Countdown() {
   const [time, setTime] = useState({ h: 5, m: 47, s: 59 });
@@ -155,7 +156,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original: number, mode: string) => void }) {
+function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: number, original: number, mode: string) => void; medusaProduct?: MedusaProduct | null }) {
   const [mode, setMode] = useState("unique");
   const [selected, setSelected] = useState(2);
   const [toast, setToast] = useState(false);
@@ -163,19 +164,28 @@ function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original
   const scPS = useScreenSize();
   const isMobilePS = scPS === "mobile";
   const { t } = useLocale();
+
+  // Mapping SKU → variant Medusa pour récupérer les prix dynamiques
+  const skuPriceMap: Record<string, number> = {};
+  if (medusaProduct?.variants) {
+    for (const v of medusaProduct.variants) {
+      if (v.sku) skuPriceMap[v.sku] = getVariantPrice(v);
+    }
+  }
+
   const packs = [
     {
       id: 1,
       label: t("product.packDiscovery"),
       capsules: t("product.capsules1"),
       cure: t("product.cure1"),
-      prix: 15000,
-      ancien: 18750,
-      aboPrix: 14250,
+      prix: skuPriceMap["NUT-AX-1P"] || 15000,
+      ancien: Math.round((skuPriceMap["NUT-AX-1P"] || 15000) * 1.25),
+      aboPrix: Math.round((skuPriceMap["NUT-AX-1P"] || 15000) * 0.95),
       eco: null,
       popular: false,
       img: "/images/astaxanthine/P_01.png",
-      variantId: "variant_01KNX844AZ8E2VAQS6T6QH7CWA",
+      variantId: medusaProduct?.variants?.find(v => v.sku === "NUT-AX-1P")?.id || "variant_01KNX844AZ8E2VAQS6T6QH7CWA",
       sku: "NUT-AX-1P",
     },
     {
@@ -183,13 +193,13 @@ function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original
       label: t("product.packResults"),
       capsules: t("product.capsules2"),
       cure: t("product.cure2"),
-      prix: 27000,
-      ancien: 33750,
-      aboPrix: 25650,
-      eco: "3 000 FCFA",
+      prix: skuPriceMap["NUT-AX-2P"] || 27000,
+      ancien: Math.round((skuPriceMap["NUT-AX-2P"] || 27000) * 1.25),
+      aboPrix: Math.round((skuPriceMap["NUT-AX-2P"] || 27000) * 0.95),
+      eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 2 - (skuPriceMap["NUT-AX-2P"] || 27000)).toLocaleString("fr-FR") + " FCFA",
       popular: true,
       img: "/images/astaxanthine/P_02.png",
-      variantId: "variant_01KNX844B038BGGT8JKXGVD5D4",
+      variantId: medusaProduct?.variants?.find(v => v.sku === "NUT-AX-2P")?.id || "variant_01KNX844B0HJWBPJTS7P0M27SK",
       sku: "NUT-AX-2P",
     },
     {
@@ -197,13 +207,13 @@ function PackSelector({ onPackChange }: { onPackChange?: (prix: number, original
       label: t("product.packTransformation"),
       capsules: t("product.capsules3"),
       cure: t("product.cure3"),
-      prix: 36000,
-      ancien: 45000,
-      aboPrix: 34200,
-      eco: "9 000 FCFA",
+      prix: skuPriceMap["NUT-AX-3P"] || 36000,
+      ancien: Math.round((skuPriceMap["NUT-AX-3P"] || 36000) * 1.25),
+      aboPrix: Math.round((skuPriceMap["NUT-AX-3P"] || 36000) * 0.95),
+      eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 3 - (skuPriceMap["NUT-AX-3P"] || 36000)).toLocaleString("fr-FR") + " FCFA",
       popular: false,
       img: "/images/astaxanthine/P_03.png",
-      variantId: "variant_01KNX844B0HJWBPJTS7P0M27SK",
+      variantId: medusaProduct?.variants?.find(v => v.sku === "NUT-AX-3P")?.id || "variant_01KNX844B0HJWBPJTS7P0M27SK",
       sku: "NUT-AX-3P",
     },
   ];
@@ -1026,6 +1036,7 @@ export default function Astaxanthine() {
   const [prixOriginal, setPrixOriginal] = useState(33750);
   const [selectedPack, setSelectedPack] = useState(2);
   const [mode, setMode] = useState<"unique" | "abonnement">("unique");
+  const [medusaProduct, setMedusaProduct] = useState<MedusaProduct | null>(null);
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
   const isSmall = sc === "mobile" || sc === "tablet";
@@ -1033,10 +1044,25 @@ export default function Astaxanthine() {
   const px = isMobile ? "16px" : sc === "tablet" ? "28px" : "60px";
   const py = isMobile ? "48px" : sc === "tablet" ? "64px" : "96px";
 
+  // Charger les données produit depuis Medusa
+  useEffect(() => {
+    fetchProductByHandle("astaxanthine-12mg").then(p => {
+      if (p) setMedusaProduct(p);
+    });
+  }, []);
+
+  // Prix dynamiques depuis Medusa (fallback hardcodé)
+  const skuPriceMap: Record<string, number> = {};
+  if (medusaProduct?.variants) {
+    for (const v of medusaProduct.variants) {
+      if (v.sku) skuPriceMap[v.sku] = getVariantPrice(v);
+    }
+  }
+
   const packs = [
-    { id: 1, label: "1 Boîte · 60 capsules", desc: "Cure de 60 jours", prix: 15000, original: 18750 },
-    { id: 2, label: "2 Boîtes · 120 capsules", desc: "Cure de 120 jours", prix: 27000, original: 33750, eco: "3 000 FCFA", popular: true },
-    { id: 3, label: "3 Boîtes · 180 capsules", desc: "Cure de 180 jours", prix: 36000, original: 45000, eco: "9 000 FCFA" },
+    { id: 1, label: "1 Boîte · 60 capsules", desc: "Cure de 60 jours", prix: skuPriceMap["NUT-AX-1P"] || 15000, original: Math.round((skuPriceMap["NUT-AX-1P"] || 15000) * 1.25) },
+    { id: 2, label: "2 Boîtes · 120 capsules", desc: "Cure de 120 jours", prix: skuPriceMap["NUT-AX-2P"] || 27000, original: Math.round((skuPriceMap["NUT-AX-2P"] || 27000) * 1.25), eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 2 - (skuPriceMap["NUT-AX-2P"] || 27000)).toLocaleString("fr-FR") + " FCFA", popular: true },
+    { id: 3, label: "3 Boîtes · 180 capsules", desc: "Cure de 180 jours", prix: skuPriceMap["NUT-AX-3P"] || 36000, original: Math.round((skuPriceMap["NUT-AX-3P"] || 36000) * 1.25), eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 3 - (skuPriceMap["NUT-AX-3P"] || 36000)).toLocaleString("fr-FR") + " FCFA" },
   ];
 
   const currentPack = packs.find(p => p.id === selectedPack)!;
@@ -2057,7 +2083,7 @@ export default function Astaxanthine() {
               </div>
 
               {/* Pack Selector */}
-             <PackSelector onPackChange={(prix, original) => {
+             <PackSelector medusaProduct={medusaProduct} onPackChange={(prix, original) => {
                 setPrixAffiche(prix);
                 setPrixOriginal(original);
               }} />
