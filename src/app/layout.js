@@ -17,6 +17,31 @@ const sora = Sora({
 
 const SITE_URL = process.env.NEXT_PUBLIC_URL || "https://nutrelis.bio";
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "NUTRELIS",
+  url: SITE_URL,
+  logo: `${SITE_URL}/images/astaxanthine/NUT2.png`,
+  description: "Compléments alimentaires premium à base d'actifs naturels pour le Cameroun",
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "support@nutrelis.bio",
+    contactType: "customer service",
+    availableLanguage: ["French", "English"],
+    areaServed: "CM",
+  },
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "NUTRELIS",
+  url: SITE_URL,
+  inLanguage: ["fr", "en"],
+  publisher: { "@type": "Organization", name: "NUTRELIS" },
+};
+
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -75,6 +100,16 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fr">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+      </head>
       <body className={`${dmSans.variable} ${sora.variable}`}>
         <LocaleProvider>
           <AuthProvider>

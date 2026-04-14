@@ -2,6 +2,32 @@ import { Metadata } from "next";
 
 const SITE_URL = process.env.NEXT_PUBLIC_URL || "https://nutrelis.bio";
 
+const productJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: "NUTRELIS Astaxanthine 12mg",
+  description:
+    "Astaxanthine naturelle 12mg — 6000× plus puissante que la Vitamine C. Peau lumineuse, énergie, protection cellulaire.",
+  image: `${SITE_URL}/images/astaxanthine/NUT2.png`,
+  brand: { "@type": "Brand", name: "NUTRELIS" },
+  sku: "NUT-AX-1P",
+  offers: {
+    "@type": "AggregateOffer",
+    priceCurrency: "XAF",
+    lowPrice: 15000,
+    highPrice: 36000,
+    offerCount: 3,
+    availability: "https://schema.org/InStock",
+    seller: { "@type": "Organization", name: "NUTRELIS" },
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.8",
+    reviewCount: "127",
+    bestRating: "5",
+  },
+};
+
 export const metadata: Metadata = {
   title: "Astaxanthine 12mg — Antioxydant le Plus Puissant au Monde | NUTRELIS",
   description:
@@ -62,5 +88,13 @@ export default function AstaxanthineLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      {children}
+    </>
+  );
 }

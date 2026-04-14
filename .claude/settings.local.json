@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(///wsl.localhost/Ubuntu/home/anicet/projets/**)",
+      "Bash(npx tsc:*)",
+      "Bash(bash -c \"cd /home/anicet/projets/nutrelis && node_modules/.bin/tsc --noEmit 2>&1 | head -60\")",
+      "Bash(wsl bash:*)",
+      "Bash(git config:*)",
+      "Bash(git -C \"//wsl.localhost/Ubuntu/home/anicet/projets/nutrelis\" push origin main)",
+      "Bash(node -e ':*)",
+      "Bash(wsl -d Ubuntu -- bash -ic \"cd /home/anicet/projets/nutrelis && npx next build 2>&1 | tail -5\")"
+    ]
+  }
+}
