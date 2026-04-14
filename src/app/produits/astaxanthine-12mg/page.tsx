@@ -635,11 +635,10 @@ function RaisonsSection() {
     </div>
   );
 }
-function ProductFaqItem({ icon, q, a }: { icon: string; q: string; a: React.ReactNode }) {
-  const [open, setOpen] = useState(false);
+function ProductFaqItem({ icon, q, a, open, onToggle }: { icon: string; q: string; a: React.ReactNode; open: boolean; onToggle: () => void }) {
   return (
     <div
-      onClick={() => setOpen(!open)}
+      onClick={onToggle}
       style={{
         borderBottom: "1px solid var(--asta-border)",
         cursor: "pointer",
@@ -707,6 +706,7 @@ function ProductFaqItem({ icon, q, a }: { icon: string; q: string; a: React.Reac
 }
 function ProductGallery() {
   const [main, setMain] = useState(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { t } = useLocale();
   const images = [
     "/images/astaxanthine/img_transparent.png",
@@ -905,7 +905,7 @@ function ProductGallery() {
             ),
           },
         ].map((item, i) => (
-          <ProductFaqItem key={i} icon={item.icon} q={item.q} a={item.a} />
+          <ProductFaqItem key={i} icon={item.icon} q={item.q} a={item.a} open={openFaq === i} onToggle={() => setOpenFaq(openFaq === i ? null : i)} />
         ))}
       </div>
     </div>
