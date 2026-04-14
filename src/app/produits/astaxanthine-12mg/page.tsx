@@ -179,6 +179,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
       label: t("product.packDiscovery"),
       capsules: t("product.capsules1"),
       cure: t("product.cure1"),
+      perCycle: t("product.perCycle1"),
       prix: skuPriceMap["NUT-AX-1P"] || 15000,
       ancien: Math.round((skuPriceMap["NUT-AX-1P"] || 15000) * 1.25),
       aboPrix: Math.round((skuPriceMap["NUT-AX-1P"] || 15000) * 0.95),
@@ -193,6 +194,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
       label: t("product.packResults"),
       capsules: t("product.capsules2"),
       cure: t("product.cure2"),
+      perCycle: t("product.perCycle2"),
       prix: skuPriceMap["NUT-AX-2P"] || 27000,
       ancien: Math.round((skuPriceMap["NUT-AX-2P"] || 27000) * 1.25),
       aboPrix: Math.round((skuPriceMap["NUT-AX-2P"] || 27000) * 0.95),
@@ -207,6 +209,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
       label: t("product.packTransformation"),
       capsules: t("product.capsules3"),
       cure: t("product.cure3"),
+      perCycle: t("product.perCycle3"),
       prix: skuPriceMap["NUT-AX-3P"] || 36000,
       ancien: Math.round((skuPriceMap["NUT-AX-3P"] || 36000) * 1.25),
       aboPrix: Math.round((skuPriceMap["NUT-AX-3P"] || 36000) * 0.95),
@@ -398,7 +401,7 @@ useEffect(() => {
               </div>
               {mode === "abonnement" && (
                 <div style={{ fontSize: 11, color: "var(--asta-gold)", fontWeight: 700 }}>
-                  {t("product.perMonth")}
+                  {pack.perCycle}
                 </div>
               )}
             </div>
