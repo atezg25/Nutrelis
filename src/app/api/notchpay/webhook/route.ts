@@ -179,7 +179,7 @@ async function envoyerEmail({
 </body></html>`;
 
   await getResend().emails.send({
-    from: "NUTRELIS <onboarding@resend.dev>",
+    from: "NUTRELIS <support@nutrelis.bio>",
     to: [destinataire],
     subject: `✅ Nouvelle commande — ${prenom} ${nom} (${(total).toLocaleString("fr-FR")} FCFA)`,
     html,
