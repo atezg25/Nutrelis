@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-const SITE_URL = "https://nutrelis-v76z.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_URL || "https://nutrelis.bio";
 
 export const metadata: Metadata = {
   title: "Astaxanthine 12mg — Antioxydant le Plus Puissant au Monde | NUTRELIS",

@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
         amount: montant,
         currency: "XAF",
         description: description,
-        callback: `${process.env.NEXT_PUBLIC_URL}/checkout/success`,
+        callback: `${process.env.NEXT_PUBLIC_URL || "https://nutrelis.bio"}/checkout/success`,
         metadata: {
           items: JSON.stringify(items || []),
           adresse, ville, quartier,

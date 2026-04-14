@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-const URL = "https://nutrelis-v76z.vercel.app";
+const URL = process.env.NEXT_PUBLIC_URL || "https://nutrelis.bio";
 
 export default function robots(): MetadataRoute.Robots {
   return {

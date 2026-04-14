@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
 
               <!-- CTA -->
               <div style="text-align: center; margin-bottom: 32px;">
-                <a href="${process.env.NEXT_PUBLIC_URL || "https://nutrelis-v76z.vercel.app"}/produits/astaxanthine-12mg"
+                <a href="${process.env.NEXT_PUBLIC_URL || "https://nutrelis.bio"}/produits/astaxanthine-12mg"
                    style="display: inline-block; background: #7D0806; color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 10px; font-size: 15px; font-weight: 800; letter-spacing: 0.5px;">
                   Voir nos autres produits →
                 </a>

@@ -15,7 +15,7 @@ const sora = Sora({
   weight: ["400", "600", "700", "800"],
 });
 
-const SITE_URL = "https://nutrelis-v76z.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_URL || "https://nutrelis.bio";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
