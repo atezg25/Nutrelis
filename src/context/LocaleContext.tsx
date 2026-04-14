@@ -6,7 +6,7 @@ type Locale = "fr" | "en";
 interface LocaleContextType {
   locale: Locale;
   setLocale: (l: Locale) => void;
-  t: (key: string) => string;
+  t: (key: string) => any;
 }
 
 const LocaleContext = createContext<LocaleContextType | null>(null);
@@ -17,14 +17,15 @@ import en from "@/i18n/en";
 
 const dictionaries: Record<Locale, Record<string, string>> = { fr, en };
 
-function getValue(obj: Record<string, any>, path: string): string {
+function getValue(obj: Record<string, any>, path: string): any {
   const keys = path.split(".");
   let val: any = obj;
   for (const k of keys) {
     if (val == null) return path;
     val = val[k];
   }
-  return typeof val === "string" ? val : path;
+  if (typeof val === "string" || Array.isArray(val)) return val;
+  return path;
 }
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
@@ -40,7 +41,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("nutrelis-locale", l);
   };
 
-  const t = (key: string): string => {
+  const t = (key: string): any => {
     return getValue(dictionaries[locale], key);
   };
 

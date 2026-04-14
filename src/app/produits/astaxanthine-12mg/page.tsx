@@ -792,17 +792,17 @@ function ProductGallery() {
             q: t("product.galleryFaq1Q"),
             a: (
               <div>
-                <p style={{ marginBottom: 10 }}>L'Astaxanthine est un <strong>antioxydant naturel extrêmement puissant</strong>, extrait d'une micro-algue appelée <strong>Haematococcus pluvialis</strong>. C'est elle qui donne leur couleur rouge aux saumons sauvages et aux flamants roses.</p>
-                <p style={{ marginBottom: 8, fontWeight: 700, color: "var(--asta-accent)" }}>Elle est :</p>
+                <p style={{ marginBottom: 10 }} dangerouslySetInnerHTML={{ __html: t("product.galleryFaq1A_intro") }} />
+                <p style={{ marginBottom: 8, fontWeight: 700, color: "var(--asta-accent)" }}>{t("product.galleryFaq1A_label")}</p>
                 <ul style={{ paddingLeft: 0, listStyle: "none", marginBottom: 10 }}>
-                  {["6000× plus puissante que la Vitamine C", "1800× plus puissante que le CoQ10", "800× plus puissante que l'acide alpha-lipoïque", "550× plus puissante que le thé vert"].map((item, i) => (
+                  {(t("product.galleryFaq1A_items") as unknown as string[]).map((item: string, i: number) => (
                     <li key={i} style={{ display: "flex", gap: 8, marginBottom: 6 }}>
                       <span style={{ color: "var(--asta-accent)", fontWeight: 700 }}>➡️</span>
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
-                <p>Elle est étudiée pour : peau, yeux, énergie, récupération et vieillissement cellulaire.</p>
+                <p>{t("product.galleryFaq1A_outro")}</p>
               </div>
             ),
           },
@@ -811,18 +811,18 @@ function ProductGallery() {
             q: t("product.galleryFaq2Q"),
             a: (
               <div>
-                <p style={{ marginBottom: 12 }}>La majorité remarque des effets après <strong>10 à 15 jours</strong> : peau plus lumineuse, moins de fatigue visuelle, énergie plus stable.</p>
+                <p style={{ marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: t("product.galleryFaq2A_intro") }} />
                 <div style={{ marginBottom: 12 }}>
-                  <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>Après 3 semaines :</p>
-                  {["Teint plus lumineux", "Peau mieux hydratée", "Premières rides atténuées", "Ce fameux \"glow\" naturel"].map((item, i) => (
+                  <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>{t("product.galleryFaq2A_phase1Label")}</p>
+                  {(t("product.galleryFaq2A_phase1Items") as unknown as string[]).map((item: string, i: number) => (
                     <div key={i} style={{ display: "flex", gap: 8, marginBottom: 4 }}>
                       <span style={{ color: "#1db954" }}>✅</span><span>{item}</span>
                     </div>
                   ))}
                 </div>
                 <div>
-                  <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>Après 8-12 semaines :</p>
-                  {["Transformation complète", "Peau visiblement plus jeune", "Élasticité restaurée", "Teint unifié et éclatant"].map((item, i) => (
+                  <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>{t("product.galleryFaq2A_phase2Label")}</p>
+                  {(t("product.galleryFaq2A_phase2Items") as unknown as string[]).map((item: string, i: number) => (
                     <div key={i} style={{ display: "flex", gap: 8, marginBottom: 4 }}>
                       <span style={{ color: "#1db954" }}>✅</span><span>{item}</span>
                     </div>
@@ -836,7 +836,7 @@ function ProductGallery() {
             q: t("product.galleryFaq3Q"),
             a: (
               <div>
-                <p>100% safe. L'astaxanthine est l'un des compléments les plus étudiés et les plus sûrs au monde. <strong>Aucun effet secondaire connu</strong>, même à long terme. Des millions de personnes en prennent quotidiennement au Japon depuis des décennies.</p>
+                <p dangerouslySetInnerHTML={{ __html: t("product.galleryFaq3A") }} />
               </div>
             ),
           },
@@ -846,14 +846,14 @@ function ProductGallery() {
             a: (
               <div>
                 {[
-                  { titre: "🌸 Pour la peau :", items: ["Éclat visible", "Rides et ridules atténuées", "Élasticité améliorée", "Hydratation renforcée", "Protection UV interne"] },
-                  { titre: "⚡ Pour l'énergie & le bien-être :", items: ["Moins de fatigue", "Meilleure récupération", "Soutien des muscles et des articulations"] },
-                  { titre: "👁️ Pour les yeux :", items: ["Protection contre la lumière bleue", "Confort visuel au quotidien"] },
-                  { titre: "🛡️ Pour l'immunité :", items: ["Renforcement naturel des défenses"] },
+                  { titre: t("product.galleryFaq4A_cat1Title"), items: t("product.galleryFaq4A_cat1Items") as unknown as string[] },
+                  { titre: t("product.galleryFaq4A_cat2Title"), items: t("product.galleryFaq4A_cat2Items") as unknown as string[] },
+                  { titre: t("product.galleryFaq4A_cat3Title"), items: t("product.galleryFaq4A_cat3Items") as unknown as string[] },
+                  { titre: t("product.galleryFaq4A_cat4Title"), items: t("product.galleryFaq4A_cat4Items") as unknown as string[] },
                 ].map((section, i) => (
                   <div key={i} style={{ marginBottom: 12 }}>
                     <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>{section.titre}</p>
-                    {section.items.map((item, j) => (
+                    {section.items.map((item: string, j: number) => (
                       <div key={j} style={{ display: "flex", gap: 8, marginBottom: 4 }}>
                         <span style={{ color: "#1db954" }}>✓</span><span>{item}</span>
                       </div>
@@ -861,8 +861,8 @@ function ProductGallery() {
                   </div>
                 ))}
                 <div style={{ marginTop: 12, padding: "12px 16px", background: "rgba(125,8,6,0.06)", borderRadius: 8, border: "1px solid var(--asta-border)" }}>
-                  <p style={{ fontWeight: 800, marginBottom: 6 }}>🏆 Pourquoi NUTRELIS est supérieur ?</p>
-                  {["Astaxanthine naturelle issue de micro-algues", "Haute biodisponibilité", "12mg par gélule (dosage premium)", "Pur, puissant, sans artifices"].map((item, i) => (
+                  <p style={{ fontWeight: 800, marginBottom: 6 }}>{t("product.galleryFaq4A_whyTitle")}</p>
+                  {(t("product.galleryFaq4A_whyItems") as unknown as string[]).map((item: string, i: number) => (
                     <div key={i} style={{ display: "flex", gap: 8, marginBottom: 4 }}>
                       <span style={{ color: "var(--asta-accent)", fontWeight: 700 }}>•</span><span>{item}</span>
                     </div>
@@ -876,7 +876,7 @@ function ProductGallery() {
             q: t("product.galleryFaq5Q"),
             a: (
               <div>
-                <p>Notre unique ingrédient actif est l'<strong>Astaxanthine</strong>, issue de la micro-algue <em>Haematococcus pluvialis</em>. L'enveloppe de la gélule est composée de <strong>Gélatine</strong> et d'<strong>Eau Purifiée</strong> — chaque capsule est conçue pour une pureté et une performance maximales.</p>
+                <p dangerouslySetInnerHTML={{ __html: t("product.galleryFaq5A") }} />
               </div>
             ),
           },
@@ -886,17 +886,17 @@ function ProductGallery() {
             a: (
               <div>
                 <div style={{ marginBottom: 12 }}>
-                  <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>📦 Livraison standard gratuite :</p>
-                  <p style={{ marginBottom: 4 }}>Réception en <strong>4 à 7 jours ouvrés</strong> via <strong>Atez Express</strong>.</p>
-                  <p>Les commandes sont <strong>expédiées sous 24 heures</strong>.</p>
+                  <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>{t("product.galleryFaq6A_stdLabel")}</p>
+                  <p style={{ marginBottom: 4 }} dangerouslySetInnerHTML={{ __html: t("product.galleryFaq6A_stdLine1") }} />
+                  <p dangerouslySetInnerHTML={{ __html: t("product.galleryFaq6A_stdLine2") }} />
                 </div>
                 <div style={{ marginBottom: 12 }}>
-                  <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>⚡ Livraison express payante :</p>
-                  <p style={{ marginBottom: 4 }}>Réception en <strong>1 à 2 jours ouvrés</strong> via <strong>Atez Express</strong>.</p>
-                  <p>Les commandes sont <strong>expédiées sous 24 heures</strong>.</p>
+                  <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>{t("product.galleryFaq6A_expLabel")}</p>
+                  <p style={{ marginBottom: 4 }} dangerouslySetInnerHTML={{ __html: t("product.galleryFaq6A_expLine1") }} />
+                  <p dangerouslySetInnerHTML={{ __html: t("product.galleryFaq6A_expLine2") }} />
                 </div>
                 <div style={{ padding: "10px 14px", background: "rgba(125,8,6,0.06)", borderRadius: 8, border: "1px solid var(--asta-border)" }}>
-                  <p style={{ fontSize: 12, color: "var(--asta-text2)" }}>⚠️ Pour des raisons d'hygiène et de sécurité, les produits vendus ne peuvent être ni retournés, ni échangés, ni remboursés après l'achat.</p>
+                  <p style={{ fontSize: 12, color: "var(--asta-text2)" }}>{t("product.galleryFaq6A_warning")}</p>
                 </div>
               </div>
             ),
@@ -1060,9 +1060,9 @@ export default function Astaxanthine() {
   }
 
   const packs = [
-    { id: 1, label: "1 Boîte · 60 capsules", desc: "Cure de 60 jours", prix: skuPriceMap["NUT-AX-1P"] || 15000, original: Math.round((skuPriceMap["NUT-AX-1P"] || 15000) * 1.25) },
-    { id: 2, label: "2 Boîtes · 120 capsules", desc: "Cure de 120 jours", prix: skuPriceMap["NUT-AX-2P"] || 27000, original: Math.round((skuPriceMap["NUT-AX-2P"] || 27000) * 1.25), eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 2 - (skuPriceMap["NUT-AX-2P"] || 27000)).toLocaleString("fr-FR") + " FCFA", popular: true },
-    { id: 3, label: "3 Boîtes · 180 capsules", desc: "Cure de 180 jours", prix: skuPriceMap["NUT-AX-3P"] || 36000, original: Math.round((skuPriceMap["NUT-AX-3P"] || 36000) * 1.25), eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 3 - (skuPriceMap["NUT-AX-3P"] || 36000)).toLocaleString("fr-FR") + " FCFA" },
+    { id: 1, label: t("product.packLabel1"), desc: t("product.packDesc1"), prix: skuPriceMap["NUT-AX-1P"] || 15000, original: Math.round((skuPriceMap["NUT-AX-1P"] || 15000) * 1.25) },
+    { id: 2, label: t("product.packLabel2"), desc: t("product.packDesc2"), prix: skuPriceMap["NUT-AX-2P"] || 27000, original: Math.round((skuPriceMap["NUT-AX-2P"] || 27000) * 1.25), eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 2 - (skuPriceMap["NUT-AX-2P"] || 27000)).toLocaleString("fr-FR") + " FCFA", popular: true },
+    { id: 3, label: t("product.packLabel3"), desc: t("product.packDesc3"), prix: skuPriceMap["NUT-AX-3P"] || 36000, original: Math.round((skuPriceMap["NUT-AX-3P"] || 36000) * 1.25), eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 3 - (skuPriceMap["NUT-AX-3P"] || 36000)).toLocaleString("fr-FR") + " FCFA" },
   ];
 
   const currentPack = packs.find(p => p.id === selectedPack)!;
