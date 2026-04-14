@@ -765,8 +765,8 @@ function ProductGallery() {
       {/* Thumbnails en dessous */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: isSmallGallery ? "repeat(4, 1fr)" : "repeat(7, 1fr)",
-        gap: 8,
+        gridTemplateColumns: "repeat(7, 1fr)",
+        gap: isSmallGallery ? 4 : 8,
       }}>
         {images.map((img, i) => (
           <div
