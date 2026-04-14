@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
+
+const paymentLimiter = createRateLimiter({ maxRequests: 5, windowMs: 60_000 });
 
 export async function POST(req: NextRequest) {
   try {
+    const { allowed } = paymentLimiter.check(getClientIp(req.headers));
+    if (!allowed) return NextResponse.json({ error: "Trop de tentatives" }, { status: 429 });
+
     const body = await req.json();
     const { email, telephone, nom, prenom, montant, description, items, adresse, ville, quartier } = body;
 

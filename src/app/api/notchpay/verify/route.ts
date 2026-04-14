@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
+
+const verifyLimiter = createRateLimiter({ maxRequests: 15, windowMs: 60_000 });
 
 export async function GET(req: NextRequest) {
   try {
+    const { allowed } = verifyLimiter.check(getClientIp(req.headers));
+    if (!allowed) return NextResponse.json({ error: "Trop de tentatives" }, { status: 429 });
+
     const { searchParams } = new URL(req.url);
     const reference = searchParams.get("reference");
 

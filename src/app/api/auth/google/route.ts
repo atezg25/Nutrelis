@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
 
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL!;
 const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!;
+
+const authLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000 });
 
 /** Générer un mot de passe fort et déterministe à partir du Google sub + secret serveur */
 function generatePassword(googleSub: string): string {
@@ -30,6 +33,9 @@ async function getGoogleUserInfo(accessToken: string): Promise<GoogleUserInfo> {
 
 export async function POST(req: NextRequest) {
   try {
+    const { allowed } = authLimiter.check(getClientIp(req.headers));
+    if (!allowed) return NextResponse.json({ error: "Trop de tentatives" }, { status: 429 });
+
     const body = await req.json();
     const accessToken = body.credential || body.access_token;
     if (!accessToken) {
