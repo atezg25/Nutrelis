@@ -120,7 +120,9 @@ async function envoyerEmail({
   adresse: string; ville: string; quartier: string;
   items: any[]; total: number; reference: string;
 }) {
-  const destinataire = process.env.STORE_EMAIL || "atezg25@gmail.com";
+  const storeEmail = process.env.STORE_EMAIL || "atezg25@gmail.com";
+  const clientEmail = email || null;
+  const destinataires = clientEmail ? [clientEmail, storeEmail] : [storeEmail];
 
   const lignesItems = items.map((item: any) => `
     <tr>
@@ -180,7 +182,7 @@ async function envoyerEmail({
 
   await getResend().emails.send({
     from: "NUTRELIS <support@nutrelis.bio>",
-    to: [destinataire],
+    to: destinataires,
     subject: `✅ Nouvelle commande — ${prenom} ${nom} (${(total).toLocaleString("fr-FR")} FCFA)`,
     html,
   });
