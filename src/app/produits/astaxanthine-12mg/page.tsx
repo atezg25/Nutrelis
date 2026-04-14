@@ -943,14 +943,14 @@ function StatsSection() {
         <div key={i}>
           <div style={{
             color: "var(--asta-accent)",
-            fontSize: "2.8rem",
+            fontSize: scSt === "mobile" ? "1.8rem" : "2.8rem",
             fontWeight: 900,
             fontFamily: "var(--font-sora), sans-serif",
             lineHeight: 1,
             marginBottom: 8,
           }}>
             {Math.round(stat.value * progress)}
-            <span style={{ fontSize: "1.4rem" }}>%</span>
+            <span style={{ fontSize: scSt === "mobile" ? "0.9rem" : "1.4rem" }}>%</span>
           </div>
           <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4, color: "var(--asta-text)" }}>
             {stat.label}
