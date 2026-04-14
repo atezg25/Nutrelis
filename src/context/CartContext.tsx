@@ -76,19 +76,20 @@ async function addMedusaLineItem(cartId: string, variantId: string, quantity: nu
   }
 }
 
-/** Vérifier si un variant a du stock disponible */
-async function checkStock(variantId: string): Promise<boolean> {
+/** Tester le stock en ajoutant au cart Medusa — retourne le lineItemId si OK, null si rupture */
+async function tryAddToCart(cartId: string, variantId: string, quantity: number): Promise<string | null> {
   try {
-    const res = await fetch(`${BACKEND}/store/products?variants.id=${variantId}&fields=variants.manage_inventory,variants.inventory_quantity`, {
+    const res = await fetch(`${BACKEND}/store/carts/${cartId}/line-items`, {
+      method: "POST",
       headers: medusaHeaders,
+      body: JSON.stringify({ variant_id: variantId, quantity }),
     });
-    if (!res.ok) return true; // En cas d'erreur, on laisse passer
+    if (!res.ok) return null; // Medusa refuse = pas de stock
     const data = await res.json();
-    const variant = data.products?.[0]?.variants?.find((v: any) => v.id === variantId);
-    if (!variant || !variant.manage_inventory) return true;
-    return (variant.inventory_quantity ?? 0) > 0;
+    const item = data.cart?.items?.find((i: any) => i.variant_id === variantId);
+    return item?.id || null;
   } catch {
-    return true; // En cas d'erreur réseau, on laisse passer
+    return null;
   }
 }
 
@@ -159,41 +160,43 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const ajouterArticle = async (nouvelArticle: Omit<CartItem, "quantite">): Promise<boolean> => {
-    // Vérifier le stock avant d'ajouter
+    // Si variant Medusa, vérifier le stock en tentant l'ajout au cart
     if (nouvelArticle.variantId) {
-      const enStock = await checkStock(nouvelArticle.variantId);
-      if (!enStock) return false;
+      const cartId = await ensureMedusaCart();
+      if (!cartId) return false;
+
+      // Vérifier si l'article est déjà dans le panier local
+      const existant = items.find(i => i.id === nouvelArticle.id);
+      if (existant && existant.medusaLineItemId) {
+        // Tenter d'augmenter la quantité côté Medusa
+        const res = await fetch(`${BACKEND}/store/carts/${cartId}/line-items/${existant.medusaLineItemId}`, {
+          method: "POST",
+          headers: medusaHeaders,
+          body: JSON.stringify({ quantity: existant.quantite + 1 }),
+        });
+        if (!res.ok) return false; // Stock insuffisant
+        setItems(prev => prev.map(i =>
+          i.id === nouvelArticle.id ? { ...i, quantite: i.quantite + 1 } : i
+        ));
+        return true;
+      }
+
+      // Nouvel article — tenter l'ajout côté Medusa d'abord
+      const lineItemId = await tryAddToCart(cartId, nouvelArticle.variantId, 1);
+      if (!lineItemId) return false; // Stock = 0, Medusa refuse
+
+      // Medusa a accepté → ajouter localement
+      setItems(prev => [...prev, { ...nouvelArticle, quantite: 1, medusaLineItemId: lineItemId }]);
+      return true;
     }
 
+    // Pas de variant Medusa → ajout local direct
     setItems(prev => {
       const existant = prev.find(i => i.id === nouvelArticle.id);
       if (existant) {
-        if (existant.medusaLineItemId) {
-          ensureMedusaCart().then(cartId => {
-            if (cartId && existant.medusaLineItemId) {
-              updateMedusaLineItem(cartId, existant.medusaLineItemId, existant.quantite + 1);
-            }
-          });
-        }
         return prev.map(i =>
-          i.id === nouvelArticle.id
-            ? { ...i, quantite: i.quantite + 1 }
-            : i
+          i.id === nouvelArticle.id ? { ...i, quantite: i.quantite + 1 } : i
         );
-      }
-      if (nouvelArticle.variantId) {
-        ensureMedusaCart().then(cartId => {
-          if (!cartId) return;
-          addMedusaLineItem(cartId, nouvelArticle.variantId!, 1).then(lineItemId => {
-            if (lineItemId) {
-              setItems(current =>
-                current.map(i =>
-                  i.id === nouvelArticle.id ? { ...i, medusaLineItemId: lineItemId } : i
-                )
-              );
-            }
-          });
-        });
       }
       return [...prev, { ...nouvelArticle, quantite: 1 }];
     });
