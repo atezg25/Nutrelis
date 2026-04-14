@@ -54,14 +54,17 @@ export async function POST(req: NextRequest) {
 
     const data = await response.json();
 
+    console.log("Notchpay init response:", response.status, JSON.stringify(data).slice(0, 500));
+
     if (!response.ok) {
-      console.error("Notchpay init erreur:", data.message);
-      return NextResponse.json({ error: "Erreur lors de l'initialisation du paiement" }, { status: 400 });
+      return NextResponse.json({ error: data.message || "Erreur lors de l'initialisation du paiement" }, { status: 400 });
     }
+
+    const authUrl = data.authorization_url || data.transaction?.authorization_url;
 
     return NextResponse.json({
       ...data,
-      authorization_url: data.authorization_url || data.transaction?.authorization_url,
+      authorization_url: authUrl,
     });
 
   } catch (error) {

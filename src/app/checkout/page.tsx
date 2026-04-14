@@ -83,7 +83,15 @@ export default function Checkout() {
 
       const data = await res.json();
 
-      if (data.authorization_url) {
+      if (!res.ok) {
+        setErreur(data.error || t("common.error"));
+        setChargement(false);
+        return;
+      }
+
+      const authUrl = data.authorization_url || data.transaction?.authorization_url;
+
+      if (authUrl) {
         // Sauvegarder les infos client pour l'email de confirmation
         localStorage.setItem("nutrelis-customer", JSON.stringify({
           nom: form.nom,
@@ -97,10 +105,10 @@ export default function Checkout() {
           total: totalPrix,
         }));
         // Ne pas couper le spinner — la redirection peut prendre quelques secondes
-        window.location.href = data.authorization_url;
+        window.location.href = authUrl;
         return;
       } else {
-        setErreur(data.error || t("common.error"));
+        setErreur(data.error || data.message || t("common.error"));
         setChargement(false);
       }
     } catch {
