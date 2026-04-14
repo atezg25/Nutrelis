@@ -398,6 +398,11 @@ const en: Record<string, any> = {
     galleryFaq6A_expLine2: "Orders are <strong>shipped within 24 hours</strong>.",
     galleryFaq6A_warning: "⚠️ Only unopened and unused products can be returned and refunded under our 90-day guarantee.",
 
+    // Image alt texts
+    altDoctor: "NUTRELIS Doctor",
+    altGuarantee: "90-day guarantee",
+    altResults: "NUTRELIS Results",
+
     // Pack labels (main component)
     packLabel1: "1 Box · 60 capsules",
     packLabel2: "2 Boxes · 120 capsules",

@@ -1,9 +1,11 @@
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
 const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
 
-/** Corriger les URLs localhost:9000 retournées par le file provider Medusa */
+/** Corriger les URLs localhost:9000 retournées par le file provider local Medusa.
+ *  Si le backend utilise S3/R2 les URLs sont déjà publiques → pas de réécriture. */
 function fixMediaUrl(url: string | null): string | null {
   if (!url) return null;
+  if (url.startsWith("https://")) return url;
   return url.replace("http://localhost:9000", BACKEND);
 }
 

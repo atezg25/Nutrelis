@@ -398,6 +398,11 @@ const fr: Record<string, any> = {
     galleryFaq6A_expLine2: "Les commandes sont <strong>expédiées sous 24 heures</strong>.",
     galleryFaq6A_warning: "⚠️ Seuls les produits non ouverts et non entamés peuvent être retournés et remboursés dans le cadre de notre garantie 90 jours.",
 
+    // Image alt texts
+    altDoctor: "Médecin NUTRELIS",
+    altGuarantee: "Garantie 90 jours",
+    altResults: "Résultats NUTRELIS",
+
     // Pack labels (main component)
     packLabel1: "1 Boîte · 60 capsules",
     packLabel2: "2 Boîtes · 120 capsules",

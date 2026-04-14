@@ -2128,7 +2128,7 @@ export default function Astaxanthine() {
             }} />
             <img
               src="/images/astaxanthine/Medecin.png"
-              alt="Médecin NUTRELIS"
+              alt={t("product.altDoctor")}
               style={{
                 width: "100%", height: "auto",
                 objectFit: "contain",
@@ -2261,7 +2261,7 @@ export default function Astaxanthine() {
           <div style={{ textAlign: "center" }}>
             <img
               src="/images/astaxanthine/261-Converti-1.png"
-              alt="Garantie 90 jours"
+              alt={t("product.altGuarantee")}
               style={{ width: 200, height: "auto", marginBottom: 20, display: "block", margin: "0 auto 20px", }}
             />
             <p style={{ color: "var(--asta-accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
@@ -2299,7 +2299,7 @@ export default function Astaxanthine() {
           <div style={{ position: "relative" }}>
             <img
               src="/images/astaxanthine/BadgesA.png"
-              alt="Résultats NUTRELIS"
+              alt={t("product.altResults")}
               style={{
                 width: "100%", height: "auto",
                 objectFit: "contain",
