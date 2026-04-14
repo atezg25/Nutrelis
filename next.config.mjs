@@ -22,7 +22,7 @@ const nextConfig = {
               "connect-src 'self' https://nutrelis-backend-production.up.railway.app https://api.notchpay.co https://www.googleapis.com",
               "frame-src 'self' https://pay.notchpay.co",
               "base-uri 'self'",
-              "form-action 'self'",
+              "form-action 'self' https://pay.notchpay.co",
             ].join("; "),
           },
         ],

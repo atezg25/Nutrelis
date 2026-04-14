@@ -59,7 +59,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Erreur lors de l'initialisation du paiement" }, { status: 400 });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({
+      ...data,
+      authorization_url: data.authorization_url || data.transaction?.authorization_url,
+    });
 
   } catch (error) {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
