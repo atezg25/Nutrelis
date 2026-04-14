@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { Resend } from "resend";
+import { envoyerWhatsApp, notifierBoutiqueWhatsApp } from "@/lib/whatsapp";
+import { envoyerSms, notifierBoutiqueSms } from "@/lib/sms";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY!);
@@ -96,9 +98,23 @@ export async function POST(req: NextRequest) {
     const { nom, prenom, email, telephone, adresse, ville, quartier } = metadata;
     const total = transaction?.amount || 0;
 
-    // --- Email de confirmation (fire and forget) ---
-    envoyerEmail({ nom, prenom, email, telephone, adresse, ville, quartier, items, total, reference })
+    // --- Notifications (fire and forget, en parallèle) ---
+    const orderData = { nom, prenom, email, telephone, adresse, ville, quartier, items, total, reference };
+
+    envoyerEmail(orderData)
       .catch(e => console.error("Webhook email erreur:", e));
+
+    envoyerWhatsApp({ prenom, nom, telephone, reference, total, items })
+      .catch(e => console.error("Webhook WhatsApp client erreur:", e));
+
+    notifierBoutiqueWhatsApp({ prenom, nom, telephone, reference, total, items })
+      .catch(e => console.error("Webhook WhatsApp boutique erreur:", e));
+
+    envoyerSms({ prenom, nom, telephone, reference, total })
+      .catch(e => console.error("Webhook SMS client erreur:", e));
+
+    notifierBoutiqueSms({ prenom, nom, telephone, reference, total })
+      .catch(e => console.error("Webhook SMS boutique erreur:", e));
 
     // --- Création commande Medusa (idempotent, avec référence en metadata) ---
     if (items.length > 0) {
