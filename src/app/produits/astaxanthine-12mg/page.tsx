@@ -161,6 +161,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
   const [mode, setMode] = useState("unique");
   const [selected, setSelected] = useState(2);
   const [toast, setToast] = useState(false);
+  const [stockError, setStockError] = useState(false);
   const { ajouterArticle } = useCart();
   const scPS = useScreenSize();
   const isMobilePS = scPS === "mobile";
@@ -411,9 +412,10 @@ useEffect(() => {
       </div>
 
       <button
-        onClick={() => {
+        onClick={async () => {
           const pack = packs.find(p => p.id === selected)!;
-          ajouterArticle({
+          setStockError(false);
+          const ok = await ajouterArticle({
             id: `asta-pack-${pack.id}-${mode}`,
             variantId: pack.variantId,
             nom: `NUTRELIS Astaxanthine 12mg`,
@@ -423,6 +425,7 @@ useEffect(() => {
             image: pack.img,
             mode: mode as "unique" | "abonnement",
           });
+          if (!ok) { setStockError(true); setTimeout(() => setStockError(false), 4000); return; }
           window.location.href = "/checkout";
         }}
         style={{
@@ -446,9 +449,10 @@ useEffect(() => {
       </button>
 
       <button
-        onClick={() => {
+        onClick={async () => {
           const pack = packs.find(p => p.id === selected)!;
-          ajouterArticle({
+          setStockError(false);
+          const ok = await ajouterArticle({
             id: `asta-pack-${pack.id}-${mode}`,
             variantId: pack.variantId,
             nom: `NUTRELIS Astaxanthine 12mg`,
@@ -458,6 +462,7 @@ useEffect(() => {
             image: pack.img,
             mode: mode as "unique" | "abonnement",
           });
+          if (!ok) { setStockError(true); setTimeout(() => setStockError(false), 4000); return; }
           setToast(true);
           setTimeout(() => setToast(false), 2500);
         }}
@@ -484,6 +489,19 @@ useEffect(() => {
           animation: "fadeInDown 0.3s ease-out",
         }}>
           ✓ {t("common.addedToCart")}
+        </div>
+      )}
+      {stockError && (
+        <div style={{
+          position: "fixed", top: isMobilePS ? 66 : 80, left: "50%", transform: "translateX(-50%)",
+          background: "#e74c3c", color: "#fff",
+          padding: isMobilePS ? "10px 20px" : "12px 28px",
+          borderRadius: 10, fontSize: isMobilePS ? 13 : 14, fontWeight: 700,
+          boxShadow: "0 6px 24px rgba(0,0,0,0.2)",
+          zIndex: 200, display: "flex", alignItems: "center", gap: 8,
+          animation: "fadeInDown 0.3s ease-out",
+        }}>
+          {t("common.outOfStock")}
         </div>
       )}
 

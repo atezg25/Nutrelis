@@ -24,6 +24,7 @@ const en: Record<string, any> = {
     brand: "NUTRELIS",
     addToCart: "ADD TO CART",
     addedToCart: "Added to cart!",
+    outOfStock: "Out of stock — Come back soon!",
     buyNow: "BUY NOW",
     subscribe: "SUBSCRIBE — SAVE 15%",
     securePayment: "Secure payment",

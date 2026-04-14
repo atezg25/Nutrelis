@@ -24,7 +24,7 @@ interface CartContextType {
   totalItems: number;
   totalPrix: number;
   medusaCartId: string | null;
-  ajouterArticle: (item: Omit<CartItem, "quantite">) => void;
+  ajouterArticle: (item: Omit<CartItem, "quantite">) => Promise<boolean>;
   supprimerArticle: (id: string) => void;
   modifierQuantite: (id: string, quantite: number) => void;
   viderPanier: () => void;
@@ -35,7 +35,7 @@ interface CartContextType {
 // ============================================================
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "";
 const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
-const REGION_ID = "reg_01KNX74XTS40FD0GVD8296GKHN";
+const REGION_ID = process.env.NEXT_PUBLIC_MEDUSA_REGION_ID || process.env.MEDUSA_REGION_ID || "reg_01KP6P8GQM37FW4H0PEVAV2V6S";
 
 const medusaHeaders = {
   "Content-Type": "application/json",
@@ -63,11 +63,32 @@ async function addMedusaLineItem(cartId: string, variantId: string, quantity: nu
       headers: medusaHeaders,
       body: JSON.stringify({ variant_id: variantId, quantity }),
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.warn("Medusa add line item error:", err.message || res.status);
+      return null;
+    }
     const data = await res.json();
     const item = data.cart?.items?.find((i: any) => i.variant_id === variantId);
     return item?.id || null;
   } catch {
     return null;
+  }
+}
+
+/** Vérifier si un variant a du stock disponible */
+async function checkStock(variantId: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${BACKEND}/store/products?variants.id=${variantId}&fields=variants.manage_inventory,variants.inventory_quantity`, {
+      headers: medusaHeaders,
+    });
+    if (!res.ok) return true; // En cas d'erreur, on laisse passer
+    const data = await res.json();
+    const variant = data.products?.[0]?.variants?.find((v: any) => v.id === variantId);
+    if (!variant || !variant.manage_inventory) return true;
+    return (variant.inventory_quantity ?? 0) > 0;
+  } catch {
+    return true; // En cas d'erreur réseau, on laisse passer
   }
 }
 
@@ -137,11 +158,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return newCartId;
   };
 
-  const ajouterArticle = (nouvelArticle: Omit<CartItem, "quantite">) => {
+  const ajouterArticle = async (nouvelArticle: Omit<CartItem, "quantite">): Promise<boolean> => {
+    // Vérifier le stock avant d'ajouter
+    if (nouvelArticle.variantId) {
+      const enStock = await checkStock(nouvelArticle.variantId);
+      if (!enStock) return false;
+    }
+
     setItems(prev => {
       const existant = prev.find(i => i.id === nouvelArticle.id);
       if (existant) {
-        // Augmenter la quantité — sync Medusa en arrière-plan
         if (existant.medusaLineItemId) {
           ensureMedusaCart().then(cartId => {
             if (cartId && existant.medusaLineItemId) {
@@ -155,7 +181,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
             : i
         );
       }
-      // Nouvel article — ajouter dans Medusa en arrière-plan
       if (nouvelArticle.variantId) {
         ensureMedusaCart().then(cartId => {
           if (!cartId) return;
@@ -172,6 +197,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...nouvelArticle, quantite: 1 }];
     });
+    return true;
   };
 
   const supprimerArticle = (id: string) => {

@@ -24,6 +24,7 @@ const fr: Record<string, any> = {
     brand: "NUTRELIS",
     addToCart: "AJOUTER AU PANIER",
     addedToCart: "Ajouté au panier !",
+    outOfStock: "Rupture de stock — Revenez bientôt !",
     buyNow: "ACHETER MAINTENANT",
     subscribe: "S'ABONNER — ÉCONOMISER 15%",
     securePayment: "Paiement sécurisé",
