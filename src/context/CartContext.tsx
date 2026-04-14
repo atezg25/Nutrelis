@@ -36,6 +36,7 @@ interface CartContextType {
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "";
 const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
 const REGION_ID = process.env.NEXT_PUBLIC_MEDUSA_REGION_ID || process.env.MEDUSA_REGION_ID || "reg_01KP6P8GQM37FW4H0PEVAV2V6S";
+const SALES_CHANNEL_ID = process.env.NEXT_PUBLIC_MEDUSA_SALES_CHANNEL_ID || "sc_01KP6P8H5V10KASKT1GGGT0T2K";
 
 const medusaHeaders = {
   "Content-Type": "application/json",
@@ -47,7 +48,7 @@ async function createMedusaCart(): Promise<string | null> {
     const res = await fetch(`${BACKEND}/store/carts`, {
       method: "POST",
       headers: medusaHeaders,
-      body: JSON.stringify({ region_id: REGION_ID }),
+      body: JSON.stringify({ region_id: REGION_ID, sales_channel_id: SALES_CHANNEL_ID }),
     });
     const data = await res.json();
     return data.cart?.id || null;
