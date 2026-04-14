@@ -982,11 +982,10 @@ function StatsSection() {
   );
 }
 
-function FaqItemWhite({ icon, q, a }: { icon: string; q: string; a: string }) {
-  const [open, setOpen] = useState(false);
+function FaqItemWhite({ icon, q, a, open, onToggle }: { icon: string; q: string; a: string; open: boolean; onToggle: () => void }) {
   return (
     <div
-      onClick={() => setOpen(!open)}
+      onClick={onToggle}
       style={{
         background: "#fff",
         borderRadius: 12,
@@ -1040,6 +1039,7 @@ export default function Astaxanthine() {
   const [selectedPack, setSelectedPack] = useState(2);
   const [mode, setMode] = useState<"unique" | "abonnement">("unique");
   const [medusaProduct, setMedusaProduct] = useState<MedusaProduct | null>(null);
+  const [openFaqBottom, setOpenFaqBottom] = useState<number | null>(null);
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
   const isSmall = sc === "mobile" || sc === "tablet";
@@ -2373,7 +2373,7 @@ export default function Astaxanthine() {
                 a: t("product.faq8A"),
               },
             ].map((faq, i) => (
-              <FaqItemWhite key={i} icon={faq.icon} q={faq.q} a={faq.a} />
+              <FaqItemWhite key={i} icon={faq.icon} q={faq.q} a={faq.a} open={openFaqBottom === i} onToggle={() => setOpenFaqBottom(openFaqBottom === i ? null : i)} />
             ))}
           </div>
         </div>
