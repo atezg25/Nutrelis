@@ -28,6 +28,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Articles invalides" }, { status: 400 });
     }
 
+    // Formater le téléphone avec le préfixe +237 si absent
+    let phone = (telephone || "").replace(/\s+/g, "");
+    if (phone && !phone.startsWith("+")) {
+      phone = phone.startsWith("237") ? `+${phone}` : `+237${phone}`;
+    }
+
     const response = await fetch("https://api.notchpay.co/payments/initialize", {
       method: "POST",
       headers: {
@@ -36,8 +42,8 @@ export async function POST(req: NextRequest) {
         "Accept": "application/json",
       },
       body: JSON.stringify({
-        email: email || `${telephone}@nutrelis.bio`,
-        phone: telephone,
+        email: email || `${phone.replace("+", "")}@nutrelis.bio`,
+        phone: phone,
         name: `${prenom} ${nom}`,
         amount: montant,
         currency: "XAF",
