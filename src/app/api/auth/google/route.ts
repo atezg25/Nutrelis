@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL!;
 const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!;
+
+/** Générer un mot de passe fort et déterministe à partir du Google sub + secret serveur */
+function generatePassword(googleSub: string): string {
+  const secret = process.env.GOOGLE_AUTH_SECRET || process.env.JWT_SECRET || "nutrelis-fallback-key";
+  return crypto.createHmac("sha256", secret).update(googleSub).digest("hex");
+}
 
 interface GoogleUserInfo {
   sub: string;
@@ -36,7 +43,7 @@ export async function POST(req: NextRequest) {
     }
 
     const email = google.email;
-    const password = `nutrelis_google_${google.sub}`;
+    const password = generatePassword(google.sub);
 
     // 2. Essayer de connecter (client existant)
     let token: string | null = null;

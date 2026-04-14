@@ -7,6 +7,7 @@ import HydrationGuard from "@/components/HydrationGuard";
 import { useLocale } from "@/context/LocaleContext";
 import FloatingActions from "@/components/FloatingActions";
 import { fetchProductByHandle, getVariantPrice, type MedusaProduct } from "@/lib/medusa-products";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 function Countdown() {
   const [time, setTime] = useState({ h: 5, m: 47, s: 59 });
@@ -795,7 +796,7 @@ function ProductGallery() {
             q: t("product.galleryFaq1Q"),
             a: (
               <div>
-                <p style={{ marginBottom: 10 }} dangerouslySetInnerHTML={{ __html: t("product.galleryFaq1A_intro") }} />
+                <p style={{ marginBottom: 10 }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("product.galleryFaq1A_intro")) }} />
                 <p style={{ marginBottom: 8, fontWeight: 700, color: "var(--asta-accent)" }}>{t("product.galleryFaq1A_label")}</p>
                 <ul style={{ paddingLeft: 0, listStyle: "none", marginBottom: 10 }}>
                   {(t("product.galleryFaq1A_items") as unknown as string[]).map((item: string, i: number) => (
@@ -814,7 +815,7 @@ function ProductGallery() {
             q: t("product.galleryFaq2Q"),
             a: (
               <div>
-                <p style={{ marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: t("product.galleryFaq2A_intro") }} />
+                <p style={{ marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("product.galleryFaq2A_intro")) }} />
                 <div style={{ marginBottom: 12 }}>
                   <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>{t("product.galleryFaq2A_phase1Label")}</p>
                   {(t("product.galleryFaq2A_phase1Items") as unknown as string[]).map((item: string, i: number) => (
@@ -839,7 +840,7 @@ function ProductGallery() {
             q: t("product.galleryFaq3Q"),
             a: (
               <div>
-                <p dangerouslySetInnerHTML={{ __html: t("product.galleryFaq3A") }} />
+                <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("product.galleryFaq3A")) }} />
               </div>
             ),
           },
@@ -879,7 +880,7 @@ function ProductGallery() {
             q: t("product.galleryFaq5Q"),
             a: (
               <div>
-                <p dangerouslySetInnerHTML={{ __html: t("product.galleryFaq5A") }} />
+                <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("product.galleryFaq5A")) }} />
               </div>
             ),
           },
@@ -890,13 +891,13 @@ function ProductGallery() {
               <div>
                 <div style={{ marginBottom: 12 }}>
                   <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>{t("product.galleryFaq6A_stdLabel")}</p>
-                  <p style={{ marginBottom: 4 }} dangerouslySetInnerHTML={{ __html: t("product.galleryFaq6A_stdLine1") }} />
-                  <p dangerouslySetInnerHTML={{ __html: t("product.galleryFaq6A_stdLine2") }} />
+                  <p style={{ marginBottom: 4 }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("product.galleryFaq6A_stdLine1")) }} />
+                  <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("product.galleryFaq6A_stdLine2")) }} />
                 </div>
                 <div style={{ marginBottom: 12 }}>
                   <p style={{ fontWeight: 700, color: "var(--asta-accent)", marginBottom: 6 }}>{t("product.galleryFaq6A_expLabel")}</p>
-                  <p style={{ marginBottom: 4 }} dangerouslySetInnerHTML={{ __html: t("product.galleryFaq6A_expLine1") }} />
-                  <p dangerouslySetInnerHTML={{ __html: t("product.galleryFaq6A_expLine2") }} />
+                  <p style={{ marginBottom: 4 }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("product.galleryFaq6A_expLine1")) }} />
+                  <p dangerouslySetInnerHTML={{ __html: sanitizeHtml(t("product.galleryFaq6A_expLine2")) }} />
                 </div>
                 <div style={{ padding: "10px 14px", background: "rgba(125,8,6,0.06)", borderRadius: 8, border: "1px solid var(--asta-border)" }}>
                   <p style={{ fontSize: 12, color: "var(--asta-text2)" }}>{t("product.galleryFaq6A_warning")}</p>

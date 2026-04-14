@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     }
 
     const payload = JSON.parse(body);
-    console.log("Webhook Notchpay reçu:", JSON.stringify(payload, null, 2));
+    console.log("Webhook Notchpay reçu — event:", payload.event, "ref:", (payload.transaction || payload.data)?.reference);
 
     // Notchpay envoie soit payload.transaction soit payload.data selon la version
     const transaction = payload.transaction || payload.data || payload;
