@@ -304,7 +304,7 @@ useEffect(() => {
         </div>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: isMobilePS ? 8 : 12, marginBottom: isMobilePS ? 16 : 24 }}>
         {packs.map((pack) => (
           <div
             key={pack.id}
@@ -319,11 +319,11 @@ useEffect(() => {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: isMobilePS ? 10 : 16,
+              gap: isMobilePS ? 8 : 16,
               background: selected === pack.id ? "#fdecea" : "#fff",
               border: `2px solid ${selected === pack.id ? "var(--asta-accent)" : "var(--asta-border)"}`,
               borderRadius: 12,
-              padding: isMobilePS ? "12px 14px" : "16px 20px",
+              padding: isMobilePS ? "8px 10px" : "16px 20px",
               cursor: "pointer",
               transition: "all 0.2s",
               position: "relative",
@@ -367,13 +367,13 @@ useEffect(() => {
             <img
               src={pack.img}
               alt={pack.label}
-              style={{ width: isMobilePS ? 44 : 56, height: isMobilePS ? 44 : 56, objectFit: "contain", flexShrink: 0 }}
+              style={{ width: isMobilePS ? 36 : 56, height: isMobilePS ? 36 : 56, objectFit: "contain", flexShrink: 0 }}
             />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 800, fontSize: isMobilePS ? 13 : 14, color: "var(--asta-text)", lineHeight: 1.3 }}>
+              <div style={{ fontWeight: 800, fontSize: isMobilePS ? 11 : 14, color: "var(--asta-text)", lineHeight: 1.3 }}>
                 {pack.capsules}
               </div>
-              <div style={{ fontSize: isMobilePS ? 11 : 12, color: "var(--asta-text2)", marginTop: 1 }}>
+              <div style={{ fontSize: isMobilePS ? 10 : 12, color: "var(--asta-text2)", marginTop: 1 }}>
                 {pack.cure}
               </div>
               {pack.eco && mode === "unique" && (
@@ -393,7 +393,7 @@ useEffect(() => {
               )}
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div style={{ color: "var(--asta-accent)", fontSize: isMobilePS ? 15 : 20, fontWeight: 900, lineHeight: 1 }}>
+              <div style={{ color: "var(--asta-accent)", fontSize: isMobilePS ? 13 : 20, fontWeight: 900, lineHeight: 1 }}>
                 {(mode === "abonnement" ? pack.aboPrix : pack.prix).toLocaleString()}
                 <span style={{ fontSize: 11 }}> FCFA</span>
               </div>
@@ -658,6 +658,8 @@ function RaisonsSection() {
   );
 }
 function ProductFaqItem({ icon, q, a, open, onToggle }: { icon: string; q: string; a: React.ReactNode; open: boolean; onToggle: () => void }) {
+  const scFaqP = useScreenSize();
+  const isMobileFaqP = scFaqP === "mobile";
   return (
     <div
       onClick={onToggle}
@@ -668,16 +670,16 @@ function ProductFaqItem({ icon, q, a, open, onToggle }: { icon: string; q: strin
       }}
     >
       <div style={{
-        display: "flex", alignItems: "center", gap: 14,
-        padding: "16px 0",
+        display: "flex", alignItems: "center", gap: isMobileFaqP ? 8 : 14,
+        padding: isMobileFaqP ? "10px 0" : "16px 0",
       }}>
         <div style={{
-          width: 42, height: 42, borderRadius: "50%",
+          width: isMobileFaqP ? 30 : 42, height: isMobileFaqP ? 30 : 42, borderRadius: "50%",
           background: open
             ? "var(--asta-accent)"
             : "linear-gradient(135deg, #fdecea, #f5e0dd)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 18, flexShrink: 0,
+          fontSize: isMobileFaqP ? 13 : 18, flexShrink: 0,
           transition: "all 0.3s",
           boxShadow: open ? "0 4px 12px rgba(125,8,6,0.25)" : "none",
         }}>
@@ -685,7 +687,7 @@ function ProductFaqItem({ icon, q, a, open, onToggle }: { icon: string; q: strin
         </div>
         <span style={{
           flex: 1,
-          fontWeight: 600, fontSize: 14,
+          fontWeight: 600, fontSize: isMobileFaqP ? 12 : 14,
           color: open ? "var(--asta-accent)" : "var(--asta-text)",
           fontFamily: "var(--font-sora), sans-serif",
           transition: "color 0.2s",
@@ -693,12 +695,12 @@ function ProductFaqItem({ icon, q, a, open, onToggle }: { icon: string; q: strin
           {q}
         </span>
         <div style={{
-          width: 28, height: 28, borderRadius: "50%",
+          width: isMobileFaqP ? 22 : 28, height: isMobileFaqP ? 22 : 28, borderRadius: "50%",
           background: open ? "var(--asta-accent)" : "var(--asta-bg2)",
           border: `1.5px solid ${open ? "var(--asta-accent)" : "var(--asta-border)"}`,
           display: "flex", alignItems: "center", justifyContent: "center",
           color: open ? "#fff" : "var(--asta-text2)",
-          fontSize: 16, fontWeight: 700, flexShrink: 0,
+          fontSize: isMobileFaqP ? 13 : 16, fontWeight: 700, flexShrink: 0,
           transition: "all 0.3s",
           transform: open ? "rotate(45deg)" : "rotate(0deg)",
         }}>
@@ -707,17 +709,17 @@ function ProductFaqItem({ icon, q, a, open, onToggle }: { icon: string; q: strin
       </div>
       {open && (
         <div style={{
-          marginLeft: 56,
-          marginBottom: 16,
-          padding: "16px 20px",
+          marginLeft: isMobileFaqP ? 38 : 56,
+          marginBottom: isMobileFaqP ? 10 : 16,
+          padding: isMobileFaqP ? "10px 12px" : "16px 20px",
           background: "linear-gradient(135deg, #fff8f6, #fdecea)",
           borderRadius: 12,
           border: "1px solid var(--asta-border)",
           borderLeft: "3px solid var(--asta-accent)",
         }}>
           <p style={{
-            color: "var(--asta-text2)", fontSize: 13,
-            lineHeight: 1.8, margin: 0,
+            color: "var(--asta-text2)", fontSize: isMobileFaqP ? 11 : 13,
+            lineHeight: 1.7, margin: 0,
           }}>
             {a}
           </p>
@@ -2194,7 +2196,7 @@ export default function Astaxanthine() {
               </div>
               <h2 style={{
                 fontFamily: "var(--font-sora), sans-serif",
-                fontSize: isMobile ? "0.95rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2vw, 1.8rem)",
+                fontSize: isMobile ? "0.85rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2vw, 1.8rem)",
                 fontWeight: 800, color: "var(--asta-accent)",
                 lineHeight: 1.3,
               }}>
@@ -2294,29 +2296,29 @@ export default function Astaxanthine() {
       {/* GARANTIE */}
       <section style={{
         background: "#fff",
-        padding: `${py} ${px}`,
+        padding: isMobile ? `32px ${px}` : `${py} ${px}`,
       }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 32 : 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 20 : 80, alignItems: "center" }}>
 
           {/* Gauche — contenu */}
           <div style={{ textAlign: "center" }}>
             <img
               src="/images/astaxanthine/261-Converti-1.png"
               alt={t("product.altGuarantee")}
-              style={{ width: 200, height: "auto", marginBottom: 20, display: "block", margin: "0 auto 20px", }}
+              style={{ width: isMobile ? 120 : 200, height: "auto", marginBottom: isMobile ? 12 : 20, display: "block", margin: isMobile ? "0 auto 12px" : "0 auto 20px" }}
             />
-            <p style={{ color: "var(--asta-accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
+            <p style={{ color: "var(--asta-accent)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
               {t("product.feelDifference")}
             </p>
             <h2 style={{
               fontFamily: "var(--font-sora), sans-serif",
-              fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "2rem", fontWeight: 800, marginBottom: isMobile ? 14 : 20,
+              fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "2rem", fontWeight: 800, marginBottom: isMobile ? 10 : 20,
             }}>
               {t("product.guarantee")}
             </h2>
             <p style={{
-              color: "var(--asta-text2)", fontSize: 15,
-              lineHeight: 1.8, maxWidth: 400, margin: "0 auto 32px",
+              color: "var(--asta-text2)", fontSize: isMobile ? 13 : 15,
+              lineHeight: 1.7, maxWidth: 400, margin: isMobile ? "0 auto 20px" : "0 auto 32px",
             }}>
               {t("product.guaranteeDesc")}
             </p>
