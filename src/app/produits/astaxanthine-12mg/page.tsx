@@ -262,16 +262,17 @@ useEffect(() => {
   );
 }}
             style={{
-              padding: "12px 8px",
+              padding: isMobilePS ? "10px 6px" : "12px 8px",
               background: mode === tab.id ? "var(--asta-accent)" : "transparent",
               color: mode === tab.id ? "#fff" : "var(--asta-text2)",
               border: "none",
               borderRadius: 8,
               fontWeight: 700,
-              fontSize: 14,
+              fontSize: isMobilePS ? 12 : 14,
               cursor: "pointer",
               transition: "all 0.2s",
               fontFamily: "var(--font-sora), sans-serif",
+              whiteSpace: "nowrap",
             }}
           >
             {tab.label}
@@ -368,30 +369,27 @@ useEffect(() => {
               alt={pack.label}
               style={{ width: isMobilePS ? 44 : 56, height: isMobilePS ? 44 : 56, objectFit: "contain", flexShrink: 0 }}
             />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 800, fontSize: 14, color: "var(--asta-text)", marginBottom: 2 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 800, fontSize: isMobilePS ? 13 : 14, color: "var(--asta-text)", lineHeight: 1.3 }}>
                 {pack.capsules}
               </div>
-              <div style={{ fontSize: 12, color: "var(--asta-text2)" }}>
+              <div style={{ fontSize: isMobilePS ? 11 : 12, color: "var(--asta-text2)", marginTop: 1 }}>
                 {pack.cure}
               </div>
               {pack.eco && mode === "unique" && (
-                <div style={{ fontSize: 12, color: "var(--asta-gold)", fontWeight: 700, marginTop: 2 }}>
-                 {pack.eco && mode === "unique" && (
                 <span style={{
                   display: "inline-block",
                   background: "var(--asta-accent)",
                   color: "#fff",
-                  fontSize: 11,
+                  fontSize: isMobilePS ? 9 : 11,
                   fontWeight: 700,
-                  padding: "3px 10px",
+                  padding: isMobilePS ? "2px 6px" : "3px 10px",
                   borderRadius: 20,
-                  marginTop: 6,
+                  marginTop: 4,
+                  whiteSpace: "nowrap",
                 }}>
                   {t("product.save")} {pack.eco}
                 </span>
-              )}
-                </div>
               )}
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
@@ -434,9 +432,9 @@ useEffect(() => {
           background: "var(--asta-accent)",
           color: "#fff",
           border: "none",
-          padding: "18px",
+          padding: isMobilePS ? "16px" : "18px",
           borderRadius: 12,
-          fontSize: 17,
+          fontSize: isMobilePS ? 14 : 15,
           fontWeight: 900,
           cursor: "pointer",
           letterSpacing: 0.5,
@@ -445,6 +443,7 @@ useEffect(() => {
           boxShadow: "0 6px 24px rgba(125,8,6,0.3)",
           display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
           transition: "all 0.3s",
+          whiteSpace: "nowrap",
         }}>
         {`⚡ ${mode === "abonnement" ? t("common.subscribe") : t("common.buyNow")}`}
       </button>
@@ -469,11 +468,12 @@ useEffect(() => {
         }}
         style={{
           width: "100%", background: "transparent", color: "var(--asta-accent)",
-          border: "2px solid var(--asta-accent)", padding: "16px", borderRadius: 12,
-          fontSize: 15, fontWeight: 800, cursor: "pointer",
+          border: "2px solid var(--asta-accent)", padding: isMobilePS ? "14px" : "16px", borderRadius: 12,
+          fontSize: isMobilePS ? 14 : 15, fontWeight: 800, cursor: "pointer",
           letterSpacing: 0.5, marginBottom: 14,
           fontFamily: "var(--font-sora), sans-serif",
           display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          whiteSpace: "nowrap",
         }}>
         🛒 {t("common.addToCart")}
       </button>
