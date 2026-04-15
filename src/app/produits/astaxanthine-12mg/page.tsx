@@ -561,11 +561,11 @@ function RaisonsSection() {
     },
   ];
 
-  const imgHeight = isMobileR ? 120 : isTabletR ? 160 : 180;
+  const imgHeight = isMobileR ? 140 : isTabletR ? 160 : 180;
   const titleSize = isMobileR ? 11 : isTabletR ? 13 : 14;
   const textSize = isMobileR ? 11 : 13;
   const btnSize = isMobileR ? 11 : 13;
-  const cardRadius = isMobileR ? 20 : 20;
+  const R = 24;
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: colsR, gap: isMobileR ? 10 : 16 }}>
@@ -575,25 +575,26 @@ function RaisonsSection() {
           onClick={() => setActive(active === i ? null : i)}
           style={{
             background: "#fff",
-            borderRadius: cardRadius,
+            borderRadius: R,
             overflow: "hidden",
             border: `2px solid ${active === i ? "var(--asta-accent)" : "var(--asta-border)"}`,
             cursor: "pointer",
             transition: "all 0.3s ease",
             boxShadow: active === i ? "0 8px 32px rgba(125,8,6,0.18)" : "0 2px 8px rgba(0,0,0,0.05)",
             position: "relative",
+            minHeight: isMobileR ? 280 : undefined,
           }}
         >
           <div style={{ opacity: active === i ? 0 : 1, transition: "opacity 0.2s" }}>
-            <div style={{ height: imgHeight, overflow: "hidden", background: "#fdf5f3", borderRadius: `${cardRadius - 2}px ${cardRadius - 2}px 0 0` }}>
-              <img src={r.img} alt={r.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <div style={{ height: imgHeight, overflow: "hidden", background: "#fdf5f3", borderRadius: `${R - 2}px ${R - 2}px 0 0` }}>
+              <img src={r.img} alt={r.title} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: `${R - 2}px ${R - 2}px 0 0` }} />
             </div>
-            <div style={{ padding: isMobileR ? "10px 10px 12px" : "16px 18px 20px", textAlign: "center" }}>
+            <div style={{ padding: isMobileR ? "10px 10px 14px" : "16px 18px 20px", textAlign: "center" }}>
               <div style={{
                 display: "inline-block",
                 background: "var(--asta-bg2)", color: "var(--asta-accent)",
                 fontSize: isMobileR ? 9 : 11, fontWeight: 700, letterSpacing: 1,
-                padding: isMobileR ? "2px 8px" : "3px 10px", borderRadius: 20, marginBottom: isMobileR ? 6 : 10,
+                padding: isMobileR ? "2px 8px" : "3px 10px", borderRadius: 50, marginBottom: isMobileR ? 6 : 10,
                 border: "1px solid var(--asta-border)",
               }}>
                 {t("product.reason")} {r.num}
@@ -612,8 +613,8 @@ function RaisonsSection() {
           {active === i && (
             <div style={{
               position: "absolute", inset: 0,
-              background: "#fff", borderRadius: cardRadius - 2,
-              padding: isMobileR ? "12px 10px" : "20px 16px",
+              background: "#fff", borderRadius: R - 2,
+              padding: isMobileR ? "14px 12px" : "20px 16px",
               display: "flex", flexDirection: "column",
               justifyContent: "space-between",
               zIndex: 10,
@@ -624,7 +625,7 @@ function RaisonsSection() {
                   display: "inline-block",
                   background: "var(--asta-accent)", color: "#fff",
                   fontSize: isMobileR ? 9 : 11, fontWeight: 700, letterSpacing: 1,
-                  padding: isMobileR ? "2px 8px" : "3px 10px", borderRadius: 20, marginBottom: isMobileR ? 6 : 10,
+                  padding: isMobileR ? "2px 8px" : "3px 10px", borderRadius: 50, marginBottom: isMobileR ? 6 : 10,
                 }}>
                   {t("product.reason")} {r.num}
                 </div>
@@ -639,13 +640,13 @@ function RaisonsSection() {
                   {r.text}
                 </p>
               </div>
-              <div style={{ marginTop: isMobileR ? 8 : 0 }}>
+              <div style={{ marginTop: isMobileR ? 8 : 0, flexShrink: 0 }}>
                 <a href="#commander"
                   onClick={(e) => e.stopPropagation()}
                   style={{
                     display: "block", textAlign: "center",
                     background: "var(--asta-accent)", color: "#fff",
-                    padding: isMobileR ? "8px" : "10px", borderRadius: 24,
+                    padding: isMobileR ? "8px" : "10px", borderRadius: 50,
                     fontSize: btnSize, fontWeight: 800, textDecoration: "none",
                     marginBottom: isMobileR ? 6 : 10,
                     fontFamily: "var(--font-sora), sans-serif",
