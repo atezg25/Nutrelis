@@ -1993,42 +1993,43 @@ export default function Astaxanthine() {
      {/* NUTRELIS VS AUTRES */}
       <section style={{
         background: "linear-gradient(135deg, #7D0806 0%, #a01010 40%, #d4817e 80%, #f5e8e5 100%)",
-        padding: `${py} ${px}`,
+        padding: isMobile ? `24px ${px}` : `${py} ${px}`,
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 40 : 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? (isMobile ? 20 : 40) : 80, alignItems: "center" }}>
 
           {/* Gauche — comparaison */}
           <div>
-            
+
             {/* Image + Tableau comparatif */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, alignItems: "end" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: isMobile ? 8 : 16, alignItems: isMobile ? "stretch" : "end" }}>
               {/* NUTRELIS — avec image au dessus */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <img
                   src="/images/astaxanthine/img_transparent.png"
                   alt="NUTRELIS"
                   style={{
-                    width: 45,
+                    width: isMobile ? 30 : 45,
                     height: "auto",
                     objectFit: "contain",
                     filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.2))",
-                    marginBottom: 8,
+                    marginBottom: isMobile ? 4 : 8,
                   }}
                 />
                 <div style={{
                   background: "rgba(80,0,0,0.6)",
                   border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: 14,
-                  padding: "32px 20px",
+                  borderRadius: isMobile ? 10 : 14,
+                  padding: isMobile ? "14px 12px" : "32px 20px",
                   width: "100%",
+                  flex: 1,
                 }}>
-                  <p style={{ color: "#fff", fontWeight: 800, fontSize: 15, textAlign: "center", marginBottom: 20, letterSpacing: 1 }}>
+                  <p style={{ color: "var(--asta-gold)", fontWeight: 800, fontSize: isMobile ? 12 : 15, textAlign: "center", marginBottom: isMobile ? 10 : 20, letterSpacing: 1 }}>
                     NUTRELIS
                   </p>
                   {[t("product.nutrelisPremium"), t("product.nutrelisVegan")].map((item, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < 1 ? "1px solid rgba(255,255,255,0.1)" : "none" }}>
-                      <span style={{ color: "#1db954", fontSize: 16, flexShrink: 0 }}>✓</span>
-                      <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 13 }}>{item}</span>
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 10, padding: isMobile ? "5px 0" : "8px 0", borderBottom: i < 1 ? "1px solid rgba(255,255,255,0.1)" : "none" }}>
+                      <span style={{ color: "#1db954", fontSize: isMobile ? 13 : 16, flexShrink: 0 }}>✓</span>
+                      <span style={{ color: "rgba(255,255,255,0.9)", fontSize: isMobile ? 10 : 13 }}>{item}</span>
                     </div>
                   ))}
                 </div>
@@ -2037,16 +2038,18 @@ export default function Astaxanthine() {
               {/* Autres marques */}
               <div style={{
                 background: "rgba(255,255,255,0.85)",
-                borderRadius: 14,
-                padding: "32px 20px",
+                borderRadius: isMobile ? 10 : 14,
+                padding: isMobile ? "14px 12px" : "32px 20px",
+                display: "flex",
+                flexDirection: "column",
               }}>
-                <p style={{ color: "var(--asta-text)", fontWeight: 800, fontSize: 15, textAlign: "center", marginBottom: 20, letterSpacing: 1 }}>
+                <p style={{ color: "var(--asta-text)", fontWeight: 800, fontSize: isMobile ? 12 : 15, textAlign: "center", marginBottom: isMobile ? 10 : 20, letterSpacing: 1 }}>
                   {t("product.otherBrands")}
                 </p>
                 {[t("product.otherAbsorption"), t("product.otherAdditives")].map((item, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderBottom: i < 1 ? "1px solid var(--asta-border)" : "none" }}>
-                    <span style={{ color: "#e53e3e", fontSize: 16, flexShrink: 0 }}>✗</span>
-                    <span style={{ color: "var(--asta-text2)", fontSize: 13 }}>{item}</span>
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: isMobile ? 6 : 10, padding: isMobile ? "5px 0" : "8px 0", borderBottom: i < 1 ? "1px solid var(--asta-border)" : "none" }}>
+                    <span style={{ color: "#e53e3e", fontSize: isMobile ? 13 : 16, flexShrink: 0 }}>✗</span>
+                    <span style={{ color: "var(--asta-text2)", fontSize: isMobile ? 10 : 13 }}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -2057,28 +2060,28 @@ export default function Astaxanthine() {
           <div>
             <h2 style={{
               fontFamily: "var(--font-sora), sans-serif",
-              fontSize: isMobile ? "1.15rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2.2vw, 1.9rem)",
+              fontSize: isMobile ? "1rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2.2vw, 1.9rem)",
               fontWeight: 800,
-              marginBottom: 32,
+              marginBottom: isMobile ? 16 : 32,
               lineHeight: 1.2,
             }}>
               <span style={{ color: "var(--asta-gold)" }}>NUTRELIS</span>
               <span style={{ color: "#fff" }}> {t("product.nutrelisVsOthers")}</span>
             </h2>
 
-            <div style={{ marginBottom: 40 }}>
+            <div style={{ marginBottom: isMobile ? 20 : 40 }}>
               {[
                 t("product.vsClean"),
                 t("product.vsResults"),
                 t("product.vsDurable"),
               ].map((item, i) => (
                 <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: 12,
-                  padding: "12px 0",
+                  display: "flex", alignItems: "center", gap: isMobile ? 8 : 12,
+                  padding: isMobile ? "8px 0" : "12px 0",
                   borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.15)" : "none",
                 }}>
-                  <span style={{ color: "#1db954", fontSize: 20, flexShrink: 0 }}>✓</span>
-                  <span style={{ color: "#fff", fontSize: 16, fontWeight: 600 }}>{item}</span>
+                  <span style={{ color: "#1db954", fontSize: isMobile ? 16 : 20, flexShrink: 0 }}>✓</span>
+                  <span style={{ color: "#fff", fontSize: isMobile ? 12 : 16, fontWeight: 600 }}>{item}</span>
                 </div>
               ))}
             </div>
@@ -2088,7 +2091,7 @@ export default function Astaxanthine() {
               background: "rgba(255,255,255,0.15)",
               border: "2px solid #fff",
               color: "#fff",
-              padding: isMobile ? "14px 20px" : "16px 40px",
+              padding: isMobile ? "12px 16px" : "16px 40px",
               borderRadius: 50,
               fontSize: isMobile ? 12 : 15,
               fontWeight: 800,
@@ -2100,7 +2103,7 @@ export default function Astaxanthine() {
             }}>
               {t("product.tryRiskFree")}
             </a>
-            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 13 }}>
+            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: isMobile ? 11 : 13 }}>
               <span>{t("product.guarantee90Full")}</span>
             </p>
           </div>
