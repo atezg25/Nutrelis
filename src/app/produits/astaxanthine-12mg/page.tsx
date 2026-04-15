@@ -524,7 +524,9 @@ useEffect(() => {
 function RaisonsSection() {
   const [active, setActive] = useState<number | null>(null);
   const scR = useScreenSize();
-  const colsR = scR === "mobile" ? "repeat(2, 1fr)" : scR === "tablet" ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
+  const isMobileR = scR === "mobile";
+  const isTabletR = scR === "tablet";
+  const colsR = isMobileR ? "1fr" : isTabletR ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
   const { t } = useLocale();
   const raisons = [
     {
@@ -559,8 +561,14 @@ function RaisonsSection() {
     },
   ];
 
+  const imgHeight = isMobileR ? 160 : isTabletR ? 160 : 180;
+  const cardPad = isMobileR ? "14px 16px 16px" : "16px 18px 20px";
+  const titleSize = isMobileR ? 14 : isTabletR ? 13 : 14;
+  const textSize = isMobileR ? 13 : 13;
+  const btnSize = isMobileR ? 13 : 13;
+
   return (
-    <div style={{ display: "grid", gridTemplateColumns: colsR, gap: 16 }}>
+    <div style={{ display: "grid", gridTemplateColumns: colsR, gap: isMobileR ? 14 : 16 }}>
       {raisons.map((r, i) => (
         <div
           key={i}
@@ -577,10 +585,10 @@ function RaisonsSection() {
           }}
         >
           <div style={{ opacity: active === i ? 0 : 1, transition: "opacity 0.2s" }}>
-            <div style={{ height: 180, overflow: "hidden", background: "#fdf5f3" }}>
+            <div style={{ height: imgHeight, overflow: "hidden", background: "#fdf5f3" }}>
               <img src={r.img} alt={r.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
-            <div style={{ padding: "16px 16px 20px" }}>
+            <div style={{ padding: cardPad }}>
               <div style={{
                 display: "inline-block",
                 background: "var(--asta-bg2)", color: "var(--asta-accent)",
@@ -591,7 +599,7 @@ function RaisonsSection() {
                 {t("product.reason")} {r.num}
               </div>
               <h3 style={{
-                fontSize: 13, fontWeight: 700,
+                fontSize: titleSize, fontWeight: 700,
                 fontFamily: "var(--font-sora), sans-serif",
                 lineHeight: 1.4, color: "var(--asta-text)", textAlign: "center",
               }}>
@@ -605,7 +613,7 @@ function RaisonsSection() {
             <div style={{
               position: "absolute", inset: 0,
               background: "#fff", borderRadius: 14,
-              padding: "20px 16px",
+              padding: isMobileR ? "18px 16px" : "20px 16px",
               display: "flex", flexDirection: "column",
               justifyContent: "space-between",
               zIndex: 10,
@@ -620,25 +628,24 @@ function RaisonsSection() {
                   {t("product.reason")} {r.num}
                 </div>
                 <h3 style={{
-                  fontSize: 13, fontWeight: 800,
+                  fontSize: titleSize, fontWeight: 800,
                   fontFamily: "var(--font-sora), sans-serif",
                   lineHeight: 1.4, color: "var(--asta-text)", marginBottom: 12,
                 }}>
                   {r.title}
                 </h3>
-                <p style={{ color: "var(--asta-text2)", fontSize: 12, lineHeight: 1.7 }}>
+                <p style={{ color: "var(--asta-text2)", fontSize: textSize, lineHeight: 1.7 }}>
                   {r.text}
                 </p>
               </div>
               <div>
-                
-            <a href="#commander"
+                <a href="#commander"
                   onClick={(e) => e.stopPropagation()}
                   style={{
                     display: "block", textAlign: "center",
                     background: "var(--asta-accent)", color: "#fff",
                     padding: "10px", borderRadius: 8,
-                    fontSize: 12, fontWeight: 800, textDecoration: "none",
+                    fontSize: btnSize, fontWeight: 800, textDecoration: "none",
                     marginBottom: 10,
                     fontFamily: "var(--font-sora), sans-serif",
                   }}
@@ -1647,7 +1654,7 @@ export default function Astaxanthine() {
       {/* 5 RAISONS */}
       <section style={{ padding: `${py} ${px} 0`, background: "var(--asta-bg2)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 64 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 52 }}>
             <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
               {t("product.fiveReasonsTag")}
             </p>
