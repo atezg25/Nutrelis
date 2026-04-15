@@ -57,7 +57,7 @@ export default function FloatingActions({ accent = "#7D0806" }: FloatingActionsP
       )}
 
       {/* Panier flottant */}
-      <Link
+      {totalItems > 0 && <Link
           href="/panier"
           style={{
             width: isMobile ? 52 : 56,
@@ -99,7 +99,7 @@ export default function FloatingActions({ accent = "#7D0806" }: FloatingActionsP
               {totalItems > 9 ? "9+" : totalItems}
             </div>
           )}
-        </Link>
+        </Link>}
     </div>
   );
 }
