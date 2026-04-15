@@ -1226,7 +1226,7 @@ export default function Astaxanthine() {
             fontWeight: 900,
             fontSize: isMobile ? 13 : 17,
             padding: isMobile ? "5px 10px" : "8px 16px",
-            borderRadius: 10,
+            borderRadius: 50,
             boxShadow: "0 4px 16px rgba(125,8,6,0.4)",
           }}>
             −20%
@@ -1248,6 +1248,7 @@ export default function Astaxanthine() {
           justifyContent: "center",
           padding: isMobile ? "28px 16px" : sc === "tablet" ? "32px 28px" : "40px 48px 40px 40px",
           background: "#fff",
+          borderRadius: 24,
         }}>
           <div style={{
             display: "inline-flex",
@@ -1255,7 +1256,7 @@ export default function Astaxanthine() {
             gap: 10,
             marginBottom: 24,
             background: "#f9f9f9",
-            borderRadius: 30,
+            borderRadius: 50,
             padding: "8px 18px",
             width: "fit-content",
             border: "1px solid #eee",
@@ -1326,7 +1327,7 @@ export default function Astaxanthine() {
             background: "var(--asta-accent)",
             color: "#fff",
             padding: isSmall ? "16px" : "19px 52px",
-            borderRadius: 10,
+            borderRadius: 50,
             fontSize: isMobile ? 14 : 16,
             fontWeight: 800,
             textDecoration: "none",
@@ -1378,7 +1379,7 @@ export default function Astaxanthine() {
               <div style={{
                 width: 44,
                 height: 44,
-                borderRadius: 10,
+                borderRadius: 50,
                 border: "1.5px solid rgba(255,255,255,0.4)",
                 display: "flex",
                 alignItems: "center",
