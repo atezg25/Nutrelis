@@ -586,7 +586,7 @@ function RaisonsSection() {
         >
           {!isOpen && (
             <>
-              <div style={{ height: isMobileR ? 100 : isTabletR ? 140 : 180, overflow: "hidden" }}>
+              <div style={{ height: isMobileR ? 130 : isTabletR ? 150 : 180, overflow: "hidden" }}>
                 <img src={r.img} alt={r.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
               <div style={{ padding: isMobileR ? "8px 8px 10px" : "16px 18px 20px", textAlign: "center" }}>
