@@ -57,8 +57,7 @@ export default function FloatingActions({ accent = "#7D0806" }: FloatingActionsP
       )}
 
       {/* Panier flottant */}
-      {totalItems > 0 && (
-        <Link
+      <Link
           href="/panier"
           style={{
             width: isMobile ? 52 : 56,
@@ -80,26 +79,27 @@ export default function FloatingActions({ accent = "#7D0806" }: FloatingActionsP
             <line x1="3" y1="6" x2="21" y2="6" />
             <path d="M16 10a4 4 0 01-8 0" />
           </svg>
-          <div style={{
-            position: "absolute",
-            top: -4,
-            right: -4,
-            width: 22,
-            height: 22,
-            borderRadius: "50%",
-            background: "#fff",
-            color: accent,
-            fontSize: 12,
-            fontWeight: 900,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-          }}>
-            {totalItems > 9 ? "9+" : totalItems}
-          </div>
+          {totalItems > 0 && (
+            <div style={{
+              position: "absolute",
+              top: -4,
+              right: -4,
+              width: 22,
+              height: 22,
+              borderRadius: "50%",
+              background: "#fff",
+              color: accent,
+              fontSize: 12,
+              fontWeight: 900,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            }}>
+              {totalItems > 9 ? "9+" : totalItems}
+            </div>
+          )}
         </Link>
-      )}
     </div>
   );
 }
