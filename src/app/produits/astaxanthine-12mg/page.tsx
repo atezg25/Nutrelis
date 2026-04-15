@@ -2354,10 +2354,10 @@ export default function Astaxanthine() {
       {/* FAQ */}
       <section style={{
         background: "var(--asta-accent)",
-        padding: `${py} ${px}`,
+        padding: isMobile ? `32px ${px}` : `${py} ${px}`,
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: isMobile ? 24 : 52 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 16 : 52 }}>
             <h2 style={{
               fontFamily: "var(--font-sora), sans-serif",
               fontSize: isMobile ? "0.95rem" : isSmall ? "1.2rem" : "clamp(1.4rem, 2vw, 1.8rem)",
@@ -2368,7 +2368,7 @@ export default function Astaxanthine() {
             </h2>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isMobile ? 8 : 16 }}>
             {[
               {
                 icon: "🌿",
