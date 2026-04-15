@@ -2153,10 +2153,10 @@ export default function Astaxanthine() {
       {/* SECTION MÉDECIN — TIMELINE */}
       <section style={{
         background: "linear-gradient(135deg, #fff8f6 0%, #fdecea 50%, #fff8f6 100%)",
-        padding: `${py} ${px}`,
+        padding: isMobile ? `32px ${px}` : `${py} ${px}`,
         overflow: "hidden",
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 32 : 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 20 : 80, alignItems: "center" }}>
 
           {/* Image médecin */}
           <div style={{ position: "relative" }}>
@@ -2169,10 +2169,12 @@ export default function Astaxanthine() {
               src="/images/astaxanthine/Medecin.png"
               alt={t("product.altDoctor")}
               style={{
-                width: "100%", height: "auto",
+                width: isMobile ? "70%" : "100%", height: "auto",
                 objectFit: "contain",
                 position: "relative", zIndex: 1,
                 filter: "drop-shadow(0 20px 40px rgba(125,8,6,0.15))",
+                margin: isMobile ? "0 auto" : undefined,
+                display: "block",
               }}
             />
           </div>
@@ -2180,19 +2182,19 @@ export default function Astaxanthine() {
           {/* Timeline droite */}
           <div>
             {/* Titre */}
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12, marginBottom: isMobile ? 16 : 32 }}>
               <div style={{
-                width: 48, height: 48, borderRadius: "50%",
+                width: isMobile ? 34 : 48, height: isMobile ? 34 : 48, borderRadius: "50%",
                 background: "var(--asta-accent)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 22, flexShrink: 0,
+                fontSize: isMobile ? 16 : 22, flexShrink: 0,
                 boxShadow: "0 4px 16px rgba(125,8,6,0.3)",
               }}>
                 🌿
               </div>
               <h2 style={{
                 fontFamily: "var(--font-sora), sans-serif",
-                fontSize: isMobile ? "1.15rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2vw, 1.8rem)",
+                fontSize: isMobile ? "0.95rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2vw, 1.8rem)",
                 fontWeight: 800, color: "var(--asta-accent)",
                 lineHeight: 1.3,
               }}>
@@ -2201,7 +2203,7 @@ export default function Astaxanthine() {
             </div>
 
             {/* Items timeline */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 8 : 12 }}>
               {[
                 {
                   icon: "✨",
@@ -2241,10 +2243,10 @@ export default function Astaxanthine() {
                 },
               ].map((item, i) => (
                 <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: 16,
+                  display: "flex", alignItems: "center", gap: isMobile ? 10 : 16,
                   background: "#fff",
                   borderRadius: 14,
-                  padding: "14px 20px",
+                  padding: isMobile ? "10px 12px" : "14px 20px",
                   border: "1px solid var(--asta-border)",
                   boxShadow: "0 2px 12px rgba(125,8,6,0.06)",
                   transition: "all 0.2s",
@@ -2261,24 +2263,24 @@ export default function Astaxanthine() {
                   }}
                 >
                   <div style={{
-                    width: 38, height: 38, borderRadius: 10,
+                    width: isMobile ? 30 : 38, height: isMobile ? 30 : 38, borderRadius: 10,
                     background: item.bg,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 18, flexShrink: 0,
+                    fontSize: isMobile ? 14 : 18, flexShrink: 0,
                     boxShadow: `0 4px 12px ${item.bg}55`,
                   }}>
                     {item.icon}
                   </div>
                   <div>
                     <p style={{
-                      fontWeight: 800, fontSize: 12,
+                      fontWeight: 800, fontSize: isMobile ? 11 : 12,
                       color: "var(--asta-accent)",
-                      letterSpacing: 0.5, marginBottom: 3,
+                      letterSpacing: 0.5, marginBottom: 2,
                       fontFamily: "var(--font-sora), sans-serif",
                     }}>
                       {item.titre}
                     </p>
-                    <p style={{ color: "var(--asta-text2)", fontSize: 12, lineHeight: 1.5 }}>
+                    <p style={{ color: "var(--asta-text2)", fontSize: isMobile ? 10 : 12, lineHeight: 1.5 }}>
                       {item.desc}
                     </p>
                   </div>
