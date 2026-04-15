@@ -968,24 +968,24 @@ function StatsSection() {
   ];
 
   return (
-    <div ref={ref} style={{ display: "grid", gridTemplateColumns: scSt === "mobile" ? "1fr" : "1fr 1fr", gap: scSt === "mobile" ? "32px" : "40px 80px" }}>
+    <div ref={ref} style={{ display: "grid", gridTemplateColumns: scSt === "mobile" ? "1fr 1fr" : "1fr 1fr", gap: scSt === "mobile" ? "14px" : "40px 80px" }}>
       {stats.map((stat, i) => (
         <div key={i}>
           <div style={{
             color: "var(--asta-accent)",
-            fontSize: scSt === "mobile" ? "1.8rem" : "2.8rem",
+            fontSize: scSt === "mobile" ? "1.4rem" : "2.8rem",
             fontWeight: 900,
             fontFamily: "var(--font-sora), sans-serif",
             lineHeight: 1,
-            marginBottom: 8,
+            marginBottom: scSt === "mobile" ? 4 : 8,
           }}>
             {Math.round(stat.value * progress)}
-            <span style={{ fontSize: scSt === "mobile" ? "0.9rem" : "1.4rem" }}>%</span>
+            <span style={{ fontSize: scSt === "mobile" ? "0.7rem" : "1.4rem" }}>%</span>
           </div>
-          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4, color: "var(--asta-text)" }}>
+          <div style={{ fontWeight: 700, fontSize: scSt === "mobile" ? 11 : 15, marginBottom: scSt === "mobile" ? 2 : 4, color: "var(--asta-text)" }}>
             {stat.label}
           </div>
-          <div style={{ color: "var(--asta-text2)", fontSize: 13, marginBottom: 12 }}>
+          <div style={{ color: "var(--asta-text2)", fontSize: scSt === "mobile" ? 10 : 13, marginBottom: scSt === "mobile" ? 6 : 12 }}>
             {stat.desc}
           </div>
           {/* Barre de progression */}
@@ -1973,16 +1973,16 @@ export default function Astaxanthine() {
       </section>
 
       {/* STATS */}
-      <section style={{ padding: `${py} ${px}`, background: "#fff" }}>
+      <section style={{ padding: isMobile ? `24px ${px}` : `${py} ${px}`, background: "#fff" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 52 }}>
-            <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 52 }}>
+            <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 6 : 12 }}>
               {t("product.statsTag")}
             </p>
-            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: 16 }}>
+            <h2 style={{ fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: isMobile ? 8 : 16 }}>
               {t("product.statsTitle")}
             </h2>
-            <p style={{ color: "var(--asta-text2)", fontSize: 15 }}>
+            <p style={{ color: "var(--asta-text2)", fontSize: isMobile ? 12 : 15 }}>
               {t("product.statsDesc")}
             </p>
           </div>
