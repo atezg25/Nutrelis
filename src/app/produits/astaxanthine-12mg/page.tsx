@@ -1832,21 +1832,21 @@ export default function Astaxanthine() {
      {/* PROBLÈME → SOLUTION */}
       <section style={{
         background: "linear-gradient(135deg, #7D0806 0%, #a01010 40%, #d4817e 80%, #f5e8e5 100%)",
-        padding: `${py} ${px} 0`,
+        padding: isMobile ? `24px ${px} 0` : `${py} ${px} 0`,
         overflow: "hidden",
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
 
           {/* Badge */}
-          <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 12 : 24 }}>
             <span style={{
               background: "rgba(255,255,255,0.15)",
               border: "1px solid rgba(255,255,255,0.3)",
               color: "#fff",
-              fontSize: 11,
+              fontSize: isMobile ? 9 : 11,
               fontWeight: 700,
               letterSpacing: 2,
-              padding: "6px 16px",
+              padding: isMobile ? "4px 10px" : "6px 16px",
               borderRadius: 20,
             }}>
               {t("product.cellProtection")}
@@ -1857,10 +1857,10 @@ export default function Astaxanthine() {
           <h2 style={{
             textAlign: "center",
             color: "#fff",
-            fontSize: isMobile ? "1.2rem" : isSmall ? "1.5rem" : "clamp(1.6rem, 2.5vw, 2.2rem)",
+            fontSize: isMobile ? "1rem" : isSmall ? "1.5rem" : "clamp(1.6rem, 2.5vw, 2.2rem)",
             fontWeight: 800,
             fontFamily: "var(--font-sora), sans-serif",
-            marginBottom: 48,
+            marginBottom: isMobile ? 20 : 48,
             lineHeight: 1.2,
           }}>
             {t("product.tiredToEnergized")}
@@ -1870,22 +1870,22 @@ export default function Astaxanthine() {
           <div style={{
             display: "grid",
             gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr",
-            gap: 20,
-            marginBottom: 48,
+            gap: isMobile ? 10 : 20,
+            marginBottom: isMobile ? 20 : 48,
           }}>
             {/* Problème */}
             <div style={{
               background: "rgba(80,0,0,0.5)",
               border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: 16,
-              padding: "28px 32px",
+              borderRadius: isMobile ? 10 : 16,
+              padding: isMobile ? "14px 16px" : "28px 32px",
             }}>
               <p style={{
                 color: "#fff",
-                fontSize: 13,
+                fontSize: isMobile ? 11 : 13,
                 fontWeight: 800,
                 letterSpacing: 1.5,
-                marginBottom: 20,
+                marginBottom: isMobile ? 10 : 20,
               }}>
                 {t("product.yourProblem")}
               </p>
@@ -1897,12 +1897,12 @@ export default function Astaxanthine() {
                 <div key={i} style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
-                  padding: "10px 0",
+                  gap: isMobile ? 8 : 12,
+                  padding: isMobile ? "6px 0" : "10px 0",
                   borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.1)" : "none",
                 }}>
-                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 16, flexShrink: 0 }}>✗</span>
-                  <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 15 }}>{p}</span>
+                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: isMobile ? 13 : 16, flexShrink: 0 }}>✗</span>
+                  <span style={{ color: "rgba(255,255,255,0.85)", fontSize: isMobile ? 12 : 15 }}>{p}</span>
                 </div>
               ))}
             </div>
@@ -1910,15 +1910,15 @@ export default function Astaxanthine() {
             {/* Solution */}
             <div style={{
               background: "rgba(255,255,255,0.92)",
-              borderRadius: 16,
-              padding: "28px 32px",
+              borderRadius: isMobile ? 10 : 16,
+              padding: isMobile ? "14px 16px" : "28px 32px",
             }}>
               <p style={{
                 color: "var(--asta-accent)",
-                fontSize: 13,
+                fontSize: isMobile ? 11 : 13,
                 fontWeight: 800,
                 letterSpacing: 1.5,
-                marginBottom: 20,
+                marginBottom: isMobile ? 10 : 20,
               }}>
                 {t("product.ourSolution")}
               </p>
@@ -1930,8 +1930,8 @@ export default function Astaxanthine() {
                 <div key={i} style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
-                  padding: "10px 0",
+                  gap: isMobile ? 8 : 12,
+                  padding: isMobile ? "6px 0" : "10px 0",
                   borderBottom: i < 2 ? "1px solid var(--asta-border)" : "none",
                 }}>
                   <span style={{ color: "#1db954", fontSize: 16, flexShrink: 0 }}>✓</span>
@@ -1949,9 +1949,9 @@ export default function Astaxanthine() {
               gap: 8,
               background: "rgba(255,255,255,0.9)",
               borderRadius: 20,
-              padding: "6px 16px",
-              marginBottom: 16,
-              fontSize: 13,
+              padding: isMobile ? "4px 10px" : "6px 16px",
+              marginBottom: isMobile ? 8 : 16,
+              fontSize: isMobile ? 11 : 13,
               fontWeight: 700,
               color: "var(--asta-accent)",
             }}>
@@ -1961,7 +1961,7 @@ export default function Astaxanthine() {
               src="/images/astaxanthine/Rajeu-Photo-1.png"
               alt="Transformation NUTRELIS"
               style={{
-                maxWidth: 600,
+                maxWidth: isMobile ? 300 : 600,
                 width: "100%",
                 display: "block",
                 margin: "0 auto",
