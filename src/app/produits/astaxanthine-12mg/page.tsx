@@ -1719,40 +1719,78 @@ export default function Astaxanthine() {
               { name: "MIRIANNE", file: "video3.mp4" },
               { name: "ALEX", file: "video4.mp4" },
             ].map((v, i) => (
-              <div key={i} style={{
+              <div key={i} data-video-card style={{
                 borderRadius: isMobile ? 12 : 20,
                 overflow: "hidden",
                 border: "1px solid var(--asta-border)",
                 background: "#fff",
                 boxShadow: "0 2px 16px rgba(125,8,6,0.06)",
               }}>
-                <video
-                  controls
-                  style={{ width: "100%", display: "block", maxHeight: isMobile ? 200 : 400, objectFit: "cover", background: "#000" }}
-                  onPlay={(e) => {
-                    const videos = document.querySelectorAll("video");
-                    videos.forEach((vid) => {
-                      if (vid !== e.currentTarget) {
-                        vid.pause();
-                      }
-                    });
+                <div style={{ position: "relative", background: "#000", cursor: "pointer" }}
+                  onClick={(e) => {
+                    const video = (e.currentTarget as HTMLDivElement).querySelector("video");
+                    if (!video) return;
+                    if (video.paused) {
+                      const videos = document.querySelectorAll("video");
+                      videos.forEach((vid) => { if (vid !== video) vid.pause(); });
+                      video.play();
+                    } else {
+                      video.pause();
+                    }
                   }}
                 >
-                  <source src={`/videos/${v.file}`} type="video/mp4" />
-                </video>
+                  <video
+                    playsInline
+                    style={{ width: "100%", display: "block", maxHeight: isMobile ? 200 : 400, objectFit: "cover", background: "#000" }}
+                  >
+                    <source src={`/videos/${v.file}`} type="video/mp4" />
+                  </video>
+                </div>
                 <div style={{ padding: isMobile ? "8px 10px" : "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ fontWeight: 800, fontSize: isMobile ? 11 : 14 }}>{v.name}</span>
-                  <span style={{
-                    background: "#fdecea",
-                    color: "var(--asta-accent)",
-                    fontSize: isMobile ? 7 : 10,
-                    fontWeight: 700,
-                    letterSpacing: isMobile ? 0.5 : 1,
-                    padding: isMobile ? "2px 6px" : "3px 10px",
-                    borderRadius: 10,
-                  }}>
-                    {t("product.clientVerified")}
-                  </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 8 }}>
+                    <span
+                      style={{
+                        width: isMobile ? 20 : 24,
+                        height: isMobile ? 20 : 24,
+                        borderRadius: "50%",
+                        background: "var(--asta-accent)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        flexShrink: 0,
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const card = (e.currentTarget as HTMLElement).closest("[data-video-card]");
+                        const video = card?.querySelector("video");
+                        if (!video) return;
+                        if (video.paused) {
+                          const videos = document.querySelectorAll("video");
+                          videos.forEach((vid) => { if (vid !== video) vid.pause(); });
+                          video.play();
+                        } else {
+                          video.pause();
+                        }
+                      }}
+                    >
+                      <svg width={isMobile ? 8 : 10} height={isMobile ? 8 : 10} viewBox="0 0 10 12" fill="none">
+                        <path d="M0 0L10 6L0 12V0Z" fill="#fff" />
+                      </svg>
+                    </span>
+                    <span style={{
+                      background: "#fdecea",
+                      color: "var(--asta-accent)",
+                      fontSize: isMobile ? 7 : 10,
+                      fontWeight: 700,
+                      letterSpacing: isMobile ? 0.5 : 1,
+                      padding: isMobile ? "2px 6px" : "3px 10px",
+                      borderRadius: 10,
+                    }}>
+                      {t("product.clientVerified")}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
