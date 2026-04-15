@@ -526,7 +526,7 @@ function RaisonsSection() {
   const scR = useScreenSize();
   const isMobileR = scR === "mobile";
   const isTabletR = scR === "tablet";
-  const colsR = isMobileR ? "1fr" : isTabletR ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
+  const colsR = isMobileR ? "repeat(2, 1fr)" : isTabletR ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
   const { t } = useLocale();
   const raisons = [
     {
@@ -561,21 +561,21 @@ function RaisonsSection() {
     },
   ];
 
-  const imgHeight = isMobileR ? 160 : isTabletR ? 160 : 180;
-  const cardPad = isMobileR ? "14px 16px 16px" : "16px 18px 20px";
-  const titleSize = isMobileR ? 14 : isTabletR ? 13 : 14;
-  const textSize = isMobileR ? 13 : 13;
-  const btnSize = isMobileR ? 13 : 13;
+  const imgHeight = isMobileR ? 120 : isTabletR ? 160 : 180;
+  const titleSize = isMobileR ? 11 : isTabletR ? 13 : 14;
+  const textSize = isMobileR ? 11 : 13;
+  const btnSize = isMobileR ? 11 : 13;
+  const cardRadius = isMobileR ? 20 : 20;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: colsR, gap: isMobileR ? 14 : 16 }}>
+    <div style={{ display: "grid", gridTemplateColumns: colsR, gap: isMobileR ? 10 : 16 }}>
       {raisons.map((r, i) => (
         <div
           key={i}
           onClick={() => setActive(active === i ? null : i)}
           style={{
             background: "#fff",
-            borderRadius: 16,
+            borderRadius: cardRadius,
             overflow: "hidden",
             border: `2px solid ${active === i ? "var(--asta-accent)" : "var(--asta-border)"}`,
             cursor: "pointer",
@@ -585,15 +585,15 @@ function RaisonsSection() {
           }}
         >
           <div style={{ opacity: active === i ? 0 : 1, transition: "opacity 0.2s" }}>
-            <div style={{ height: imgHeight, overflow: "hidden", background: "#fdf5f3" }}>
+            <div style={{ height: imgHeight, overflow: "hidden", background: "#fdf5f3", borderRadius: `${cardRadius - 2}px ${cardRadius - 2}px 0 0` }}>
               <img src={r.img} alt={r.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
-            <div style={{ padding: cardPad }}>
+            <div style={{ padding: isMobileR ? "10px 10px 12px" : "16px 18px 20px", textAlign: "center" }}>
               <div style={{
                 display: "inline-block",
                 background: "var(--asta-bg2)", color: "var(--asta-accent)",
-                fontSize: 11, fontWeight: 700, letterSpacing: 1,
-                padding: "3px 10px", borderRadius: 20, marginBottom: 10,
+                fontSize: isMobileR ? 9 : 11, fontWeight: 700, letterSpacing: 1,
+                padding: isMobileR ? "2px 8px" : "3px 10px", borderRadius: 20, marginBottom: isMobileR ? 6 : 10,
                 border: "1px solid var(--asta-border)",
               }}>
                 {t("product.reason")} {r.num}
@@ -601,58 +601,59 @@ function RaisonsSection() {
               <h3 style={{
                 fontSize: titleSize, fontWeight: 700,
                 fontFamily: "var(--font-sora), sans-serif",
-                lineHeight: 1.4, color: "var(--asta-text)", textAlign: "center",
+                lineHeight: 1.3, color: "var(--asta-text)", textAlign: "center",
               }}>
                 {r.title}
               </h3>
-              <div style={{ textAlign: "center", marginTop: 8, color: "var(--asta-text2)", fontSize: 16 }}>▼</div>
+              <div style={{ textAlign: "center", marginTop: isMobileR ? 4 : 8, color: "var(--asta-text2)", fontSize: isMobileR ? 12 : 16 }}>▼</div>
             </div>
           </div>
 
           {active === i && (
             <div style={{
               position: "absolute", inset: 0,
-              background: "#fff", borderRadius: 14,
-              padding: isMobileR ? "18px 16px" : "20px 16px",
+              background: "#fff", borderRadius: cardRadius - 2,
+              padding: isMobileR ? "12px 10px" : "20px 16px",
               display: "flex", flexDirection: "column",
               justifyContent: "space-between",
               zIndex: 10,
+              overflow: "auto",
             }}>
               <div>
                 <div style={{
                   display: "inline-block",
                   background: "var(--asta-accent)", color: "#fff",
-                  fontSize: 11, fontWeight: 700, letterSpacing: 1,
-                  padding: "3px 10px", borderRadius: 20, marginBottom: 10,
+                  fontSize: isMobileR ? 9 : 11, fontWeight: 700, letterSpacing: 1,
+                  padding: isMobileR ? "2px 8px" : "3px 10px", borderRadius: 20, marginBottom: isMobileR ? 6 : 10,
                 }}>
                   {t("product.reason")} {r.num}
                 </div>
                 <h3 style={{
                   fontSize: titleSize, fontWeight: 800,
                   fontFamily: "var(--font-sora), sans-serif",
-                  lineHeight: 1.4, color: "var(--asta-text)", marginBottom: 12,
+                  lineHeight: 1.3, color: "var(--asta-text)", marginBottom: isMobileR ? 6 : 12,
                 }}>
                   {r.title}
                 </h3>
-                <p style={{ color: "var(--asta-text2)", fontSize: textSize, lineHeight: 1.7 }}>
+                <p style={{ color: "var(--asta-text2)", fontSize: textSize, lineHeight: 1.6 }}>
                   {r.text}
                 </p>
               </div>
-              <div>
+              <div style={{ marginTop: isMobileR ? 8 : 0 }}>
                 <a href="#commander"
                   onClick={(e) => e.stopPropagation()}
                   style={{
                     display: "block", textAlign: "center",
                     background: "var(--asta-accent)", color: "#fff",
-                    padding: "10px", borderRadius: 8,
+                    padding: isMobileR ? "8px" : "10px", borderRadius: 24,
                     fontSize: btnSize, fontWeight: 800, textDecoration: "none",
-                    marginBottom: 10,
+                    marginBottom: isMobileR ? 6 : 10,
                     fontFamily: "var(--font-sora), sans-serif",
                   }}
                 >
                   {t("product.orderArrow")}
                 </a>
-                <div style={{ textAlign: "center", color: "var(--asta-text2)", fontSize: 16, transform: "rotate(180deg)" }}>▼</div>
+                <div style={{ textAlign: "center", color: "var(--asta-text2)", fontSize: isMobileR ? 12 : 16, transform: "rotate(180deg)" }}>▼</div>
               </div>
             </div>
           )}
