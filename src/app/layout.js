@@ -100,7 +100,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fr">
-      <head>
+      <body className={`${dmSans.variable} ${sora.variable}`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -109,8 +109,6 @@ export default function RootLayout({ children }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
-      </head>
-      <body className={`${dmSans.variable} ${sora.variable}`}>
         <LocaleProvider>
           <AuthProvider>
             <CartProvider>
