@@ -1552,18 +1552,18 @@ export default function Astaxanthine() {
       </section>
 
       {/* AVIS CLIENTS */}
-      <section style={{ padding: `${py} ${px}`, background: "var(--asta-bg)" }}>
+      <section style={{ padding: `${isMobile ? "32px" : py} ${px}`, background: "var(--asta-bg)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 56 }}>
-            <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 24 : 56 }}>
+            <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
               {t("product.reviewsTag")}
             </p>
-            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
+            <h2 style={{ fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
               {t("product.reviewsTitle")}{" "}
               <span style={{ color: "var(--asta-accent)" }}>{t("product.reviewsHighlight")}</span>
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 28 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: isMobile ? 14 : 28 }}>
             {[
               { name: t("product.review1Name"), semaines: t("product.review1Weeks"), titre: t("product.review1Title"), text: t("product.review1Text"), img: "/images/astaxanthine/Ast2.png" },
               { name: t("product.review2Name"), semaines: t("product.review2Weeks"), titre: t("product.review2Title"), text: t("product.review2Text"), img: "/images/astaxanthine/Ast3.png" },
@@ -1573,40 +1573,42 @@ export default function Astaxanthine() {
                 background: "#fff",
                 border: "1px solid var(--asta-border)",
                 borderRadius: 20,
-                padding: 32,
+                padding: isMobile ? 16 : 32,
                 boxShadow: "0 2px 20px rgba(125,8,6,0.06)",
               }}>
-                <div style={{ color: "#f5a623", fontSize: 18, marginBottom: 12 }}>★★★★★</div>
-                <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 12, fontFamily: "var(--font-sora), sans-serif" }}>
+                <div style={{ color: "#f5a623", fontSize: isMobile ? 14 : 18, marginBottom: isMobile ? 8 : 12 }}>★★★★★</div>
+                <h3 style={{ fontSize: isMobile ? 14 : 17, fontWeight: 800, marginBottom: isMobile ? 8 : 12, fontFamily: "var(--font-sora), sans-serif" }}>
                   {avis.titre}
                 </h3>
-                <p style={{ color: "var(--asta-text2)", fontSize: 14, lineHeight: 1.75, marginBottom: 24, fontStyle: "italic" }}>
+                <p style={{ color: "var(--asta-text2)", fontSize: isMobile ? 12 : 14, lineHeight: 1.7, marginBottom: isMobile ? 14 : 24, fontStyle: "italic" }}>
                   &quot;{avis.text}&quot;
                 </p>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12 }}>
                     <div style={{
-                      width: 48,
-                      height: 48,
+                      width: isMobile ? 36 : 48,
+                      height: isMobile ? 36 : 48,
                       borderRadius: "50%",
                       overflow: "hidden",
                       border: "2.5px solid var(--asta-accent)",
+                      flexShrink: 0,
                     }}>
                       <img src={avis.img} alt={avis.name}
                         style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: 14 }}>{avis.name}</div>
-                      <div style={{ color: "var(--asta-text2)", fontSize: 12 }}>✅ {t("product.verifiedClient")}</div>
+                      <div style={{ fontWeight: 700, fontSize: isMobile ? 12 : 14 }}>{avis.name}</div>
+                      <div style={{ color: "var(--asta-text2)", fontSize: isMobile ? 10 : 12 }}>✅ {t("product.verifiedClient")}</div>
                     </div>
                   </div>
                   <div style={{
                     background: "#fdecea",
                     color: "var(--asta-text2)",
-                    fontSize: 11,
+                    fontSize: isMobile ? 9 : 11,
                     fontWeight: 600,
-                    padding: "4px 10px",
+                    padding: isMobile ? "3px 8px" : "4px 10px",
                     borderRadius: 20,
+                    whiteSpace: "nowrap",
                   }}>
                     {avis.semaines}
                   </div>
