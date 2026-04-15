@@ -4,6 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import { useLocale } from "@/context/LocaleContext";
+import { useEffect, useRef, useState } from "react";
 
 interface NavbarCartProps {
   dark?: boolean; // true = fond sombre (blanc), false = fond clair (bordeaux)
@@ -14,6 +15,17 @@ export default function NavbarCart({ dark = true }: NavbarCartProps) {
   const { customer } = useAuth();
   const isMobile = useScreenSize() === "mobile";
   const { t } = useLocale();
+  const [bouncing, setBouncing] = useState(false);
+  const prevItems = useRef(totalItems);
+
+  useEffect(() => {
+    if (totalItems > prevItems.current) {
+      setBouncing(true);
+      const timer = setTimeout(() => setBouncing(false), 600);
+      return () => clearTimeout(timer);
+    }
+    prevItems.current = totalItems;
+  }, [totalItems]);
 
   const color = dark ? "#fff" : "#7D0806";
   const borderColor = dark ? "rgba(255,255,255,0.2)" : "rgba(125,8,6,0.2)";
@@ -76,7 +88,13 @@ export default function NavbarCart({ dark = true }: NavbarCartProps) {
           <path d="M16 10a4 4 0 01-8 0" />
         </svg>
         {totalItems > 0 && (
-          <div style={{ position: "absolute", top: -8, right: -8, width: 20, height: 20, borderRadius: "50%", background: "#7D0806", color: "#fff", fontSize: 11, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${dark ? "#060f08" : "#fff"}` }}>
+          <div style={{
+            position: "absolute", top: -8, right: -8, width: 20, height: 20, borderRadius: "50%",
+            background: "#7D0806", color: "#fff", fontSize: 11, fontWeight: 900,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            border: `2px solid ${dark ? "#060f08" : "#fff"}`,
+            animation: bouncing ? "cartBounce 0.6s ease" : "none",
+          }}>
             {totalItems > 9 ? "9+" : totalItems}
           </div>
         )}
