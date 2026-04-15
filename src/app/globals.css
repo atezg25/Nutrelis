@@ -35,13 +35,8 @@
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  
-  body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
   font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
-}
 }
 
 html {

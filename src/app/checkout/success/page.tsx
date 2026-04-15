@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useLayoutEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
@@ -118,8 +118,13 @@ function SuccessContent() {
 
 export default function CheckoutSuccess() {
   const { t } = useLocale();
+
+  useLayoutEffect(() => {
+    document.documentElement.classList.add("hydrated");
+  }, []);
+
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fff", color: "#1a1a1a" }}>
       <Suspense fallback={
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
