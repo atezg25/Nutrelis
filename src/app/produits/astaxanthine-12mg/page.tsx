@@ -2000,28 +2000,27 @@ export default function Astaxanthine() {
           {/* Gauche — comparaison */}
           <div>
 
-            {/* Image produit centrée */}
-            <div style={{ textAlign: "center", marginBottom: isMobile ? 8 : 16 }}>
-              <img
-                src="/images/astaxanthine/img_transparent.png"
-                alt="NUTRELIS"
-                style={{
-                  width: isMobile ? 30 : 45,
-                  height: "auto",
-                  objectFit: "contain",
-                  filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.2))",
-                }}
-              />
-            </div>
-
             {/* Tableau comparatif */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: isMobile ? 8 : 16 }}>
-              {/* NUTRELIS */}
+              {/* NUTRELIS — avec image au dessus */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <img
+                  src="/images/astaxanthine/img_transparent.png"
+                  alt="NUTRELIS"
+                  style={{
+                    width: isMobile ? 30 : 45,
+                    height: "auto",
+                    objectFit: "contain",
+                    filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.2))",
+                    marginBottom: isMobile ? 4 : 8,
+                  }}
+                />
               <div style={{
                 background: "rgba(80,0,0,0.6)",
                 border: "1px solid rgba(255,255,255,0.2)",
                 borderRadius: isMobile ? 10 : 14,
                 padding: isMobile ? "14px 12px" : "32px 20px",
+                width: "100%",
               }}>
                 <p style={{ color: "#fff", fontWeight: 800, fontSize: isMobile ? 12 : 15, textAlign: "center", marginBottom: isMobile ? 10 : 20, letterSpacing: 1 }}>
                   NUTRELIS
@@ -2032,6 +2031,7 @@ export default function Astaxanthine() {
                     <span style={{ color: "rgba(255,255,255,0.9)", fontSize: isMobile ? 10 : 13 }}>{item}</span>
                   </div>
                 ))}
+              </div>
               </div>
 
               {/* Autres marques */}
