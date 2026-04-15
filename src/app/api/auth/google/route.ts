@@ -107,10 +107,35 @@ export async function POST(req: NextRequest) {
       },
     });
     const customerData = await customerRes.json();
+    const customer = customerData.customer;
 
+    // Si le profil existe mais sans nom (ancien compte), mettre à jour avec les infos Google
+    if (customer && !customer.first_name && google.given_name) {
+      await fetch(`${BACKEND}/store/customers/me`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "x-publishable-api-key": PUB_KEY,
+        },
+        body: JSON.stringify({
+          first_name: google.given_name || google.name || "",
+          last_name: google.family_name || "",
+        }),
+      });
+      customer.first_name = google.given_name || google.name || "";
+      customer.last_name = google.family_name || "";
+    }
+
+    // Fallback : si toujours pas de customer, renvoyer les infos Google directement
     return NextResponse.json({
       token,
-      customer: customerData.customer,
+      customer: customer || {
+        id: "",
+        email: google.email,
+        first_name: google.given_name || google.name || "",
+        last_name: google.family_name || "",
+      },
     });
 
   } catch (error: any) {
