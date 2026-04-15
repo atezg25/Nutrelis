@@ -287,7 +287,7 @@ useEffect(() => {
           borderRadius: 10,
           padding: isMobilePS ? "8px 12px" : "10px 14px",
           marginBottom: 16,
-          fontSize: isMobilePS ? 11 : 12,
+          fontSize: isMobilePS ? 11 : 14,
           color: "var(--asta-text2)",
           lineHeight: 1.5,
         }}>
