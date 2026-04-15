@@ -19,7 +19,7 @@ export default function Panier() {
       {/* NAVBAR */}
       <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: `0 ${px}`, height: 60, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
         <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
-          <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: isMobile ? 24 : 34, width: "auto" }} />
+          <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: isMobile ? 22 : 32, width: "auto" }} />
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Link href="/produits/astaxanthine-12mg" style={{ color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 12 : 14, textDecoration: "none" }}>

@@ -21,7 +21,7 @@ export default function Compte() {
   if (loading) return (
     <div style={{ minHeight: "100vh", background: "#f8f5f5", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
-        <img src="/images/logo-product.png" alt="Nutrelis" style={{ height: 40, width: "auto", margin: "0 auto 16px", display: "block" }} />
+        <img src="/images/logo-product.png" alt="Nutrelis" style={{ height: 28, width: "auto", margin: "0 auto 16px", display: "block" }} />
         <p style={{ fontFamily: "var(--font-sora), sans-serif", color: "#7D0806", fontWeight: 700 }}>{t("account.loading")}</p>
       </div>
     </div>
@@ -37,7 +37,7 @@ export default function Compte() {
       {/* NAVBAR */}
       <nav style={{ background: "#fff", borderBottom: "1px solid #f0e8e8", padding: isMobile ? "0 16px" : "0 40px", height: isMobile ? 56 : 68, display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 12px rgba(125,8,6,0.06)" }}>
         <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
-          <img src="/images/logo-product.png" alt="Nutrelis" style={{ height: isMobile ? 28 : 36, width: "auto" }} />
+          <img src="/images/logo-product.png" alt="Nutrelis" style={{ height: isMobile ? 22 : 32, width: "auto" }} />
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 16 }}>
           {!isMobile && <span style={{ fontSize: 14, color: "#555" }}>{t("account.hello")} <strong>{customer.first_name}</strong></span>}

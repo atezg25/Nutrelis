@@ -158,7 +158,7 @@ export default function Checkout() {
       {/* NAVBAR */}
       <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: `0 ${px}`, height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
-          <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: isMobile ? 28 : 40, width: "auto" }} />
+          <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: isMobile ? 22 : 34, width: "auto" }} />
         </Link>
         {!isMobile && (
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>

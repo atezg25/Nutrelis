@@ -35,7 +35,7 @@ export default function Connexion() {
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <Link href="/" style={{ display: "block" }}>
-            <img src="/images/logo-product.png" alt="Nutrelis" style={{ height: 48, width: "auto", margin: "0 auto 12px", display: "block" }} />
+            <img src="/images/logo-product.png" alt="Nutrelis" style={{ height: 32, width: "auto", margin: "0 auto 12px", display: "block" }} />
           </Link>
           <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.6rem", fontWeight: 800, marginBottom: 8 }}>{t("auth.loginTitle")}</h1>
           <p style={{ color: "#888", fontSize: 14 }}>{t("auth.loginDesc")}</p>
