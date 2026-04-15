@@ -262,13 +262,13 @@ useEffect(() => {
   );
 }}
             style={{
-              padding: isMobilePS ? "10px 6px" : "12px 8px",
+              padding: isMobilePS ? "12px 8px" : "14px 10px",
               background: mode === tab.id ? "var(--asta-accent)" : "transparent",
               color: mode === tab.id ? "#fff" : "var(--asta-text2)",
               border: "none",
               borderRadius: 8,
               fontWeight: 700,
-              fontSize: isMobilePS ? 12 : 14,
+              fontSize: isMobilePS ? 13 : 15,
               cursor: "pointer",
               transition: "all 0.2s",
               fontFamily: "var(--font-sora), sans-serif",
@@ -285,11 +285,11 @@ useEffect(() => {
           background: "#fdecea",
           border: "1px solid var(--asta-accent)",
           borderRadius: 10,
-          padding: "14px 16px",
-          marginBottom: 20,
-          fontSize: 13,
+          padding: isMobilePS ? "8px 12px" : "10px 14px",
+          marginBottom: 16,
+          fontSize: isMobilePS ? 11 : 12,
           color: "var(--asta-text2)",
-          lineHeight: 1.7,
+          lineHeight: 1.5,
         }}>
           📦{" "}
           <strong style={{ color: "var(--asta-text)" }}>
@@ -323,7 +323,8 @@ useEffect(() => {
               background: selected === pack.id ? "#fdecea" : "#fff",
               border: `2px solid ${selected === pack.id ? "var(--asta-accent)" : "var(--asta-border)"}`,
               borderRadius: 12,
-              padding: isMobilePS ? "8px 10px" : "16px 20px",
+              padding: isMobilePS ? "10px 10px" : "16px 20px",
+              minHeight: isMobilePS ? 70 : 90,
               cursor: "pointer",
               transition: "all 0.2s",
               position: "relative",
@@ -332,8 +333,9 @@ useEffect(() => {
             {pack.popular && (
               <div style={{
                 position: "absolute",
-                top: -11,
-                right: 16,
+                top: -10,
+                left: "50%",
+                transform: "translateX(-50%)",
                 background: "var(--asta-accent)",
                 color: "#fff",
                 fontSize: 10,
@@ -341,6 +343,8 @@ useEffect(() => {
                 letterSpacing: 1,
                 padding: "3px 10px",
                 borderRadius: 20,
+                zIndex: 2,
+                whiteSpace: "nowrap",
               }}>
                 {t("product.mostPopular")}
               </div>
@@ -370,10 +374,10 @@ useEffect(() => {
               style={{ width: isMobilePS ? 36 : 56, height: isMobilePS ? 36 : 56, objectFit: "contain", flexShrink: 0 }}
             />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 800, fontSize: isMobilePS ? 11 : 14, color: "var(--asta-text)", lineHeight: 1.3 }}>
+              <div style={{ fontWeight: 800, fontSize: isMobilePS ? 12 : 15, color: "var(--asta-text)", lineHeight: 1.3 }}>
                 {pack.capsules}
               </div>
-              <div style={{ fontSize: isMobilePS ? 10 : 12, color: "var(--asta-text2)", marginTop: 1 }}>
+              <div style={{ fontSize: isMobilePS ? 10 : 12, color: "var(--asta-text2)", marginTop: 2 }}>
                 {pack.cure}
               </div>
               {pack.eco && mode === "unique" && (
@@ -393,11 +397,11 @@ useEffect(() => {
               )}
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div style={{ color: "var(--asta-accent)", fontSize: isMobilePS ? 13 : 20, fontWeight: 900, lineHeight: 1 }}>
+              <div style={{ color: "var(--asta-accent)", fontSize: isMobilePS ? 15 : 22, fontWeight: 900, lineHeight: 1 }}>
                 {(mode === "abonnement" ? pack.aboPrix : pack.prix).toLocaleString()}
-                <span style={{ fontSize: 11 }}> FCFA</span>
+                <span style={{ fontSize: 12 }}> FCFA</span>
               </div>
-              <div style={{ color: "#aaa", fontSize: 11, textDecoration: "line-through" }}>
+              <div style={{ color: "#aaa", fontSize: 12, textDecoration: "line-through" }}>
                 {pack.ancien.toLocaleString()} F
               </div>
               {mode === "abonnement" && (
