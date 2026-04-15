@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useLayoutEffect } from "react";
+import { flushSync } from "react-dom";
 
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
@@ -35,8 +36,8 @@ export function useScreenSize(): ScreenSize {
     }
     window.scrollTo(0, 0);
 
-    setSize(detectSize());
-    // Reveal content — layout is now correct
+    // flushSync force React à re-render avec la bonne taille AVANT de révéler
+    flushSync(() => { setSize(detectSize()); });
     document.documentElement.classList.add("hydrated");
 
     const onResize = () => setSize(detectSize());
