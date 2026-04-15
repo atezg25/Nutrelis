@@ -1005,29 +1005,31 @@ function StatsSection() {
 }
 
 function FaqItemWhite({ icon, q, a, open, onToggle }: { icon: string; q: string; a: string; open: boolean; onToggle: () => void }) {
+  const scFaq = useScreenSize();
+  const isMobileFaq = scFaq === "mobile";
   return (
     <div
       onClick={onToggle}
       style={{
         background: "#fff",
         borderRadius: 12,
-        padding: "16px 20px",
+        padding: isMobileFaq ? "12px 14px" : "16px 20px",
         cursor: "pointer",
         transition: "all 0.2s",
         boxShadow: open ? "0 4px 20px rgba(0,0,0,0.1)" : "none",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: isMobileFaq ? 8 : 12 }}>
         <div style={{
-          width: 38, height: 38, borderRadius: "50%",
+          width: isMobileFaq ? 30 : 38, height: isMobileFaq ? 30 : 38, borderRadius: "50%",
           background: "linear-gradient(135deg, #7D0806, #c0392b)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 16, flexShrink: 0,
+          fontSize: isMobileFaq ? 13 : 16, flexShrink: 0,
         }}>
           {icon}
         </div>
         <span style={{
-          flex: 1, fontWeight: 600, fontSize: 14,
+          flex: 1, fontWeight: 600, fontSize: isMobileFaq ? 12 : 14,
           color: "#1a0505",
           fontFamily: "var(--font-sora), sans-serif",
         }}>
@@ -1035,7 +1037,7 @@ function FaqItemWhite({ icon, q, a, open, onToggle }: { icon: string; q: string;
         </span>
         <span style={{
           color: open ? "var(--asta-accent)" : "#999",
-          fontSize: 20, fontWeight: 300, flexShrink: 0,
+          fontSize: isMobileFaq ? 16 : 20, fontWeight: 300, flexShrink: 0,
           transition: "all 0.2s",
           transform: open ? "rotate(45deg)" : "rotate(0deg)",
           display: "inline-block",
@@ -1045,8 +1047,8 @@ function FaqItemWhite({ icon, q, a, open, onToggle }: { icon: string; q: string;
       </div>
       {open && (
         <p style={{
-          color: "#666", fontSize: 13, lineHeight: 1.8,
-          marginTop: 12, paddingLeft: 50,
+          color: "#666", fontSize: isMobileFaq ? 11 : 13, lineHeight: 1.7,
+          marginTop: isMobileFaq ? 8 : 12, paddingLeft: isMobileFaq ? 38 : 50,
         }}>
           {a}
         </p>
@@ -2355,12 +2357,12 @@ export default function Astaxanthine() {
         padding: `${py} ${px}`,
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 52 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 24 : 52 }}>
             <h2 style={{
               fontFamily: "var(--font-sora), sans-serif",
-              fontSize: isMobile ? "1.15rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2vw, 1.8rem)",
+              fontSize: isMobile ? "0.95rem" : isSmall ? "1.2rem" : "clamp(1.4rem, 2vw, 1.8rem)",
               fontWeight: 800, color: "#fff",
-              letterSpacing: 4,
+              letterSpacing: isMobile ? 2 : 4,
             }}>
               {t("product.faqTitle")}
             </h2>
