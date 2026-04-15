@@ -2000,39 +2000,38 @@ export default function Astaxanthine() {
           {/* Gauche — comparaison */}
           <div>
 
-            {/* Image + Tableau comparatif */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: isMobile ? 8 : 16, alignItems: isMobile ? "stretch" : "end" }}>
-              {/* NUTRELIS — avec image au dessus */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <img
-                  src="/images/astaxanthine/img_transparent.png"
-                  alt="NUTRELIS"
-                  style={{
-                    width: isMobile ? 30 : 45,
-                    height: "auto",
-                    objectFit: "contain",
-                    filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.2))",
-                    marginBottom: isMobile ? 4 : 8,
-                  }}
-                />
-                <div style={{
-                  background: "rgba(80,0,0,0.6)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  borderRadius: isMobile ? 10 : 14,
-                  padding: isMobile ? "14px 12px" : "32px 20px",
-                  width: "100%",
-                  flex: 1,
-                }}>
-                  <p style={{ color: "var(--asta-gold)", fontWeight: 800, fontSize: isMobile ? 12 : 15, textAlign: "center", marginBottom: isMobile ? 10 : 20, letterSpacing: 1 }}>
-                    NUTRELIS
-                  </p>
-                  {[t("product.nutrelisPremium"), t("product.nutrelisVegan")].map((item, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 10, padding: isMobile ? "5px 0" : "8px 0", borderBottom: i < 1 ? "1px solid rgba(255,255,255,0.1)" : "none" }}>
-                      <span style={{ color: "#1db954", fontSize: isMobile ? 13 : 16, flexShrink: 0 }}>✓</span>
-                      <span style={{ color: "rgba(255,255,255,0.9)", fontSize: isMobile ? 10 : 13 }}>{item}</span>
-                    </div>
-                  ))}
-                </div>
+            {/* Image produit centrée */}
+            <div style={{ textAlign: "center", marginBottom: isMobile ? 8 : 16 }}>
+              <img
+                src="/images/astaxanthine/img_transparent.png"
+                alt="NUTRELIS"
+                style={{
+                  width: isMobile ? 30 : 45,
+                  height: "auto",
+                  objectFit: "contain",
+                  filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.2))",
+                }}
+              />
+            </div>
+
+            {/* Tableau comparatif */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: isMobile ? 8 : 16 }}>
+              {/* NUTRELIS */}
+              <div style={{
+                background: "rgba(80,0,0,0.6)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: isMobile ? 10 : 14,
+                padding: isMobile ? "14px 12px" : "32px 20px",
+              }}>
+                <p style={{ color: "#fff", fontWeight: 800, fontSize: isMobile ? 12 : 15, textAlign: "center", marginBottom: isMobile ? 10 : 20, letterSpacing: 1 }}>
+                  NUTRELIS
+                </p>
+                {[t("product.nutrelisPremium"), t("product.nutrelisVegan")].map((item, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 10, padding: isMobile ? "5px 0" : "8px 0", borderBottom: i < 1 ? "1px solid rgba(255,255,255,0.1)" : "none" }}>
+                    <span style={{ color: "#1db954", fontSize: isMobile ? 13 : 16, flexShrink: 0 }}>✓</span>
+                    <span style={{ color: "rgba(255,255,255,0.9)", fontSize: isMobile ? 10 : 13 }}>{item}</span>
+                  </div>
+                ))}
               </div>
 
               {/* Autres marques */}
@@ -2040,8 +2039,6 @@ export default function Astaxanthine() {
                 background: "rgba(255,255,255,0.85)",
                 borderRadius: isMobile ? 10 : 14,
                 padding: isMobile ? "14px 12px" : "32px 20px",
-                display: "flex",
-                flexDirection: "column",
               }}>
                 <p style={{ color: "var(--asta-text)", fontWeight: 800, fontSize: isMobile ? 12 : 15, textAlign: "center", marginBottom: isMobile ? 10 : 20, letterSpacing: 1 }}>
                   {t("product.otherBrands")}
@@ -2065,7 +2062,7 @@ export default function Astaxanthine() {
               marginBottom: isMobile ? 16 : 32,
               lineHeight: 1.2,
             }}>
-              <span style={{ color: "var(--asta-gold)" }}>NUTRELIS</span>
+              <span style={{ color: "#fff" }}>NUTRELIS</span>
               <span style={{ color: "#fff" }}> {t("product.nutrelisVsOthers")}</span>
             </h2>
 
