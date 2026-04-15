@@ -97,6 +97,7 @@ function Navbar() {
             textDecoration: "none",
             boxShadow: "0 4px 14px rgba(125,8,6,0.25)",
             fontFamily: "var(--font-sora), sans-serif",
+            whiteSpace: "nowrap",
           }}>
             {isMobile ? t("nav.order") : t("nav.orderArrow")}
           </a>
@@ -1321,13 +1322,14 @@ export default function Astaxanthine() {
             color: "#fff",
             padding: isSmall ? "16px" : "19px 52px",
             borderRadius: 50,
-            fontSize: isMobile ? 14 : 15,
+            fontSize: isMobile ? 13 : 15,
             fontWeight: 800,
             textDecoration: "none",
             boxShadow: "0 8px 28px rgba(125,8,6,0.35)",
             letterSpacing: 0.5,
             width: isSmall ? "100%" : "fit-content",
             fontFamily: "var(--font-sora), sans-serif",
+            whiteSpace: "nowrap",
           }}>
             {isMobile ? t("product.ctaOrderShort") : t("product.ctaOrder")}
           </a>
@@ -1532,10 +1534,12 @@ export default function Astaxanthine() {
               display: "block",
               background: "var(--asta-accent)", color: "#fff",
               padding: isMobile ? "14px" : "18px", borderRadius: 50,
-              fontSize: isMobile ? 14 : 15, fontWeight: 900, textDecoration: "none",
+              fontSize: isMobile ? 13 : 15, fontWeight: 900, textDecoration: "none",
               boxShadow: "0 6px 24px rgba(125,8,6,0.35)",
               fontFamily: "var(--font-sora), sans-serif",
               letterSpacing: 0.5,
+              whiteSpace: "nowrap",
+              textAlign: "center",
             }}>
               {isMobile ? t("product.ctaOrderShort") : t("product.ctaOrder")}
             </a>
@@ -1672,14 +1676,15 @@ export default function Astaxanthine() {
           display: "inline-block",
           background: "var(--asta-accent)",
           color: "#fff",
-          padding: isMobile ? "14px 40px" : "18px 52px",
+          padding: isMobile ? "14px 20px" : "18px 52px",
           borderRadius: 50,
-          fontSize: isMobile ? 14 : 15,
+          fontSize: isMobile ? 12 : 15,
           fontWeight: 900,
           textDecoration: "none",
           boxShadow: "0 6px 24px rgba(125,8,6,0.3)",
           fontFamily: "var(--font-sora), sans-serif",
           marginBottom: 16,
+          whiteSpace: "nowrap",
         }}>
           {t("product.tryRiskFree")}
         </a>
@@ -1758,14 +1763,15 @@ export default function Astaxanthine() {
           display: "inline-block",
           background: "var(--asta-accent)",
           color: "#fff",
-          padding: isMobile ? "14px 40px" : "18px 52px",
+          padding: isMobile ? "14px 20px" : "18px 52px",
           borderRadius: 50,
-          fontSize: isMobile ? 14 : 15,
+          fontSize: isMobile ? 12 : 15,
           fontWeight: 900,
           textDecoration: "none",
           boxShadow: "0 6px 24px rgba(125,8,6,0.3)",
           fontFamily: "var(--font-sora), sans-serif",
           marginBottom: 16,
+          whiteSpace: "nowrap",
         }}>
           {t("product.tryRiskFree")}
         </a>
@@ -2033,13 +2039,14 @@ export default function Astaxanthine() {
               background: "rgba(255,255,255,0.15)",
               border: "2px solid #fff",
               color: "#fff",
-              padding: isMobile ? "14px 40px" : "16px 40px",
+              padding: isMobile ? "14px 20px" : "16px 40px",
               borderRadius: 50,
-              fontSize: isMobile ? 14 : 15,
+              fontSize: isMobile ? 12 : 15,
               fontWeight: 800,
               textDecoration: "none",
               fontFamily: "var(--font-sora), sans-serif",
               marginBottom: 14,
+              whiteSpace: "nowrap",
             }}>
               {t("product.tryRiskFree")}
             </a>
@@ -2307,11 +2314,12 @@ export default function Astaxanthine() {
             <a href="#commander" style={{
               display: "inline-block",
               background: "var(--asta-accent)", color: "#fff",
-              padding: isMobile ? "14px 40px" : "18px 48px", borderRadius: 50,
-              fontSize: isMobile ? 14 : 15, fontWeight: 900, textDecoration: "none",
+              padding: isMobile ? "14px 20px" : "18px 48px", borderRadius: 50,
+              fontSize: isMobile ? 12 : 15, fontWeight: 900, textDecoration: "none",
               boxShadow: "0 6px 24px rgba(125,8,6,0.3)",
               fontFamily: "var(--font-sora), sans-serif",
               marginBottom: 24,
+              whiteSpace: "nowrap",
             }}>
               {t("product.tryRiskFree")}
             </a>
