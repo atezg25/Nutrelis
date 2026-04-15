@@ -1445,12 +1445,12 @@ export default function Astaxanthine() {
       </div>
 
      {/* SECTION PRODUIT CENTRÉ */}
-      <section style={{ background: "#fff", padding: `${py} ${px}` }}>
+      <section style={{ background: "#fff", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
-          <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 11 : 13, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
+          <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 10 : 13, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
             ★★★★★ {t("product.rated")} | {t("product.approvedBy")} 12 000+ {t("product.clients")}
           </p>
-          <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 2.5vw, 2.2rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: isMobile ? 24 : 40 }}>
+          <h2 style={{ fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 2.5vw, 2.2rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: isMobile ? 20 : 40 }}>
             {t("product.discoverTitle")}
           </h2>
 
@@ -1559,10 +1559,10 @@ export default function Astaxanthine() {
       </section>
 
       {/* AVIS CLIENTS */}
-      <section style={{ padding: `${isMobile ? "32px" : py} ${px}`, background: "var(--asta-bg)" }}>
+      <section style={{ padding: `${isMobile ? "28px" : py} ${px}`, background: "var(--asta-bg)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: isMobile ? 24 : 56 }}>
-            <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 56 }}>
+            <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
               {t("product.reviewsTag")}
             </p>
             <h2 style={{ fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
@@ -1627,17 +1627,17 @@ export default function Astaxanthine() {
       </section>
 
       {/* POURQUOI NUTRELIS */}
-      <section style={{ background: "var(--asta-accent)", padding: `${py} ${px}` }}>
+      <section style={{ background: "var(--asta-accent)", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 52 }}>
-            <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 52 }}>
+            <p style={{ color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
               {t("product.whyTag")}
             </p>
-            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", color: "#fff" }}>
+            <h2 style={{ fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", color: "#fff" }}>
               {t("product.whyTitle")}
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 10 : 24 }}>
             {[
               { icon: "🔬", label: t("product.whyClinical"), desc: t("product.whyClinicalDesc") },
               { icon: "🌺", label: t("product.whyHawaii"), desc: t("product.whyHawaiiDesc") },
@@ -1646,14 +1646,14 @@ export default function Astaxanthine() {
             ].map((item, i) => (
               <div key={i} style={{
                 background: "rgba(255,255,255,0.12)",
-                borderRadius: 18,
-                padding: "32px 24px",
+                borderRadius: isMobile ? 12 : 18,
+                padding: isMobile ? "16px 12px" : "32px 24px",
                 border: "1px solid rgba(255,255,255,0.2)",
                 textAlign: "center",
               }}>
-                <div style={{ fontSize: 36, marginBottom: 16 }}>{item.icon}</div>
-                <div style={{ color: "#fff", fontWeight: 800, fontSize: 16, marginBottom: 8 }}>{item.label}</div>
-                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, lineHeight: 1.6 }}>{item.desc}</div>
+                <div style={{ fontSize: isMobile ? 22 : 36, marginBottom: isMobile ? 8 : 16 }}>{item.icon}</div>
+                <div style={{ color: "#fff", fontWeight: 800, fontSize: isMobile ? 11 : 16, marginBottom: isMobile ? 4 : 8 }}>{item.label}</div>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: isMobile ? 10 : 13, lineHeight: 1.6 }}>{item.desc}</div>
               </div>
             ))}
           </div>
@@ -1661,13 +1661,13 @@ export default function Astaxanthine() {
       </section>
 
       {/* 5 RAISONS */}
-      <section style={{ padding: `${py} ${px} 0`, background: "var(--asta-bg2)" }}>
+      <section style={{ padding: isMobile ? `28px ${px} 0` : `${py} ${px} 0`, background: "var(--asta-bg2)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 52 }}>
-            <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 52 }}>
+            <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
               {t("product.fiveReasonsTag")}
             </p>
-            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
+            <h2 style={{ fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
               {t("product.fiveReasonsTitle")}
             </h2>
           </div>
@@ -1678,7 +1678,7 @@ export default function Astaxanthine() {
       {/* CTA APRÈS 5 RAISONS */}
       <div style={{
         textAlign: "center",
-        padding: `24px ${px} 60px`,
+        padding: isMobile ? `16px ${px} 28px` : `24px ${px} 60px`,
         background: "var(--asta-bg2)",
       }}>
         <a href="#commander" style={{
@@ -1704,13 +1704,13 @@ export default function Astaxanthine() {
       </div>
 
       {/* VIDÉOS */}
-      <section style={{ padding: `${py} ${px} 0`, background: "var(--asta-bg)" }}>
+      <section style={{ padding: isMobile ? `28px ${px} 0` : `${py} ${px} 0`, background: "var(--asta-bg)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 56 }}>
-            <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 56 }}>
+            <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
               {t("product.videoTestimonials")}
             </p>
-            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
+            <h2 style={{ fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif" }}>
               {t("product.trueStoriesTitle")}{" "}
               <span style={{ color: "var(--asta-accent)" }}>{t("product.trueStoriesHighlight")}</span>
             </h2>
@@ -1804,7 +1804,7 @@ export default function Astaxanthine() {
       {/* CTA APRÈS VIDÉOS */}
       <div style={{
         textAlign: "center",
-        padding: `24px ${px} 40px`,
+        padding: isMobile ? `16px ${px} 28px` : `24px ${px} 40px`,
         background: "var(--asta-bg)",
       }}>
         <a href="#commander" style={{
@@ -1832,18 +1832,18 @@ export default function Astaxanthine() {
      {/* PROBLÈME → SOLUTION */}
       <section style={{
         background: "linear-gradient(135deg, #7D0806 0%, #a01010 40%, #d4817e 80%, #f5e8e5 100%)",
-        padding: isMobile ? `24px ${px} 0` : `${py} ${px} 0`,
+        padding: isMobile ? `28px ${px} 0` : `${py} ${px} 0`,
         overflow: "hidden",
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
 
           {/* Badge */}
-          <div style={{ textAlign: "center", marginBottom: isMobile ? 12 : 24 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 8 : 24 }}>
             <span style={{
               background: "rgba(255,255,255,0.15)",
               border: "1px solid rgba(255,255,255,0.3)",
               color: "#fff",
-              fontSize: isMobile ? 9 : 11,
+              fontSize: isMobile ? 10 : 11,
               fontWeight: 700,
               letterSpacing: 2,
               padding: isMobile ? "4px 10px" : "6px 16px",
@@ -1857,7 +1857,7 @@ export default function Astaxanthine() {
           <h2 style={{
             textAlign: "center",
             color: "#fff",
-            fontSize: isMobile ? "1rem" : isSmall ? "1.5rem" : "clamp(1.6rem, 2.5vw, 2.2rem)",
+            fontSize: isMobile ? "1.1rem" : isSmall ? "1.5rem" : "clamp(1.6rem, 2.5vw, 2.2rem)",
             fontWeight: 800,
             fontFamily: "var(--font-sora), sans-serif",
             marginBottom: isMobile ? 20 : 48,
@@ -1973,10 +1973,10 @@ export default function Astaxanthine() {
       </section>
 
       {/* STATS */}
-      <section style={{ padding: isMobile ? `24px ${px}` : `${py} ${px}`, background: "#fff" }}>
+      <section style={{ padding: isMobile ? `28px ${px}` : `${py} ${px}`, background: "#fff" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 52 }}>
-            <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 6 : 12 }}>
+            <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
               {t("product.statsTag")}
             </p>
             <h2 style={{ fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: isMobile ? 8 : 16 }}>
@@ -1993,7 +1993,7 @@ export default function Astaxanthine() {
      {/* NUTRELIS VS AUTRES */}
       <section style={{
         background: "linear-gradient(135deg, #7D0806 0%, #a01010 40%, #d4817e 80%, #f5e8e5 100%)",
-        padding: isMobile ? `24px ${px}` : `${py} ${px}`,
+        padding: isMobile ? `28px ${px}` : `${py} ${px}`,
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? (isMobile ? 20 : 40) : 80, alignItems: "center" }}>
 
@@ -2060,7 +2060,7 @@ export default function Astaxanthine() {
           <div>
             <h2 style={{
               fontFamily: "var(--font-sora), sans-serif",
-              fontSize: isMobile ? "1rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2.2vw, 1.9rem)",
+              fontSize: isMobile ? "1.1rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2.2vw, 1.9rem)",
               fontWeight: 800,
               marginBottom: isMobile ? 16 : 32,
               lineHeight: 1.2,
@@ -2111,16 +2111,16 @@ export default function Astaxanthine() {
       </section>
 
       {/* COMMANDER */}
-      <section id="commander" style={{ padding: `${py} ${px}`, background: "var(--asta-bg)" }}>
+      <section id="commander" style={{ padding: isMobile ? `28px ${px}` : `${py} ${px}`, background: "var(--asta-bg)" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 52 }}>
-            <p style={{ color: "var(--asta-gold)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 52 }}>
+            <p style={{ color: "var(--asta-gold)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
               {t("product.orderNow")}
             </p>
-            <h2 style={{ fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: 12 }}>
+            <h2 style={{ fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.6rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", marginBottom: isMobile ? 8 : 12 }}>
               {t("product.chooseFormula")}
             </h2>
-            <p style={{ color: "var(--asta-text2)", fontSize: 15 }}>
+            <p style={{ color: "var(--asta-text2)", fontSize: isMobile ? 12 : 15 }}>
               {t("product.chooseFormulaDesc")}
             </p>
           </div>
@@ -2199,7 +2199,7 @@ export default function Astaxanthine() {
       {/* SECTION MÉDECIN — TIMELINE */}
       <section style={{
         background: "linear-gradient(135deg, #fff8f6 0%, #fdecea 50%, #fff8f6 100%)",
-        padding: isMobile ? `32px ${px}` : `${py} ${px}`,
+        padding: isMobile ? `28px ${px}` : `${py} ${px}`,
         overflow: "hidden",
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 20 : 80, alignItems: "center" }}>
@@ -2240,7 +2240,7 @@ export default function Astaxanthine() {
               </div>
               <h2 style={{
                 fontFamily: "var(--font-sora), sans-serif",
-                fontSize: isMobile ? "0.85rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2vw, 1.8rem)",
+                fontSize: isMobile ? "1.1rem" : isSmall ? "1.4rem" : "clamp(1.4rem, 2vw, 1.8rem)",
                 fontWeight: 800, color: "var(--asta-accent)",
                 lineHeight: 1.3,
               }}>
@@ -2340,7 +2340,7 @@ export default function Astaxanthine() {
       {/* GARANTIE */}
       <section style={{
         background: "#fff",
-        padding: isMobile ? `32px ${px}` : `${py} ${px}`,
+        padding: isMobile ? `28px ${px}` : `${py} ${px}`,
       }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 20 : 80, alignItems: "center" }}>
 
@@ -2349,7 +2349,7 @@ export default function Astaxanthine() {
             <img
               src="/images/astaxanthine/261-Converti-1.png"
               alt={t("product.altGuarantee")}
-              style={{ width: isMobile ? 120 : 200, height: "auto", marginBottom: isMobile ? 12 : 20, display: "block", margin: isMobile ? "0 auto 12px" : "0 auto 20px" }}
+              style={{ width: isMobile ? 100 : 200, height: "auto", marginBottom: isMobile ? 10 : 20, display: "block", margin: isMobile ? "0 auto 10px" : "0 auto 20px" }}
             />
             <p style={{ color: "var(--asta-accent)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
               {t("product.feelDifference")}
@@ -2361,7 +2361,7 @@ export default function Astaxanthine() {
               {t("product.guarantee")}
             </h2>
             <p style={{
-              color: "var(--asta-text2)", fontSize: isMobile ? 13 : 15,
+              color: "var(--asta-text2)", fontSize: isMobile ? 12 : 15,
               lineHeight: 1.7, maxWidth: 400, margin: isMobile ? "0 auto 20px" : "0 auto 32px",
             }}>
               {t("product.guaranteeDesc")}
@@ -2402,13 +2402,13 @@ export default function Astaxanthine() {
       {/* FAQ */}
       <section style={{
         background: "var(--asta-accent)",
-        padding: isMobile ? `32px ${px}` : `${py} ${px}`,
+        padding: isMobile ? `28px ${px}` : `${py} ${px}`,
       }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: isMobile ? 16 : 52 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 52 }}>
             <h2 style={{
               fontFamily: "var(--font-sora), sans-serif",
-              fontSize: isMobile ? "0.95rem" : isSmall ? "1.2rem" : "clamp(1.4rem, 2vw, 1.8rem)",
+              fontSize: isMobile ? "1.1rem" : isSmall ? "1.2rem" : "clamp(1.4rem, 2vw, 1.8rem)",
               fontWeight: 800, color: "#fff",
               letterSpacing: isMobile ? 2 : 4,
             }}>
