@@ -1675,7 +1675,7 @@ export default function Astaxanthine() {
         background: "var(--asta-bg2)",
       }}>
         <a href="#commander" style={{
-          display: "inline-block",
+          display: isMobile ? "block" : "inline-block",
           background: "var(--asta-accent)",
           color: "#fff",
           padding: isMobile ? "14px 20px" : "18px 52px",
@@ -1687,6 +1687,7 @@ export default function Astaxanthine() {
           fontFamily: "var(--font-sora), sans-serif",
           marginBottom: 16,
           whiteSpace: "nowrap",
+          textAlign: "center",
         }}>
           {t("product.tryRiskFree")}
         </a>
@@ -1762,7 +1763,7 @@ export default function Astaxanthine() {
         background: "var(--asta-bg)",
       }}>
         <a href="#commander" style={{
-          display: "inline-block",
+          display: isMobile ? "block" : "inline-block",
           background: "var(--asta-accent)",
           color: "#fff",
           padding: isMobile ? "14px 20px" : "18px 52px",
@@ -1774,6 +1775,7 @@ export default function Astaxanthine() {
           fontFamily: "var(--font-sora), sans-serif",
           marginBottom: 16,
           whiteSpace: "nowrap",
+          textAlign: "center",
         }}>
           {t("product.tryRiskFree")}
         </a>
@@ -2037,7 +2039,7 @@ export default function Astaxanthine() {
             </div>
 
             <a href="#commander" style={{
-              display: "inline-block",
+              display: isMobile ? "block" : "inline-block",
               background: "rgba(255,255,255,0.15)",
               border: "2px solid #fff",
               color: "#fff",
@@ -2049,6 +2051,7 @@ export default function Astaxanthine() {
               fontFamily: "var(--font-sora), sans-serif",
               marginBottom: 14,
               whiteSpace: "nowrap",
+              textAlign: "center",
             }}>
               {t("product.tryRiskFree")}
             </a>
@@ -2314,7 +2317,7 @@ export default function Astaxanthine() {
               {t("product.guaranteeDesc")}
             </p>
             <a href="#commander" style={{
-              display: "inline-block",
+              display: isMobile ? "block" : "inline-block",
               background: "var(--asta-accent)", color: "#fff",
               padding: isMobile ? "14px 20px" : "18px 48px", borderRadius: 50,
               fontSize: isMobile ? 12 : 15, fontWeight: 900, textDecoration: "none",
@@ -2322,6 +2325,7 @@ export default function Astaxanthine() {
               fontFamily: "var(--font-sora), sans-serif",
               marginBottom: 24,
               whiteSpace: "nowrap",
+              textAlign: "center",
             }}>
               {t("product.tryRiskFree")}
             </a>
