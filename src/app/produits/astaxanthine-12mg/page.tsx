@@ -1627,17 +1627,17 @@ export default function Astaxanthine() {
       </section>
 
       {/* POURQUOI NUTRELIS */}
-      <section style={{ background: "var(--asta-accent)", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
+      <section style={{ background: "var(--asta-accent)", padding: isMobile ? `20px ${px}` : `${py} ${px}` }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 52 }}>
-            <p style={{ color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 14 : 52 }}>
+            <p style={{ color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 9 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 6 : 12 }}>
               {t("product.whyTag")}
             </p>
-            <h2 style={{ fontSize: isMobile ? "1.1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", color: "#fff" }}>
+            <h2 style={{ fontSize: isMobile ? "1rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: "var(--font-sora), sans-serif", color: "#fff" }}>
               {t("product.whyTitle")}
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 10 : 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 8 : 24 }}>
             {[
               { icon: "🔬", label: t("product.whyClinical"), desc: t("product.whyClinicalDesc") },
               { icon: "🌺", label: t("product.whyHawaii"), desc: t("product.whyHawaiiDesc") },
@@ -1646,14 +1646,14 @@ export default function Astaxanthine() {
             ].map((item, i) => (
               <div key={i} style={{
                 background: "rgba(255,255,255,0.12)",
-                borderRadius: isMobile ? 12 : 18,
-                padding: isMobile ? "16px 12px" : "32px 24px",
+                borderRadius: isMobile ? 10 : 18,
+                padding: isMobile ? "10px 8px" : "32px 24px",
                 border: "1px solid rgba(255,255,255,0.2)",
                 textAlign: "center",
               }}>
-                <div style={{ fontSize: isMobile ? 22 : 36, marginBottom: isMobile ? 8 : 16 }}>{item.icon}</div>
-                <div style={{ color: "#fff", fontWeight: 800, fontSize: isMobile ? 11 : 16, marginBottom: isMobile ? 4 : 8 }}>{item.label}</div>
-                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: isMobile ? 10 : 13, lineHeight: 1.6 }}>{item.desc}</div>
+                <div style={{ fontSize: isMobile ? 18 : 36, marginBottom: isMobile ? 4 : 16 }}>{item.icon}</div>
+                <div style={{ color: "#fff", fontWeight: 800, fontSize: isMobile ? 10 : 16, marginBottom: isMobile ? 2 : 8 }}>{item.label}</div>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: isMobile ? 9 : 13, lineHeight: 1.5 }}>{item.desc}</div>
               </div>
             ))}
           </div>
