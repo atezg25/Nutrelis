@@ -334,8 +334,7 @@ useEffect(() => {
               <div style={{
                 position: "absolute",
                 top: -10,
-                left: "50%",
-                transform: "translateX(-50%)",
+                right: 16,
                 background: "var(--asta-accent)",
                 color: "#fff",
                 fontSize: 10,
