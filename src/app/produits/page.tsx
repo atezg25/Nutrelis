@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Reveler from "@/components/Reveler";
 import { useLocale } from "@/context/LocaleContext";
 import { fetchProducts, getVariantPrice, type MedusaProduct } from "@/lib/medusa-products";
 
@@ -13,6 +14,7 @@ export default function Produits() {
 
   return (
     <main style={{ maxWidth: 1040, margin: "0 auto", padding: "50px 20px 80px" }}>
+      <Reveler />
       <h1 style={{ fontSize: "2rem", fontWeight: 900, marginBottom: 24 }}>{fr ? "Nos produits" : "Our products"}</h1>
       {produits === null && <p>{fr ? "Chargement…" : "Loading…"}</p>}
       <div style={{ display: "grid", gap: 20, gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>

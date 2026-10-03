@@ -2,6 +2,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import Reveler from "@/components/Reveler";
 import { useLocale } from "@/context/LocaleContext";
 import { fetchProductByHandle, getVariantPrice, type MedusaProduct } from "@/lib/medusa-products";
 
@@ -21,10 +22,11 @@ export default function PageProduit({ params }: { params: Promise<{ slug: string
     void fetchProductByHandle(slug).then(setProduit);
   }, [slug]);
 
-  if (produit === undefined) return <p style={{ padding: 40, textAlign: "center" }}>{fr ? "Chargement…" : "Loading…"}</p>;
+  if (produit === undefined) return <><Reveler /><p style={{ padding: 40, textAlign: "center" }}>{fr ? "Chargement…" : "Loading…"}</p></>;
   if (produit === null) {
     return (
       <div style={{ padding: "80px 20px", textAlign: "center" }}>
+        <Reveler />
         <h1 style={{ fontSize: 24, fontWeight: 800 }}>{fr ? "Produit introuvable" : "Product not found"}</h1>
         <Link href="/produits" style={{ color: "#7D0806", fontWeight: 700 }}>{fr ? "Voir tous nos produits" : "See all products"}</Link>
       </div>
@@ -49,6 +51,7 @@ export default function PageProduit({ params }: { params: Promise<{ slug: string
 
   return (
     <main style={{ maxWidth: 960, margin: "0 auto", padding: "40px 20px 80px" }}>
+      <Reveler />
       <Link href="/produits" style={{ color: "#555", fontSize: 14, textDecoration: "none" }}>← {fr ? "Tous les produits" : "All products"}</Link>
       <div style={{ display: "grid", gap: 32, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", marginTop: 20 }}>
         <div style={{ background: "#f6f7f5", borderRadius: 20, padding: 20, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 280 }}>
