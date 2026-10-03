@@ -1,4 +1,5 @@
 import { query } from "./db";
+import { lireReglage } from "./reglages";
 
 /**
  * Alerte « nouvelle commande » pour la boutique : WhatsApp (Cloud API) et/ou e-mail (Resend), selon ce qui est
@@ -20,22 +21,24 @@ export async function notifierNouvelleCommande(numero: string, etat?: string): P
   const ligne = `🛒 Nouvelle commande ${numero} — ${o.customer_name} (${o.phone}${o.city ? `, ${o.city}` : ""}) — ${detail} — ${o.total_fcfa.toLocaleString("fr-FR")} FCFA — ${etat ?? (o.payment_method === "livraison" ? "paiement à la livraison" : "paiement en ligne")}`;
 
   const taches: Promise<unknown>[] = [];
-  if (process.env.WHATSAPP_ENABLED === "true" && process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_ID && process.env.WHATSAPP_STORE_PHONE) {
+  const emailAlerte = await lireReglage("alerte_email");
+  const telAlerte = await lireReglage("alerte_whatsapp");
+  if (process.env.WHATSAPP_ENABLED === "true" && process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_ID && telAlerte) {
     taches.push(
       fetch(`https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_ID}/messages`, {
         method: "POST",
         headers: { Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ messaging_product: "whatsapp", to: process.env.WHATSAPP_STORE_PHONE, type: "text", text: { body: ligne } }),
+        body: JSON.stringify({ messaging_product: "whatsapp", to: telAlerte, type: "text", text: { body: ligne } }),
         signal: AbortSignal.timeout(10_000),
       }),
     );
   }
-  if (process.env.RESEND_API_KEY && process.env.STORE_EMAIL) {
+  if (process.env.RESEND_API_KEY && emailAlerte) {
     taches.push(
       fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: process.env.MAIL_FROM || "NUTRELIS <support@nutrelis.bio>", to: [process.env.STORE_EMAIL], subject: `Nouvelle commande ${numero}${etat ? ` — ${etat}` : ""}`, text: ligne }),
+        body: JSON.stringify({ from: process.env.MAIL_FROM || "NUTRELIS <support@nutrelis.bio>", to: [emailAlerte], subject: `Nouvelle commande ${numero}${etat ? ` — ${etat}` : ""}`, text: ligne }),
         signal: AbortSignal.timeout(10_000),
       }),
     );

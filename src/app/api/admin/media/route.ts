@@ -1,5 +1,6 @@
 import { query } from "@/lib/db";
 import { erreur, refuserSiNonAdmin, reponse, reponseErreur } from "@/lib/http";
+import { journaliser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
     const webp = buf.subarray(0, 4).toString("ascii") === "RIFF" && buf.subarray(8, 12).toString("ascii") === "WEBP";
     if (!(png || jpg || webp)) return erreur("Ce fichier n'est pas une image valide.", 415);
     const [m] = await query<{ id: string }>("INSERT INTO media (content_type, data) VALUES ($1,$2) RETURNING id", [type, buf]);
+    await journaliser("image_envoyee", `${type}, ${Math.round(buf.length / 1024)} Ko`);
     return reponse({ url: `/api/media/${m!.id}` }, 201);
   } catch (err) {
     return reponseErreur(err);

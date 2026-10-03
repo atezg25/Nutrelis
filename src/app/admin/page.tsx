@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 // Un seul écran à onglets. Tout passe par /api/admin/* (cookie signé, mot de passe unique).
 // ============================================================
 type Ligne = Record<string, string | number | boolean | null>;
-type Onglet = "tableau" | "commandes" | "paiements" | "stock" | "produits" | "revendeurs";
+type Onglet = "tableau" | "commandes" | "paiements" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "utilisateurs" | "parametres" | "journal" | "compte";
 
 const VERT = "#1f7a3a";
 const fcfa = (n: unknown) => `${Number(n ?? 0).toLocaleString("fr-FR")} FCFA`;
@@ -61,25 +61,60 @@ function Tableau({ colonnes, lignes, onClic }: { colonnes: { titre: string; rend
 
 // ---------------------------------------------------------------- Connexion
 function Connexion({ onOk }: { onOk: () => void }) {
+  const [email, setEmail] = useState("");
   const [mdp, setMdp] = useState("");
   const [err, setErr] = useState("");
   const [charge, setCharge] = useState(false);
   async function envoyer(e: React.FormEvent) {
     e.preventDefault();
     setCharge(true); setErr("");
-    const r = await api("login", { method: "POST", body: { password: mdp } });
+    const r = await api("login", { method: "POST", body: { email, password: mdp } });
     setCharge(false);
     if (r.ok) onOk(); else setErr(r.data.error ?? "Connexion impossible.");
   }
   return (
     <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <form onSubmit={envoyer} style={{ ...carte, width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 12 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>NUTRELIS — Administration</h1>
-        <input type="password" autoFocus value={mdp} onChange={(e) => setMdp(e.target.value)} placeholder="Mot de passe" style={champ} />
+      <form onSubmit={envoyer} style={{ ...carte, width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", gap: 12 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: VERT }}>NUTRELIS — Console d'administration</h1>
+        <input type="email" autoFocus autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Adresse e-mail" style={champ} />
+        <input type="password" autoComplete="current-password" value={mdp} onChange={(e) => setMdp(e.target.value)} placeholder="Mot de passe" style={champ} />
         {err && <div style={{ color: "#b91c1c", fontSize: 13 }}>{err}</div>}
-        <button type="submit" disabled={charge || !mdp} style={{ ...bouton, opacity: charge || !mdp ? 0.6 : 1 }}>Se connecter</button>
+        <button type="submit" disabled={charge || !email || !mdp} style={{ ...bouton, opacity: charge || !email || !mdp ? 0.6 : 1 }}>Se connecter</button>
       </form>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------- Changement de mot de passe (écran obligatoire ou page « Mon compte »)
+function FormMotDePasse({ onFait, obligatoire }: { onFait: () => void; obligatoire?: boolean }) {
+  const [actuel, setActuel] = useState("");
+  const [nouveau, setNouveau] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [msg, setMsg] = useState("");
+  const [ok, setOk] = useState(false);
+  const [charge, setCharge] = useState(false);
+  const valide = actuel !== "" && nouveau.length >= 10 && nouveau === confirm;
+  async function envoyer(e: React.FormEvent) {
+    e.preventDefault();
+    setCharge(true); setMsg(""); setOk(false);
+    const r = await api("me/password", { method: "POST", body: { actuel, nouveau } });
+    setCharge(false);
+    if (!r.ok) { setMsg(r.data.error ?? "Échec."); return; }
+    setOk(true); setMsg("Mot de passe changé. Les autres sessions ouvertes ont été fermées.");
+    setActuel(""); setNouveau(""); setConfirm("");
+    onFait();
+  }
+  return (
+    <form onSubmit={envoyer} style={{ ...carte, display: "grid", gap: 10, maxWidth: 420 }}>
+      <strong>{obligatoire ? "Choisissez votre mot de passe" : "Changer mon mot de passe"}</strong>
+      {obligatoire && <div style={{ fontSize: 13, color: "#555" }}>Pour votre sécurité, remplacez le mot de passe provisoire par un mot de passe que vous seul connaissez.</div>}
+      <input type="password" autoComplete="current-password" placeholder={obligatoire ? "Mot de passe provisoire (actuel)" : "Mot de passe actuel"} value={actuel} onChange={(e) => setActuel(e.target.value)} style={champ} />
+      <input type="password" autoComplete="new-password" placeholder="Nouveau mot de passe (10 caractères minimum, lettres et chiffres)" value={nouveau} onChange={(e) => setNouveau(e.target.value)} style={champ} />
+      <input type="password" autoComplete="new-password" placeholder="Confirmer le nouveau mot de passe" value={confirm} onChange={(e) => setConfirm(e.target.value)} style={champ} />
+      {nouveau !== "" && confirm !== "" && nouveau !== confirm && <div style={{ color: "#b91c1c", fontSize: 13 }}>Les deux saisies ne correspondent pas.</div>}
+      {msg && <div style={{ color: ok ? VERT : "#b91c1c", fontWeight: 700, fontSize: 13 }}>{msg}</div>}
+      <div><button type="submit" disabled={!valide || charge} style={{ ...bouton, opacity: !valide || charge ? 0.6 : 1 }}>Enregistrer le nouveau mot de passe</button></div>
+    </form>
   );
 }
 
@@ -622,30 +657,310 @@ function Revendeurs() {
   );
 }
 
+// ---------------------------------------------------------------- Clients
+function Clients() {
+  const [lignes, setLignes] = useState<Ligne[]>([]);
+  const [q, setQ] = useState("");
+  useEffect(() => { void api<{ clients: Ligne[] }>(`customers?q=${encodeURIComponent(q)}`).then((r) => r.ok && setLignes(r.data.clients ?? [])); }, [q]);
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <input placeholder="Rechercher (nom, téléphone, e-mail, ville)" value={q} onChange={(e) => setQ(e.target.value)} style={champ} />
+      <Tableau lignes={lignes} colonnes={[
+        { titre: "Client", rendu: (l) => <><strong>{String(l.nom)}</strong><br /><span style={{ color: "#777", fontSize: 12 }}>{[l.ville, l.email].filter(Boolean).join(" · ")}</span></> },
+        { titre: "Téléphone", rendu: (l) => <a href={`https://wa.me/${String(l.tel)}`} target="_blank" rel="noreferrer" style={{ color: VERT, fontWeight: 700 }}>{String(l.tel)}</a> },
+        { titre: "Commandes", rendu: (l) => String(l.commandes) },
+        { titre: "Payé", rendu: (l) => fcfa(l.paye_fcfa) },
+        { titre: "À payer", rendu: (l) => <span style={{ color: Number(l.a_payer_fcfa) > 0 ? "#b91c1c" : "inherit", fontWeight: 700 }}>{fcfa(l.a_payer_fcfa)}</span> },
+        { titre: "Dernière commande", rendu: (l) => date(l.derniere) },
+      ]} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- Rapports
+function Rapports() {
+  const [jours, setJours] = useState(30);
+  const [d, setD] = useState<{ totaux: Ligne; parJour: Ligne[]; produits: Ligne[]; canaux: Ligne[]; moyens: Ligne[] } | null>(null);
+  useEffect(() => { void api<{ totaux: Ligne; parJour: Ligne[]; produits: Ligne[]; canaux: Ligne[]; moyens: Ligne[] }>(`reports?jours=${jours}`).then((r) => r.ok && setD(r.data)); }, [jours]);
+  if (!d) return <p>Chargement…</p>;
+  const max = Math.max(1, ...d.parJour.map((x) => Number(x.encaisse)));
+  return (
+    <div style={{ display: "grid", gap: 14 }}>
+      <div style={{ display: "flex", gap: 6 }}>
+        {[7, 30, 90].map((j) => <button key={j} onClick={() => setJours(j)} style={{ ...boutonDiscret, ...(jours === j ? { background: VERT, color: "#fff", borderColor: VERT } : {}) }}>{j} jours</button>)}
+      </div>
+      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
+        {([["Encaissé", fcfa(d.totaux.encaisse)], ["Commandes", String(d.totaux.commandes)], ["Panier moyen", fcfa(d.totaux.panier_moyen)], ["Annulées", String(d.totaux.annulees)]] as const).map(([t, v]) => (
+          <div key={t} style={carte}><div style={{ fontSize: 12.5, color: "#666" }}>{t}</div><div style={{ fontSize: 22, fontWeight: 800, marginTop: 4 }}>{v}</div></div>
+        ))}
+      </div>
+      <div style={carte}>
+        <strong>Encaissements par jour</strong>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 130, marginTop: 12, overflowX: "auto" }}>
+          {d.parJour.map((x) => (
+            <div key={String(x.jour)} title={`${String(x.jour)} : ${fcfa(x.encaisse)} · ${String(x.commandes)} commande(s)`} style={{ flex: "1 0 6px", minWidth: 6, background: Number(x.encaisse) > 0 ? VERT : "#e4e7e2", height: `${Math.max(3, (Number(x.encaisse) / max) * 100)}%`, borderRadius: 3 }} />
+          ))}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#777", marginTop: 6 }}><span>{String(d.parJour[0]?.jour ?? "")}</span><span>{String(d.parJour[d.parJour.length - 1]?.jour ?? "")}</span></div>
+      </div>
+      <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
+        <div><h3 style={{ margin: "0 0 8px" }}>Produits les plus vendus</h3><Tableau lignes={d.produits} colonnes={[{ titre: "Produit", rendu: (l) => String(l.name) }, { titre: "Qté", rendu: (l) => String(l.quantite) }, { titre: "Chiffre", rendu: (l) => fcfa(l.chiffre_fcfa) }]} /></div>
+        <div><h3 style={{ margin: "0 0 8px" }}>Par canal</h3><Tableau lignes={d.canaux} colonnes={[{ titre: "Canal", rendu: (l) => LIB_CANAL[String(l.channel)] ?? String(l.channel) }, { titre: "Commandes", rendu: (l) => String(l.commandes) }, { titre: "Total", rendu: (l) => fcfa(l.total_fcfa) }]} /></div>
+        <div><h3 style={{ margin: "0 0 8px" }}>Par moyen de paiement</h3><Tableau lignes={d.moyens} colonnes={[{ titre: "Moyen", rendu: (l) => LIB_MODE[String(l.payment_method)] ?? String(l.payment_method) }, { titre: "Commandes", rendu: (l) => String(l.commandes) }, { titre: "Encaissé", rendu: (l) => fcfa(l.encaisse_fcfa) }]} /></div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- Mon compte
+function MonCompte({ moi, onChange }: { moi: Moi; onChange: () => void }) {
+  return (
+    <div style={{ display: "grid", gap: 14 }}>
+      <div style={{ ...carte, maxWidth: 420 }}>
+        <div style={{ fontSize: 12.5, color: "#666" }}>Connecté en tant que</div>
+        <div style={{ fontWeight: 800, fontSize: 17 }}>{moi.name}</div>
+        <div style={{ color: "#555", fontSize: 14 }}>{moi.email}</div>
+        <div style={{ marginTop: 8 }}><Badge texte={moi.role === "proprietaire" ? "Propriétaire" : "Gestionnaire"} couleur={moi.role === "proprietaire" ? VERT : "#1d4ed8"} /></div>
+      </div>
+      <FormMotDePasse onFait={onChange} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- Utilisateurs (propriétaire)
+function Utilisateurs() {
+  const [users, setUsers] = useState<Ligne[]>([]);
+  const [f, setF] = useState({ name: "", email: "", role: "gestionnaire" });
+  const [temp, setTemp] = useState<{ email: string; mdp: string } | null>(null);
+  const [err, setErr] = useState("");
+  const charger = useCallback(() => { void api<{ users: Ligne[] }>("users").then((r) => r.ok && setUsers(r.data.users ?? [])); }, []);
+  useEffect(charger, [charger]);
+  async function creer() {
+    setErr("");
+    const r = await api<{ email: string; motDePasseTemporaire: string }>("users", { method: "POST", body: f });
+    if (!r.ok) { setErr(r.data.error ?? "Échec."); return; }
+    setTemp({ email: r.data.email, mdp: r.data.motDePasseTemporaire });
+    setF({ name: "", email: "", role: "gestionnaire" });
+    charger();
+  }
+  async function agir(id: string, corps: Record<string, unknown>, email: string) {
+    setErr("");
+    const r = await api<{ motDePasseTemporaire?: string }>(`users/${id}`, { method: "PATCH", body: corps });
+    if (!r.ok) { setErr(r.data.error ?? "Échec."); return; }
+    if (r.data.motDePasseTemporaire) setTemp({ email, mdp: r.data.motDePasseTemporaire });
+    charger();
+  }
+  return (
+    <div style={{ display: "grid", gap: 14 }}>
+      {temp && (
+        <div style={{ ...carte, borderColor: "#f1c27d", background: "#fffaf0" }}>
+          <strong>Mot de passe provisoire de {temp.email}</strong>
+          <div style={{ fontFamily: "monospace", fontSize: 18, margin: "8px 0", userSelect: "all" }}>{temp.mdp}</div>
+          <div style={{ fontSize: 13, color: "#555" }}>Transmettez-le à la personne : il n'est affiché <strong>qu'une seule fois</strong> et elle devra le remplacer à sa première connexion.</div>
+          <button onClick={() => setTemp(null)} style={{ ...boutonDiscret, marginTop: 10 }}>J'ai noté le mot de passe</button>
+        </div>
+      )}
+      {err && <div style={{ color: "#b91c1c" }}>{err}</div>}
+      <Tableau lignes={users} colonnes={[
+        { titre: "Utilisateur", rendu: (l) => <><strong>{String(l.name)}</strong>{l.active ? null : <span style={{ color: "#b91c1c" }}> (désactivé)</span>}<br /><span style={{ color: "#777", fontSize: 12 }}>{String(l.email)}</span></> },
+        { titre: "Rôle", rendu: (l) => <Badge texte={l.role === "proprietaire" ? "Propriétaire" : "Gestionnaire"} couleur={l.role === "proprietaire" ? VERT : "#1d4ed8"} /> },
+        { titre: "Dernière connexion", rendu: (l) => (l.last_login_at ? date(l.last_login_at) : l.must_change ? "jamais (mot de passe provisoire)" : "—") },
+        { titre: "Actions", rendu: (l) => (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <button onClick={() => void agir(String(l.id), { reinitialiser: true }, String(l.email))} style={boutonDiscret}>Réinitialiser le mot de passe</button>
+            <button onClick={() => void agir(String(l.id), { active: !l.active }, String(l.email))} style={boutonDiscret}>{l.active ? "Désactiver" : "Réactiver"}</button>
+            <button onClick={() => void agir(String(l.id), { role: l.role === "proprietaire" ? "gestionnaire" : "proprietaire" }, String(l.email))} style={boutonDiscret}>{l.role === "proprietaire" ? "Rendre gestionnaire" : "Rendre propriétaire"}</button>
+          </div>) },
+      ]} />
+      <div style={{ ...carte, display: "grid", gap: 8 }}>
+        <strong>Ajouter un utilisateur</strong>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <input placeholder="Nom" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} style={{ ...champ, flex: 1, minWidth: 140 }} />
+          <input placeholder="Adresse e-mail" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} style={{ ...champ, flex: 1, minWidth: 180 }} />
+          <select value={f.role} onChange={(e) => setF({ ...f, role: e.target.value })} style={champ}><option value="gestionnaire">Gestionnaire</option><option value="proprietaire">Propriétaire</option></select>
+          <button onClick={() => void creer()} disabled={!f.name || !f.email} style={bouton}>Créer le compte</button>
+        </div>
+        <div style={{ fontSize: 12.5, color: "#666" }}>Gestionnaire : commandes, paiements, clients, stock, produits, revendeurs, rapports. Propriétaire : tout, y compris utilisateurs, paramètres et journal.</div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- Journal (propriétaire)
+const LIB_ACTION: Record<string, string> = {
+  connexion: "Connexion", connexion_refusee: "Connexion refusée", changement_mdp: "Mot de passe changé", changement_mdp_refuse: "Changement de mot de passe refusé",
+  compte_cree: "Compte créé", compte_desactive: "Compte désactivé", compte_reactive: "Compte réactivé", compte_role: "Rôle modifié", compte_mdp_reinitialise: "Mot de passe réinitialisé",
+  commande_statut: "Statut de commande", commande_payee_manuel: "Paiement encaissé à la main", commande_saisie: "Commande saisie", stock: "Mouvement de stock",
+  produit_cree: "Produit créé", produit_modifie: "Produit modifié", pack_cree: "Pack créé", pack_modifie: "Pack modifié", revendeur_cree: "Revendeur créé", revendeur_modifie: "Revendeur modifié",
+  image_envoyee: "Image envoyée", reglage: "Réglage modifié",
+};
+function Journal() {
+  const [lignes, setLignes] = useState<Ligne[]>([]);
+  const [action, setAction] = useState("");
+  useEffect(() => { void api<{ journal: Ligne[] }>(`journal${action ? `?action=${action}` : ""}`).then((r) => r.ok && setLignes(r.data.journal ?? [])); }, [action]);
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <select value={action} onChange={(e) => setAction(e.target.value)} style={{ ...champ, maxWidth: 320 }}>
+        <option value="">Toutes les actions</option>
+        {Object.entries(LIB_ACTION).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+      </select>
+      <Tableau lignes={lignes} colonnes={[
+        { titre: "Date", rendu: (l) => date(l.at) },
+        { titre: "Qui", rendu: (l) => String(l.admin_name ?? "—") },
+        { titre: "Action", rendu: (l) => LIB_ACTION[String(l.action)] ?? String(l.action) },
+        { titre: "Détail", rendu: (l) => <span style={{ fontSize: 13, color: "#555", wordBreak: "break-word" }}>{String(l.detail ?? "")}</span> },
+      ]} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- Paramètres (propriétaire)
+function Parametres() {
+  const [regl, setRegl] = useState<{ cle: string; titre: string; aide: string; valeur: string }[]>([]);
+  const [vals, setVals] = useState<Record<string, string>>({});
+  const [msg, setMsg] = useState("");
+  useEffect(() => { void api<{ reglages: { cle: string; titre: string; aide: string; valeur: string }[] }>("settings").then((r) => { if (r.ok) { setRegl(r.data.reglages); setVals(Object.fromEntries(r.data.reglages.map((x) => [x.cle, x.valeur]))); } }); }, []);
+  async function enregistrer() {
+    setMsg("");
+    const r = await fetch("/api/admin/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(vals) });
+    const d = (await r.json().catch(() => ({}))) as { error?: string };
+    setMsg(r.ok ? "Enregistré ✓" : d.error ?? "Échec.");
+  }
+  return (
+    <div style={{ ...carte, display: "grid", gap: 14, maxWidth: 640 }}>
+      {regl.map((x) => (
+        <label key={x.cle} style={{ display: "grid", gap: 4 }}>
+          <span style={{ fontWeight: 700, fontSize: 13 }}>{x.titre}</span>
+          <input value={vals[x.cle] ?? ""} onChange={(e) => setVals({ ...vals, [x.cle]: e.target.value })} style={champ} />
+          <span style={{ fontSize: 12.5, color: "#666" }}>{x.aide}</span>
+        </label>
+      ))}
+      {msg && <div style={{ color: msg.startsWith("Enregistré") ? VERT : "#b91c1c", fontWeight: 700 }}>{msg}</div>}
+      <div><button onClick={() => void enregistrer()} style={bouton}>Enregistrer les paramètres</button></div>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- Page
-const ONGLETS: [Onglet, string][] = [["tableau", "Tableau de bord"], ["commandes", "Commandes"], ["paiements", "Paiements"], ["stock", "Stock"], ["produits", "Produits"], ["revendeurs", "Revendeurs"]];
+type Moi = { email: string; name: string; role: "proprietaire" | "gestionnaire"; mustChange: boolean };
+
+const MENU: { id: Onglet; titre: string; icone: string; proprietaire?: boolean; groupe?: string }[] = [
+  { id: "tableau", titre: "Tableau de bord", icone: "📊" },
+  { id: "commandes", titre: "Commandes", icone: "🧾" },
+  { id: "paiements", titre: "Paiements", icone: "💳" },
+  { id: "clients", titre: "Clients", icone: "👥" },
+  { id: "stock", titre: "Stock", icone: "📦" },
+  { id: "produits", titre: "Produits", icone: "🌿" },
+  { id: "revendeurs", titre: "Revendeurs", icone: "🤝" },
+  { id: "rapports", titre: "Rapports", icone: "📈" },
+  { id: "utilisateurs", titre: "Utilisateurs", icone: "🔑", proprietaire: true, groupe: "Administration" },
+  { id: "parametres", titre: "Paramètres", icone: "⚙️", proprietaire: true },
+  { id: "journal", titre: "Journal d'activité", icone: "📜", proprietaire: true },
+  { id: "compte", titre: "Mon compte", icone: "👤" },
+];
 
 export default function Admin() {
-  const [etat, setEtat] = useState<"inconnu" | "deconnecte" | "connecte">("inconnu");
+  const [moi, setMoi] = useState<Moi | null | "inconnu">("inconnu");
   const [onglet, setOnglet] = useState<Onglet>("tableau");
-  useEffect(() => { void api("stats").then((r) => setEtat(r.ok ? "connecte" : "deconnecte")); }, []);
-  if (etat === "inconnu") return <p style={{ padding: 20 }}>Chargement…</p>;
-  if (etat === "deconnecte") return <Connexion onOk={() => setEtat("connecte")} />;
-  return (
-    <div style={{ maxWidth: 1180, margin: "0 auto", padding: "14px 14px 60px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: VERT }}>NUTRELIS — Administration</h1>
-        <button onClick={() => void api("logout", { method: "POST" }).then(() => setEtat("deconnecte"))} style={boutonDiscret}>Déconnexion</button>
+  const [aTraiter, setATraiter] = useState(0);
+  const [etroit, setEtroit] = useState(false);
+  const [menuOuvert, setMenuOuvert] = useState(false);
+
+  const charger = useCallback(async () => {
+    const r = await api<Moi>("me");
+    setMoi(r.ok ? r.data : null);
+  }, []);
+  useEffect(() => { void charger(); }, [charger]);
+  useEffect(() => {
+    const f = () => setEtroit(window.innerWidth < 860);
+    f();
+    window.addEventListener("resize", f);
+    return () => window.removeEventListener("resize", f);
+  }, []);
+  useEffect(() => {
+    if (moi && moi !== "inconnu" && !moi.mustChange) void api<{ chiffres: Ligne }>("stats").then((r) => r.ok && setATraiter(Number(r.data.chiffres.a_traiter)));
+  }, [moi, onglet]);
+
+  if (moi === "inconnu") return <p style={{ padding: 20 }}>Chargement…</p>;
+  if (moi === null) return <Connexion onOk={() => void charger()} />;
+  if (moi.mustChange) {
+    return (
+      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", padding: 16 }}>
+        <FormMotDePasse obligatoire onFait={() => void charger()} />
       </div>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-        {ONGLETS.map(([k, v]) => <button key={k} onClick={() => setOnglet(k)} style={{ ...boutonDiscret, ...(onglet === k ? { background: VERT, color: "#fff", borderColor: VERT } : {}) }}>{v}</button>)}
-      </div>
-      {onglet === "tableau" && <TableauDeBord ouvrir={setOnglet} />}
+    );
+  }
+
+  const proprio = moi.role === "proprietaire";
+  const visibles = MENU.filter((m) => !m.proprietaire || proprio);
+  const titreOnglet = MENU.find((m) => m.id === onglet)?.titre ?? "";
+  const aller = (o: Onglet) => { setOnglet(o); setMenuOuvert(false); };
+  const deconnexion = () => void api("logout", { method: "POST" }).then(() => setMoi(null));
+
+  const navigation = (
+    <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {visibles.map((m) => (
+        <div key={m.id}>
+          {m.groupe && <div style={{ fontSize: 11, letterSpacing: 1.5, color: "#8a948a", fontWeight: 700, margin: "14px 10px 6px" }}>{m.groupe.toUpperCase()}</div>}
+          <button onClick={() => aller(m.id)} style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, border: 0, cursor: "pointer", fontSize: 14, fontWeight: onglet === m.id ? 800 : 600, background: onglet === m.id ? VERT : "transparent", color: onglet === m.id ? "#fff" : "#2b312b" }}>
+            <span aria-hidden>{m.icone}</span>
+            <span style={{ flex: 1 }}>{m.titre}</span>
+            {m.id === "commandes" && aTraiter > 0 && <span style={{ background: onglet === m.id ? "#fff" : "#b91c1c", color: onglet === m.id ? VERT : "#fff", borderRadius: 999, padding: "1px 8px", fontSize: 12, fontWeight: 800 }}>{aTraiter}</span>}
+          </button>
+        </div>
+      ))}
+    </nav>
+  );
+
+  const contenu = (
+    <>
+      {onglet === "tableau" && <TableauDeBord ouvrir={aller} />}
       {onglet === "commandes" && <Commandes />}
       {onglet === "paiements" && <Paiements />}
+      {onglet === "clients" && <Clients />}
       {onglet === "stock" && <Stock />}
       {onglet === "produits" && <Produits />}
       {onglet === "revendeurs" && <Revendeurs />}
+      {onglet === "rapports" && <Rapports />}
+      {onglet === "utilisateurs" && proprio && <Utilisateurs />}
+      {onglet === "parametres" && proprio && <Parametres />}
+      {onglet === "journal" && proprio && <Journal />}
+      {onglet === "compte" && <MonCompte moi={moi} onChange={() => void charger()} />}
+    </>
+  );
+
+  const identite = (
+    <div style={{ fontSize: 13, color: "#555", lineHeight: 1.4 }}>
+      <strong style={{ color: "#1a1a1a" }}>{moi.name}</strong><br />
+      <span style={{ fontSize: 12 }}>{proprio ? "Propriétaire" : "Gestionnaire"}</span>
+    </div>
+  );
+
+  if (etroit) {
+    return (
+      <div style={{ padding: "0 12px 60px" }}>
+        <header style={{ position: "sticky", top: 0, zIndex: 20, background: "#f6f7f5", padding: "10px 0", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid #e4e7e2" }}>
+          <button onClick={() => setMenuOuvert(!menuOuvert)} style={{ ...boutonDiscret, padding: "8px 12px" }} aria-label="Menu">☰</button>
+          <strong style={{ flex: 1, color: VERT }}>{titreOnglet}</strong>
+          {aTraiter > 0 && <button onClick={() => aller("commandes")} style={{ ...bouton, padding: "6px 10px", background: "#b91c1c" }}>{aTraiter} à traiter</button>}
+        </header>
+        {menuOuvert && <div style={{ ...carte, margin: "10px 0" }}>{navigation}<div style={{ borderTop: "1px solid #e4e7e2", marginTop: 10, paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>{identite}<button onClick={deconnexion} style={boutonDiscret}>Déconnexion</button></div></div>}
+        <div style={{ marginTop: 14 }}>{contenu}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "240px minmax(0, 1fr)", minHeight: "100vh" }}>
+      <aside style={{ background: "#fff", borderRight: "1px solid #e4e7e2", padding: 16, position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", gap: 14, overflowY: "auto" }}>
+        <div style={{ fontWeight: 900, fontSize: 18, color: VERT, letterSpacing: -0.3 }}>NUTRELIS<div style={{ fontSize: 11, letterSpacing: 2, color: "#8a948a", fontWeight: 700 }}>CONSOLE</div></div>
+        <div style={{ flex: 1 }}>{navigation}</div>
+        <div style={{ borderTop: "1px solid #e4e7e2", paddingTop: 12, display: "grid", gap: 8 }}>{identite}<button onClick={deconnexion} style={boutonDiscret}>Déconnexion</button></div>
+      </aside>
+      <main style={{ padding: "22px 28px 80px", maxWidth: 1240 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 18px" }}>{titreOnglet}</h1>
+        {contenu}
+      </main>
     </div>
   );
 }

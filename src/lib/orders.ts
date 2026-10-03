@@ -2,6 +2,7 @@ import type { PoolClient } from "pg";
 import { query, tx } from "./db";
 import { fapshiConfigure, verifierPaiement } from "./fapshi";
 import { notifierNouvelleCommande } from "./notifier";
+import { lireReglage } from "./reglages";
 
 export type LigneDemandee = { variantId: string; qty: number };
 export type ClientCommande = {
@@ -23,7 +24,6 @@ export class ErreurCommande extends Error {
   }
 }
 
-const FRAIS_LIVRAISON = Number(process.env.DELIVERY_FEE_FCFA ?? 0) || 0;
 
 /** Stock courant d'une variante = somme du journal. À lire DANS la transaction, variantes verrouillées. */
 async function stockDe(c: PoolClient, variantId: string): Promise<number> {
@@ -88,7 +88,7 @@ export async function creerCommande(p: {
       sousTotal += unit * qty;
       items.push({ v, qty, unit });
     }
-    const livraison = p.revendeurId ? 0 : FRAIS_LIVRAISON;
+    const livraison = p.revendeurId ? 0 : Number(await lireReglage("frais_livraison_fcfa")) || 0;
     const total = sousTotal + livraison;
 
     const num = await c.query<{ n: string }>("SELECT nextval('order_number_seq')::text AS n");

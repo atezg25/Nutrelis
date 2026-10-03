@@ -1,6 +1,7 @@
 import { query } from "@/lib/db";
 import { creerCommande, reconcilierPaiements, type LigneDemandee, type ModePaiement } from "@/lib/orders";
 import { corps, entier, erreur, refuserSiNonAdmin, reponse, reponseErreur, texte, UUID } from "@/lib/http";
+import { journaliser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,7 @@ export async function POST(req: Request) {
       paiementRecu: b.paiementRecu === true,
       client: { nom: texte(c.nom, 160) ?? "", telephone: texte(c.telephone, 30) ?? "", email: texte(c.email, 160), ville: texte(c.ville, 80), adresse: texte(c.adresse, 200), notes: texte(c.notes, 500) },
     });
+    await journaliser("commande_saisie", `${cmd.numero}${revendeurId ? " (revendeur)" : ""} — ${cmd.total} FCFA`);
     return reponse(cmd, 201);
   } catch (err) {
     return reponseErreur(err);

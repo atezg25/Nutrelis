@@ -116,6 +116,43 @@ CREATE TABLE IF NOT EXISTS media (
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Console d'administration : comptes, rôles, journal d'audit, paramètres. Idempotent.
+
+-- Comptes administrateurs. Le mot de passe n'est JAMAIS stocké : seulement son empreinte scrypt (sel aléatoire).
+-- `session_version` augmente à chaque changement de mot de passe : toutes les sessions ouvertes deviennent invalides.
+CREATE TABLE IF NOT EXISTS admin_user (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email           TEXT NOT NULL UNIQUE,
+  name            TEXT NOT NULL,
+  role            TEXT NOT NULL CHECK (role IN ('proprietaire','gestionnaire')),
+  password_hash   TEXT NOT NULL,
+  session_version INTEGER NOT NULL DEFAULT 1,
+  active          BOOLEAN NOT NULL DEFAULT TRUE,
+  must_change     BOOLEAN NOT NULL DEFAULT FALSE,
+  failed_attempts INTEGER NOT NULL DEFAULT 0,
+  locked_until    TIMESTAMPTZ,
+  last_login_at   TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Journal : qui a fait quoi, quand. On y écrit, on n'y modifie rien.
+CREATE TABLE IF NOT EXISTS audit_log (
+  id         BIGSERIAL PRIMARY KEY,
+  at         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  admin_id   UUID,
+  admin_name TEXT,
+  action     TEXT NOT NULL,
+  detail     TEXT
+);
+CREATE INDEX IF NOT EXISTS audit_log_at_idx ON audit_log (at DESC);
+
+-- Réglages de la boutique (clé / valeur).
+CREATE TABLE IF NOT EXISTS setting (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Vue pratique : stock courant par variante.
 CREATE OR REPLACE VIEW variant_stock AS
 SELECT v.id AS variant_id, COALESCE(SUM(m.delta), 0)::int AS stock

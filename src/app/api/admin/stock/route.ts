@@ -1,5 +1,6 @@
 import { query } from "@/lib/db";
 import { corps, entier, erreur, refuserSiNonAdmin, reponse, reponseErreur, texte, UUID } from "@/lib/http";
+import { journaliser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,7 @@ export async function POST(req: Request) {
       if (!s || s.stock + delta < 0) return erreur(`Stock insuffisant (${s?.stock ?? 0} en stock).`, 409);
     }
     await query("INSERT INTO stock_movement (variant_id, delta, reason, note, created_by) VALUES ($1,$2,$3,$4,'admin')", [variantId, delta, raison, texte(b.note, 300)]);
+    await journaliser("stock", `${variantId} : ${delta > 0 ? "+" : ""}${delta} (${raison})`);
     return reponse({ ok: true }, 201);
   } catch (err) {
     return reponseErreur(err);

@@ -1,5 +1,6 @@
 import { query, tx } from "@/lib/db";
 import { corps, entier, erreur, refuserSiNonAdmin, reponse, reponseErreur, texte } from "@/lib/http";
+import { journaliser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
       }
       return r.rows[0]!.id;
     });
+    await journaliser("produit_cree", `${name} (${slug})`);
     return reponse({ id }, 201);
   } catch (err) {
     if (err instanceof Error && /duplicate key/.test(err.message)) return erreur("Cet identifiant ou ce code de pack existe déjà.", 409);

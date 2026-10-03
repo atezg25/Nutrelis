@@ -1,6 +1,7 @@
 import { query } from "@/lib/db";
 import { changerStatut, marquerPayee, STATUTS, type ModePaiement, type StatutCommande } from "@/lib/orders";
 import { corps, erreur, refuserSiNonAdmin, reponse, reponseErreur, UUID } from "@/lib/http";
+import { journaliser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -34,11 +35,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (typeof b.statut === "string") {
       if (!(STATUTS as readonly string[]).includes(b.statut)) return erreur("Statut invalide.", 400);
       await changerStatut(id, b.statut as StatutCommande);
+      await journaliser("commande_statut", `${id} → ${b.statut}`);
     }
     if (typeof b.paiementRecu === "string") {
       const modes = ["especes", "virement", "livraison"] as const;
       if (!(modes as readonly string[]).includes(b.paiementRecu)) return erreur("Mode de paiement invalide.", 400);
       await marquerPayee(id, b.paiementRecu as ModePaiement);
+      await journaliser("commande_payee_manuel", `${id} (${b.paiementRecu})`);
     }
     return reponse({ ok: true });
   } catch (err) {

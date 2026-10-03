@@ -1,5 +1,6 @@
 import { query } from "@/lib/db";
 import { corps, entier, erreur, refuserSiNonAdmin, reponse, reponseErreur, texte } from "@/lib/http";
+import { journaliser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
       "INSERT INTO reseller (name, phone, email, city, discount_pct, notes) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id",
       [name, texte(b.phone, 30), texte(b.email, 160), texte(b.city, 80), remise, texte(b.notes, 500)],
     );
+    await journaliser("revendeur_cree", `${name} (remise ${remise} %)`);
     return reponse({ id: r!.id }, 201);
   } catch (err) {
     return reponseErreur(err);

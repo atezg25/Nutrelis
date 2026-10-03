@@ -1,5 +1,6 @@
 import { query } from "@/lib/db";
 import { corps, entier, erreur, refuserSiNonAdmin, reponse, reponseErreur, texte, UUID } from "@/lib/http";
+import { journaliser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,7 @@ export async function POST(req: Request) {
       "INSERT INTO variant (product_id, sku, label, price_fcfa, reseller_price_fcfa, description, popular, sort) VALUES ($1,$2,$3,$4,$5,$6,$7,(SELECT COALESCE(MAX(sort),0)+1 FROM variant WHERE product_id=$1)) RETURNING id",
       [productId, sku, label, prix, revendeur, texte(b.description, 300), b.populaire === true],
     );
+    await journaliser("pack_cree", `${sku} — ${label} — ${prix} FCFA`);
     return reponse({ id: v!.id }, 201);
   } catch (err) {
     if (err instanceof Error && /duplicate key/.test(err.message)) return erreur("Ce code de pack existe déjà.", 409);

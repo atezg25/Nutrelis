@@ -1,6 +1,7 @@
 import { query } from "@/lib/db";
 import { corps, entier, erreur, refuserSiNonAdmin, reponse, reponseErreur, texte, UUID } from "@/lib/http";
 import { nettoyerContenu } from "@/lib/contenu";
+import { journaliser } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (sets.length === 0) return erreur("Rien à modifier.", 400);
     args.push(id);
     await query(`UPDATE product SET ${sets.join(", ")} WHERE id=$${args.length}`, args);
+    await journaliser("produit_modifie", `${id} : ${Object.keys(b).join(", ")}`);
     return reponse({ ok: true });
   } catch (err) {
     return reponseErreur(err);

@@ -1,13 +1,25 @@
 import { NextResponse } from "next/server";
-import { adminConnecte } from "./admin-auth";
+import { adminCourant } from "./admin-auth";
 import { ErreurCommande } from "./orders";
 
 export const reponse = (data: unknown, status = 200) => NextResponse.json(data, { status });
 export const erreur = (message: string, status = 400, code?: string) => NextResponse.json({ error: message, code }, { status });
 
-/** À appeler en tête de chaque route d'administration : renvoie une réponse 401 si pas connecté, sinon null. */
+/** À appeler en tête de chaque route d'administration : 401 si pas connecté, 403 tant que le mot de passe initial n'a pas été changé. */
 export async function refuserSiNonAdmin(): Promise<NextResponse | null> {
-  return (await adminConnecte()) ? null : erreur("Non autorisé", 401, "NON_AUTORISE");
+  const a = await adminCourant();
+  if (!a) return erreur("Non autorisé", 401, "NON_AUTORISE");
+  if (a.mustChange) return erreur("Vous devez d'abord changer votre mot de passe.", 403, "CHANGER_MOT_DE_PASSE");
+  return null;
+}
+
+/** Réservé au propriétaire : comptes, réglages, journal. */
+export async function refuserSiNonProprietaire(): Promise<NextResponse | null> {
+  const a = await adminCourant();
+  if (!a) return erreur("Non autorisé", 401, "NON_AUTORISE");
+  if (a.mustChange) return erreur("Vous devez d'abord changer votre mot de passe.", 403, "CHANGER_MOT_DE_PASSE");
+  if (a.role !== "proprietaire") return erreur("Réservé au propriétaire.", 403, "INTERDIT");
+  return null;
 }
 
 /** Traduit une erreur métier (stock, panier…) en réponse claire ; le reste devient un 500 sans détail technique. */
