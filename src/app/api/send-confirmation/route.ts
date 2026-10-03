@@ -54,6 +54,10 @@ export async function POST(req: NextRequest) {
       </tr>
     `).join("");
 
+    // Frais = total payé − sous-total des articles (le total vient du serveur de commande).
+    const sousTotalArticles = ((items as CartItem[]) || []).reduce((n, i) => n + i.prix * i.quantite, 0);
+    const fraisLivraison = Math.max(0, Number(total || 0) - sousTotalArticles);
+
     const html = `
 <!DOCTYPE html>
 <html lang="fr">
@@ -122,7 +126,7 @@ export async function POST(req: NextRequest) {
                 <tfoot>
                   <tr>
                     <td colspan="2" style="padding: 16px 16px 8px; font-size: 13px; color: #888;">Livraison</td>
-                    <td style="padding: 16px 16px 8px; text-align: right; font-size: 13px; color: #1db954; font-weight: 700;">GRATUITE</td>
+                    <td style="padding: 16px 16px 8px; text-align: right; font-size: 13px; color: ${fraisLivraison > 0 ? "#333" : "#1db954"}; font-weight: 700;">${fraisLivraison > 0 ? fraisLivraison.toLocaleString("fr-FR") + " FCFA" : "Offerte"}</td>
                   </tr>
                   <tr style="background: #fdecea;">
                     <td colspan="2" style="padding: 14px 16px; font-size: 16px; font-weight: 900; color: #1a0505;">TOTAL</td>

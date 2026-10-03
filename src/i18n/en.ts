@@ -144,7 +144,7 @@ const en: Record<string, any> = {
     transformHealth: "Transform Your Health with NUTRELIS",
     join12000: "Join over 12,000 customers who have already transformed their daily lives.",
     orderNow70: "Order now — 70% OFF →",
-    guarantee90Free: "✅ 90-day guarantee · Free shipping",
+    guarantee90Free: "✅ 90-day guarantee · Shipping rate by city",
 
     // Footer extended
     footerShortDesc: "Premium supplements, formulated with natural ingredients.",
@@ -363,7 +363,7 @@ const en: Record<string, any> = {
     faq7Q: "Composition",
     faq7A: "Our sole active ingredient is Astaxanthin, sourced from the microalga Haematococcus pluvialis. The capsule shell is made of Gelatin and Purified Water — each capsule is designed for maximum purity and performance.",
     faq8Q: "Shipping",
-    faq8A: "Free standard shipping: delivery in 4 to 7 business days via Atez Express. Orders are shipped within 24 hours. Paid express shipping: delivery in 1 to 2 business days via Atez Express.",
+    faq8A: "Standard shipping (rate depends on your city, shown before payment): delivery in 4 to 7 business days via Atez Express. Orders are shipped within 24 hours. Paid express shipping: delivery in 1 to 2 business days via Atez Express.",
 
     // Gallery FAQ content
     galleryFaq1Q: "What exactly is astaxanthin?",
@@ -393,7 +393,7 @@ const en: Record<string, any> = {
     galleryFaq5Q: "Composition",
     galleryFaq5A: "Our only active ingredient is <strong>Astaxanthin</strong>, sourced from the microalgae <em>Haematococcus pluvialis</em>. The capsule shell is made of <strong>Gelatin</strong> and <strong>Purified Water</strong> — each capsule is designed for maximum purity and performance.",
     galleryFaq6Q: "Shipping",
-    galleryFaq6A_stdLabel: "📦 Free standard shipping:",
+    galleryFaq6A_stdLabel: "📦 Standard shipping (rate by city):",
     galleryFaq6A_stdLine1: "Delivery in <strong>4 to 7 business days</strong> via <strong>Atez Express</strong>.",
     galleryFaq6A_stdLine2: "Orders are <strong>shipped within 24 hours</strong>.",
     galleryFaq6A_expLabel: "⚡ Paid express shipping:",
@@ -667,7 +667,7 @@ const en: Record<string, any> = {
     faq14Q: "How do I place an order?",
     faq14A: "Go to the product page, choose your pack (1, 2, or 3 boxes), select your payment method and confirm your order. You'll receive a confirmation email with your tracking number within 24h.",
     faq15Q: "What are the delivery times?",
-    faq15A: "Free standard shipping via ATEZ Express: 4-7 business days. Paid express shipping: 1-2 business days. All orders are shipped within 24 hours of payment confirmation.",
+    faq15A: "Standard shipping via ATEZ Express (rate depends on your city, shown before payment): 4-7 business days. Paid express shipping: 1-2 business days. All orders are shipped within 24 hours of payment confirmation.",
     faq16Q: "How does the subscription work?",
     faq16A: "The subscription automatically delivers your order at the end of each course via ATEZ Express: every 2 months (1 box), 4 months (2 boxes) or 6 months (3 boxes). You get 15% off each delivery. No commitment — cancel anytime from your account, no fees.",
     faq17Q: "Which countries do you ship to?",
@@ -733,8 +733,8 @@ const en: Record<string, any> = {
     heroDesc: "Via ATEZ Express — Shipped within 24h after confirmation",
     optionsTitle: "Shipping options",
     standardTitle: "Standard Shipping",
-    standardPrice: "FREE",
-    standardPriceDesc: "For all orders",
+    standardPrice: "By city",
+    standardPriceDesc: "Rate shown before payment",
     standardDelay: "4–7 business days",
     standardDetail1: "Via ATEZ Express",
     standardDetail2: "Tracking number provided",

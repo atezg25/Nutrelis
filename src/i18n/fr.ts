@@ -144,7 +144,7 @@ const fr: Record<string, any> = {
     transformHealth: "Transformez Votre Santé avec NUTRELIS",
     join12000: "Rejoignez plus de 12 000 clients qui ont déjà transformé leur quotidien.",
     orderNow70: "Commander maintenant — 70% OFF →",
-    guarantee90Free: "✅ Garantie 90 jours · Livraison gratuite",
+    guarantee90Free: "✅ Garantie 90 jours · Livraison selon votre ville",
 
     // Footer extended
     footerShortDesc: "Compléments alimentaires premium, formulés avec des ingrédients naturels.",
@@ -363,7 +363,7 @@ const fr: Record<string, any> = {
     faq7Q: "Composition",
     faq7A: "Notre unique ingrédient actif est l'Astaxanthine, issue de la micro-algue Haematococcus pluvialis. L'enveloppe de la gélule est composée de Gélatine et d'Eau Purifiée — chaque capsule est conçue pour une pureté et une performance maximales.",
     faq8Q: "Livraison",
-    faq8A: "Livraison standard gratuite : réception en 4 à 7 jours ouvrés via Atez Express. Les commandes sont expédiées sous 24 heures. Livraison express payante : réception en 1 à 2 jours ouvrés via Atez Express.",
+    faq8A: "Livraison standard (tarif selon la ville, indiqué avant le paiement) : réception en 4 à 7 jours ouvrés via Atez Express. Les commandes sont expédiées sous 24 heures. Livraison express payante : réception en 1 à 2 jours ouvrés via Atez Express.",
 
     // Gallery FAQ content
     galleryFaq1Q: "C'est quoi exactement l'astaxanthine ?",
@@ -393,7 +393,7 @@ const fr: Record<string, any> = {
     galleryFaq5Q: "Composition",
     galleryFaq5A: "Notre unique ingrédient actif est l'<strong>Astaxanthine</strong>, issue de la micro-algue <em>Haematococcus pluvialis</em>. L'enveloppe de la gélule est composée de <strong>Gélatine</strong> et d'<strong>Eau Purifiée</strong> — chaque capsule est conçue pour une pureté et une performance maximales.",
     galleryFaq6Q: "Livraison",
-    galleryFaq6A_stdLabel: "📦 Livraison standard gratuite :",
+    galleryFaq6A_stdLabel: "📦 Livraison standard (tarif selon la ville) :",
     galleryFaq6A_stdLine1: "Réception en <strong>4 à 7 jours ouvrés</strong> via <strong>Atez Express</strong>.",
     galleryFaq6A_stdLine2: "Les commandes sont <strong>expédiées sous 24 heures</strong>.",
     galleryFaq6A_expLabel: "⚡ Livraison express payante :",
@@ -667,7 +667,7 @@ const fr: Record<string, any> = {
     faq14Q: "Comment passer commande ?",
     faq14A: "Rendez-vous sur la page produit, choisissez votre pack (1, 2 ou 3 boîtes), sélectionnez le mode de paiement et confirmez votre commande. Vous recevrez un email de confirmation avec votre numéro de suivi sous 24h.",
     faq15Q: "Quels sont les délais de livraison ?",
-    faq15A: "Livraison standard gratuite via ATEZ Express : 4 à 7 jours ouvrés. Livraison express payante : 1 à 2 jours ouvrés. Toutes les commandes sont expédiées sous 24 heures après confirmation du paiement.",
+    faq15A: "Livraison standard via ATEZ Express (tarif selon la ville, indiqué avant le paiement) : 4 à 7 jours ouvrés. Livraison express payante : 1 à 2 jours ouvrés. Toutes les commandes sont expédiées sous 24 heures après confirmation du paiement.",
     faq16Q: "Comment fonctionne l'abonnement ?",
     faq16A: "L'abonnement vous permet de recevoir automatiquement votre commande à chaque fin de cure via ATEZ Express : tous les 2 mois (1 boîte), 4 mois (2 boîtes) ou 6 mois (3 boîtes). Vous bénéficiez de −15% sur chaque livraison. Aucun engagement — vous annulez quand vous voulez depuis votre espace client, sans frais.",
     faq17Q: "Dans quels pays livrez-vous ?",
@@ -733,8 +733,8 @@ const fr: Record<string, any> = {
     heroDesc: "Via ATEZ Express — Expédition sous 24h après confirmation",
     optionsTitle: "Options de livraison",
     standardTitle: "Livraison Standard",
-    standardPrice: "GRATUITE",
-    standardPriceDesc: "Pour toutes les commandes",
+    standardPrice: "Selon la ville",
+    standardPriceDesc: "Tarif affiché avant le paiement",
     standardDelay: "4 à 7 jours ouvrés",
     standardDetail1: "Via ATEZ Express",
     standardDetail2: "Numéro de suivi fourni",
