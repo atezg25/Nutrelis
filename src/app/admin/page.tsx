@@ -367,12 +367,117 @@ function Stock() {
   );
 }
 
+// ---------------------------------------------------------------- Fiche produit (contenu de la page publique)
+type Contenu = {
+  accroche?: string; miseEnAvant?: string; avantages?: string[]; raisons?: { titre: string; texte: string; image?: string }[];
+  description?: string; ingredients?: string; utilisation?: string; precautions?: string; faq?: { q: string; a: string }[];
+  avis?: { nom: string; ville?: string; note: number; texte: string }[]; garantieJours?: number; images?: string[];
+};
+const lignes = (v: string) => v.split("\n").map((x) => x.trim()).filter(Boolean);
+const enTexte = (c: Contenu) => ({
+  accroche: c.accroche ?? "", miseEnAvant: c.miseEnAvant ?? "", avantages: (c.avantages ?? []).join("\n"),
+  raisons: (c.raisons ?? []).map((r) => `${r.titre} | ${r.texte}`).join("\n"),
+  description: c.description ?? "", ingredients: c.ingredients ?? "", utilisation: c.utilisation ?? "", precautions: c.precautions ?? "",
+  faq: (c.faq ?? []).map((f) => `${f.q} | ${f.a}`).join("\n"),
+  avis: (c.avis ?? []).map((a) => `${a.nom} | ${a.ville ?? ""} | ${a.note} | ${a.texte}`).join("\n"),
+  garantieJours: String(c.garantieJours ?? 90), images: c.images ?? [],
+});
+
+function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer: () => void; enregistre: () => void }) {
+  const [f, setF] = useState(() => enTexte((produit.content ?? {}) as Contenu));
+  const [nom, setNom] = useState(String(produit.name ?? ""));
+  const [soustitre, setSoustitre] = useState(String(produit.subtitle ?? ""));
+  const [descCourte, setDescCourte] = useState(String(produit.description ?? ""));
+  const [msg, setMsg] = useState("");
+  const [charge, setCharge] = useState(false);
+  const maj = (k: keyof typeof f, v: string) => setF({ ...f, [k]: v });
+
+  async function envoyerImage(fichier: File | undefined) {
+    if (!fichier) return;
+    setMsg("");
+    const res = await fetch("/api/admin/media", { method: "POST", headers: { "Content-Type": fichier.type }, body: fichier });
+    const d = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+    if (!res.ok || !d.url) { setMsg(d.error ?? "Envoi impossible."); return; }
+    setF((x) => ({ ...x, images: [...x.images, d.url!] }));
+  }
+  function deplacer(i: number, sens: -1 | 1) {
+    const j = i + sens;
+    if (j < 0 || j >= f.images.length) return;
+    const img = [...f.images];
+    [img[i], img[j]] = [img[j]!, img[i]!];
+    setF({ ...f, images: img });
+  }
+  async function enregistrer() {
+    setCharge(true); setMsg("");
+    const contenu: Contenu = {
+      accroche: f.accroche, miseEnAvant: f.miseEnAvant, avantages: lignes(f.avantages),
+      raisons: lignes(f.raisons).map((l) => { const [titre, ...r] = l.split("|"); return { titre: (titre ?? "").trim(), texte: r.join("|").trim() }; }),
+      description: f.description, ingredients: f.ingredients, utilisation: f.utilisation, precautions: f.precautions,
+      faq: lignes(f.faq).map((l) => { const [q, ...r] = l.split("|"); return { q: (q ?? "").trim(), a: r.join("|").trim() }; }),
+      avis: lignes(f.avis).map((l) => { const [n, v, note, ...r] = l.split("|"); return { nom: (n ?? "").trim(), ville: (v ?? "").trim(), note: Number(note) || 5, texte: r.join("|").trim() }; }),
+      garantieJours: Number(f.garantieJours) || 0, images: f.images,
+    };
+    const a = await api(`products/${String(produit.id)}`, { method: "PATCH", body: { name: nom, subtitle: soustitre, description: descCourte, content: contenu } });
+    setCharge(false);
+    if (!a.ok) setMsg(a.data.error ?? "Échec de l'enregistrement."); else { setMsg("Enregistré ✓"); enregistre(); }
+  }
+  const zone = (k: keyof typeof f, titre: string, aide: string, hauteur = 70) => (
+    <label style={{ display: "grid", gap: 4 }}>
+      <span style={{ fontWeight: 700, fontSize: 13 }}>{titre} <span style={{ fontWeight: 400, color: "#777" }}>{aide}</span></span>
+      <textarea value={f[k] as string} onChange={(e) => maj(k, e.target.value)} style={{ ...champ, minHeight: hauteur, fontFamily: "inherit", resize: "vertical" }} />
+    </label>
+  );
+  return (
+    <div style={{ ...carte, borderColor: VERT, display: "grid", gap: 12, marginTop: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+        <strong style={{ fontSize: 16 }}>Fiche de « {nom} » — ce que les clients voient</strong>
+        <a href={`/produits/${String(produit.slug)}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>Voir la page ↗</a>
+      </div>
+      <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+        <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Nom du produit</span><input value={nom} onChange={(e) => setNom(e.target.value)} style={champ} /></label>
+        <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Sous-titre</span><input value={soustitre} onChange={(e) => setSoustitre(e.target.value)} style={champ} /></label>
+        <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Mot à mettre en rouge dans le titre <span style={{ fontWeight: 400, color: "#777" }}>(facultatif)</span></span><input value={f.miseEnAvant} onChange={(e) => maj("miseEnAvant", e.target.value)} style={champ} /></label>
+        <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Garantie « satisfait ou remboursé » (jours, 0 = aucune)</span><input type="number" min={0} max={365} value={f.garantieJours} onChange={(e) => maj("garantieJours", e.target.value)} style={champ} /></label>
+      </div>
+      <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Description courte <span style={{ fontWeight: 400, color: "#777" }}>(à côté du prix)</span></span><textarea value={descCourte} onChange={(e) => setDescCourte(e.target.value)} style={{ ...champ, minHeight: 60, fontFamily: "inherit" }} /></label>
+      {zone("accroche", "Phrase d'accroche", "(sous le titre, en haut de page)", 60)}
+      {zone("avantages", "Avantages", "— un par ligne (les 3 premiers apparaissent en haut de page)", 110)}
+      {zone("raisons", "Raisons de choisir ce produit", "— une par ligne, au format  Titre | Texte  (5 maximum)", 110)}
+      {zone("description", "Description détaillée", "", 90)}
+      {zone("ingredients", "Composition", "", 70)}
+      {zone("utilisation", "Conseils d'utilisation", "", 70)}
+      {zone("precautions", "Précautions", "", 70)}
+      {zone("faq", "Questions fréquentes", "— une par ligne, au format  Question | Réponse", 110)}
+      {zone("avis", "Avis clients", "— RÉELS uniquement, un par ligne : Nom | Ville | Note (1 à 5) | Texte. La section n'apparaît que s'il y en a.", 110)}
+      <div>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Photos <span style={{ fontWeight: 400, color: "#777" }}>— la première est la photo principale (PNG, JPEG ou WebP, 3 Mo maximum)</span></div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-start" }}>
+          {f.images.map((src, i) => (
+            <div key={src} style={{ ...carte, padding: 6, width: 110, textAlign: "center" }}>
+              <img src={src} alt="" style={{ width: "100%", height: 80, objectFit: "contain" }} />
+              <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 4 }}>
+                <button onClick={() => deplacer(i, -1)} style={{ ...boutonDiscret, padding: "2px 7px" }} aria-label="Avancer">←</button>
+                <button onClick={() => deplacer(i, 1)} style={{ ...boutonDiscret, padding: "2px 7px" }} aria-label="Reculer">→</button>
+                <button onClick={() => setF({ ...f, images: f.images.filter((_, k) => k !== i) })} style={{ ...boutonDiscret, padding: "2px 7px", color: "#b91c1c" }} aria-label="Retirer">✕</button>
+              </div>
+            </div>
+          ))}
+          <label style={{ ...boutonDiscret, display: "inline-block" }}>+ Ajouter une photo<input type="file" accept="image/png,image/jpeg,image/webp" style={{ display: "none" }} onChange={(e) => { void envoyerImage(e.target.files?.[0]); e.target.value = ""; }} /></label>
+        </div>
+      </div>
+      {msg && <div style={{ color: msg.startsWith("Enregistré") ? VERT : "#b91c1c", fontWeight: 700 }}>{msg}</div>}
+      <div style={{ display: "flex", gap: 8 }}><button onClick={() => void enregistrer()} disabled={charge || !nom} style={{ ...bouton, opacity: charge ? 0.6 : 1 }}>Enregistrer la fiche</button><button onClick={fermer} style={boutonDiscret}>Fermer</button></div>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- Produits
 function Produits() {
   const [d, setD] = useState<{ produits: Ligne[]; variantes: Ligne[] } | null>(null);
   const [nouv, setNouv] = useState({ name: "", slug: "", sku: "", label: "", prix: "", prixRevendeur: "" });
   const [pack, setPack] = useState<Record<string, { sku: string; label: string; prix: string; prixRevendeur: string }>>({});
   const [err, setErr] = useState("");
+  const [fiche, setFiche] = useState<string | null>(null);
   const charger = useCallback(() => { void api<{ produits: Ligne[]; variantes: Ligne[] }>("products").then((r) => r.ok && setD(r.data)); }, []);
   useEffect(charger, [charger]);
   async function maj(chemin: string, body: Record<string, unknown>) {
@@ -403,19 +508,25 @@ function Produits() {
           <div key={id} style={{ ...carte, opacity: p.active ? 1 : 0.6 }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
               <div><strong style={{ fontSize: 16 }}>{String(p.name)}</strong> <span style={{ color: "#777", fontSize: 12 }}>/{String(p.slug)}</span></div>
-              <button onClick={() => void maj(`products/${id}`, { active: !p.active })} style={boutonDiscret}>{p.active ? "Retirer de la boutique" : "Remettre en boutique"}</button>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button onClick={() => setFiche(fiche === id ? null : id)} style={bouton}>{fiche === id ? "Fermer la fiche" : "Modifier la fiche et les photos"}</button>
+                <button onClick={() => void maj(`products/${id}`, { active: !p.active })} style={boutonDiscret}>{p.active ? "Retirer de la boutique" : "Remettre en boutique"}</button>
+              </div>
             </div>
+            {fiche === id && <FicheProduit key={id} produit={p} fermer={() => setFiche(null)} enregistre={charger} />}
             <div style={{ marginTop: 10, overflowX: "auto" }}>
               <table style={{ width: "100%", fontSize: 14, borderCollapse: "collapse" }}>
-                <thead><tr style={{ textAlign: "left", color: "#666", fontSize: 12 }}><th>Pack</th><th>Prix public</th><th>Prix revendeur</th><th>Stock</th><th></th></tr></thead>
+                <thead><tr style={{ textAlign: "left", color: "#666", fontSize: 12 }}><th>Pack</th><th>Prix public</th><th>Prix barré</th><th>Prix revendeur</th><th>Description du pack</th><th>Stock</th><th></th></tr></thead>
                 <tbody>
                   {d.variantes.filter((v) => v.product_id === p.id).map((v) => (
                     <tr key={String(v.id)} style={{ opacity: v.active ? 1 : 0.5 }}>
                       <td style={{ padding: "6px 8px 6px 0" }}>{String(v.label)} <span style={{ color: "#777", fontSize: 12 }}>{String(v.sku)}</span></td>
                       <td><input defaultValue={String(v.price_fcfa)} onBlur={(e) => Number(e.target.value) !== Number(v.price_fcfa) && void maj(`variants/${String(v.id)}`, { prix: Number(e.target.value) })} style={{ ...champ, width: 100 }} /></td>
+                      <td><input defaultValue={v.original_price_fcfa == null ? "" : String(v.original_price_fcfa)} placeholder="aucun" onBlur={(e) => void maj(`variants/${String(v.id)}`, { prixBarre: e.target.value === "" ? null : Number(e.target.value) })} style={{ ...champ, width: 100 }} /></td>
                       <td><input defaultValue={v.reseller_price_fcfa == null ? "" : String(v.reseller_price_fcfa)} placeholder="auto" onBlur={(e) => void maj(`variants/${String(v.id)}`, { prixRevendeur: e.target.value === "" ? null : Number(e.target.value) })} style={{ ...champ, width: 100 }} /></td>
+                      <td><input defaultValue={String(v.description ?? "")} placeholder="ex. Cure de 2 mois" onBlur={(e) => void maj(`variants/${String(v.id)}`, { description: e.target.value })} style={{ ...champ, width: 170 }} /></td>
                       <td><strong>{String(v.stock)}</strong></td>
-                      <td><button onClick={() => void maj(`variants/${String(v.id)}`, { active: !v.active })} style={boutonDiscret}>{v.active ? "Désactiver" : "Activer"}</button></td>
+                      <td style={{ whiteSpace: "nowrap" }}><button onClick={() => void maj(`variants/${String(v.id)}`, { populaire: !v.popular })} style={{ ...boutonDiscret, ...(v.popular ? { background: VERT, color: "#fff", borderColor: VERT } : {}) }}>{v.popular ? "★ Populaire" : "☆ Populaire"}</button> <button onClick={() => void maj(`variants/${String(v.id)}`, { active: !v.active })} style={boutonDiscret}>{v.active ? "Désactiver" : "Activer"}</button></td>
                     </tr>
                   ))}
                 </tbody>

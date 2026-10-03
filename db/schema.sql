@@ -103,6 +103,19 @@ CREATE TABLE IF NOT EXISTS payment (
 CREATE UNIQUE INDEX IF NOT EXISTS payment_ref_idx ON payment (provider, provider_ref) WHERE provider_ref IS NOT NULL;
 CREATE INDEX IF NOT EXISTS payment_order_idx ON payment (order_id);
 
+-- Fiche produit « comme l'Astaxanthine » : contenu éditable depuis l'administration (accroche, avantages, raisons, FAQ,
+-- avis RÉELS, garantie, images). Pack : description, mise en avant « populaire ». Images : stockées en base (partagées par V0 et NCP).
+ALTER TABLE product ADD COLUMN IF NOT EXISTS content JSONB NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE variant ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE variant ADD COLUMN IF NOT EXISTS popular BOOLEAN NOT NULL DEFAULT FALSE;
+
+CREATE TABLE IF NOT EXISTS media (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  content_type TEXT NOT NULL CHECK (content_type IN ('image/png','image/jpeg','image/webp')),
+  data         BYTEA NOT NULL CHECK (octet_length(data) <= 3145728),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Vue pratique : stock courant par variante.
 CREATE OR REPLACE VIEW variant_stock AS
 SELECT v.id AS variant_id, COALESCE(SUM(m.delta), 0)::int AS stock

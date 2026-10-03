@@ -1,5 +1,6 @@
 import { query } from "@/lib/db";
 import { corps, entier, erreur, refuserSiNonAdmin, reponse, reponseErreur, texte, UUID } from "@/lib/http";
+import { nettoyerContenu } from "@/lib/contenu";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if ("description" in b) ajouter("description", texte(b.description, 2000));
     if ("imageUrl" in b) ajouter("image_url", texte(b.imageUrl, 400));
     if (typeof b.active === "boolean") ajouter("active", b.active);
+    if ("content" in b) ajouter("content", JSON.stringify(nettoyerContenu(b.content)));
     if ("sort" in b) { const v = entier(b.sort, 0, 10000); if (v === null) return erreur("Ordre invalide.", 400); ajouter("sort", v); }
     if (sets.length === 0) return erreur("Rien à modifier.", 400);
     args.push(id);

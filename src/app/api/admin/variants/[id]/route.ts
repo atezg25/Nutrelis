@@ -19,6 +19,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if ("prixBarre" in b) { const v = b.prixBarre == null ? null : entier(b.prixBarre, 0); if (b.prixBarre != null && v === null) return erreur("Prix barré invalide.", 400); ajouter("original_price_fcfa", v); }
     if ("prixRevendeur" in b) { const v = b.prixRevendeur == null ? null : entier(b.prixRevendeur, 0); if (b.prixRevendeur != null && v === null) return erreur("Prix revendeur invalide.", 400); ajouter("reseller_price_fcfa", v); }
     if ("seuil" in b) { const v = entier(b.seuil, 0, 100000); if (v === null) return erreur("Seuil invalide.", 400); ajouter("low_stock_alert", v); }
+    if ("description" in b) ajouter("description", texte(b.description, 300));
+    if (typeof b.populaire === "boolean") ajouter("popular", b.populaire);
     if (typeof b.active === "boolean") ajouter("active", b.active);
     if (sets.length === 0) return erreur("Rien à modifier.", 400);
     args.push(id);
