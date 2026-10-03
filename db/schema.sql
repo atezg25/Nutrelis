@@ -174,7 +174,10 @@ CREATE TABLE IF NOT EXISTS shipping_rate (
   active     BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-CREATE UNIQUE INDEX IF NOT EXISTS shipping_rate_city_idx ON shipping_rate (lower(city));
+-- Tarif par quartier : `district` vide = tarif de toute la ville ; renseigné = tarif de ce quartier (prioritaire).
+ALTER TABLE shipping_rate ADD COLUMN IF NOT EXISTS district TEXT NOT NULL DEFAULT '';
+DROP INDEX IF EXISTS shipping_rate_city_idx;
+CREATE UNIQUE INDEX IF NOT EXISTS shipping_rate_city_district_idx ON shipping_rate (lower(city), lower(district));
 
 -- Un colis par commande. `cod_fcfa` = somme à encaisser auprès du destinataire à la remise (paiement à la livraison).
 CREATE TABLE IF NOT EXISTS shipment (

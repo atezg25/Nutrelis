@@ -11,6 +11,7 @@ export type ClientCommande = {
   email?: string | null;
   ville?: string | null;
   adresse?: string | null;
+  quartier?: string | null;
   notes?: string | null;
 };
 export type ModePaiement = "fapshi" | "livraison" | "especes" | "virement";
@@ -88,7 +89,7 @@ export async function creerCommande(p: {
       sousTotal += unit * qty;
       items.push({ v, qty, unit });
     }
-    const livraison = p.revendeurId ? 0 : (await fraisPourVille(p.client.ville)).fraisFcfa;
+    const livraison = p.revendeurId ? 0 : (await fraisPourVille(p.client.ville, p.client.quartier)).fraisFcfa;
     const total = sousTotal + livraison;
 
     const num = await c.query<{ n: string }>("SELECT nextval('order_number_seq')::text AS n");

@@ -779,7 +779,7 @@ function ConfigExpeditions() {
   const [transp, setTransp] = useState<Transporteur[]>([]);
   const [tarifs, setTarifs] = useState<Ligne[]>([]);
   const [nt, setNt] = useState({ name: "", phone: "", notes: "" });
-  const [nv, setNv] = useState({ ville: "", fraisFcfa: "", delai: "" });
+  const [nv, setNv] = useState({ ville: "", quartier: "", fraisFcfa: "", delai: "" });
   const [err, setErr] = useState("");
   const charger = useCallback(() => {
     void api<{ transporteurs: Transporteur[] }>("carriers").then((r) => r.ok && setTransp(r.data.transporteurs));
@@ -811,19 +811,20 @@ function ConfigExpeditions() {
         </div>
       </div>
       <div>
-        <h3 style={{ margin: "0 0 4px" }}>Tarifs de livraison par ville</h3>
-        <p style={{ margin: "0 0 8px", color: "#666", fontSize: 13 }}>Le client voit les frais dès qu'il saisit sa ville. Une ville sans tarif paie le tarif par défaut (Paramètres).</p>
+        <h3 style={{ margin: "0 0 4px" }}>Tarifs de livraison par ville et par quartier</h3>
+        <p style={{ margin: "0 0 8px", color: "#666", fontSize: 13 }}>Le client voit les frais dès qu'il saisit sa ville et son quartier. Une ligne sans quartier vaut pour toute la ville ; un quartier a son propre tarif, prioritaire. Sans ligne, le tarif par défaut s'applique (Paramètres).</p>
         <Tableau lignes={tarifs} colonnes={[
-          { titre: "Ville", rendu: (l) => <span style={{ opacity: l.active ? 1 : 0.5 }}><strong>{String(l.city)}</strong></span> },
+          { titre: "Ville", rendu: (l) => <span style={{ opacity: l.active ? 1 : 0.5 }}><strong>{String(l.city)}</strong>{l.district ? <> · {String(l.district)}</> : <span style={{ color: "#777" }}> (toute la ville)</span>}</span> },
           { titre: "Frais (FCFA)", rendu: (l) => <input defaultValue={String(l.fee_fcfa)} onBlur={(e) => Number(e.target.value) !== Number(l.fee_fcfa) && void appel(`rates/${String(l.id)}`, "PATCH", { fraisFcfa: Number(e.target.value) })} style={{ ...champ, width: 100 }} /> },
           { titre: "Délai", rendu: (l) => <input defaultValue={String(l.delay ?? "")} placeholder="ex. 24-48 h" onBlur={(e) => void appel(`rates/${String(l.id)}`, "PATCH", { delai: e.target.value })} style={{ ...champ, width: 130 }} /> },
           { titre: "", rendu: (l) => <div style={{ display: "flex", gap: 6 }}><button onClick={() => void appel(`rates/${String(l.id)}`, "PATCH", { active: !l.active })} style={boutonDiscret}>{l.active ? "Désactiver" : "Activer"}</button><button onClick={() => void appel(`rates/${String(l.id)}`, "DELETE")} style={{ ...boutonDiscret, color: "#b91c1c" }}>Supprimer</button></div> },
         ]} />
         <div style={{ ...carte, display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
           <input placeholder="Ville (ex. Douala)" value={nv.ville} onChange={(e) => setNv({ ...nv, ville: e.target.value })} style={{ ...champ, flex: 1, minWidth: 150 }} />
+          <input placeholder="Quartier (facultatif, ex. Akwa)" value={nv.quartier} onChange={(e) => setNv({ ...nv, quartier: e.target.value })} style={{ ...champ, flex: 1, minWidth: 150 }} />
           <input type="number" min={0} placeholder="Frais (FCFA)" value={nv.fraisFcfa} onChange={(e) => setNv({ ...nv, fraisFcfa: e.target.value })} style={{ ...champ, width: 130 }} />
           <input placeholder="Délai (ex. 24-48 h)" value={nv.delai} onChange={(e) => setNv({ ...nv, delai: e.target.value })} style={{ ...champ, width: 150 }} />
-          <button disabled={!nv.ville || nv.fraisFcfa === ""} onClick={() => void appel("rates", "POST", { ville: nv.ville, fraisFcfa: Number(nv.fraisFcfa), delai: nv.delai }).then((ok) => ok && setNv({ ville: "", fraisFcfa: "", delai: "" }))} style={bouton}>Ajouter ou mettre à jour</button>
+          <button disabled={!nv.ville || nv.fraisFcfa === ""} onClick={() => void appel("rates", "POST", { ville: nv.ville, quartier: nv.quartier, fraisFcfa: Number(nv.fraisFcfa), delai: nv.delai }).then((ok) => ok && setNv({ ville: "", quartier: "", fraisFcfa: "", delai: "" }))} style={bouton}>Ajouter ou mettre à jour</button>
         </div>
       </div>
     </div>

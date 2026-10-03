@@ -8,7 +8,7 @@ export async function GET() {
   const refus = await refuserSiNonAdmin();
   if (refus) return refus;
   try {
-    const tarifs = await query("SELECT id, city, fee_fcfa, delay, active FROM shipping_rate ORDER BY active DESC, city");
+    const tarifs = await query("SELECT id, city, district, fee_fcfa, delay, active FROM shipping_rate ORDER BY active DESC, city, district");
     return reponse({ tarifs });
   } catch (err) {
     return reponseErreur(err);
@@ -25,11 +25,11 @@ export async function POST(req: Request) {
     const frais = entier(b.fraisFcfa, 0, 1_000_000);
     if (!city || frais === null) return erreur("Ville et frais de livraison (nombre entier) requis.", 400);
     const [t] = await query<{ id: string }>(
-      `INSERT INTO shipping_rate (city, fee_fcfa, delay) VALUES ($1,$2,$3)
-       ON CONFLICT (lower(city)) DO UPDATE SET fee_fcfa=EXCLUDED.fee_fcfa, delay=EXCLUDED.delay, active=TRUE RETURNING id`,
-      [city, frais, texte(b.delai, 60)],
+      `INSERT INTO shipping_rate (city, district, fee_fcfa, delay) VALUES ($1,$2,$3,$4)
+       ON CONFLICT (lower(city), lower(district)) DO UPDATE SET fee_fcfa=EXCLUDED.fee_fcfa, delay=EXCLUDED.delay, active=TRUE RETURNING id`,
+      [city, texte(b.quartier, 80) ?? "", frais, texte(b.delai, 60)],
     );
-    await journaliser("tarif_ville", `${city} : ${frais} FCFA`);
+    await journaliser("tarif_ville", `${city}${texte(b.quartier, 80) ? " / " + texte(b.quartier, 80) : ""} : ${frais} FCFA`);
     return reponse({ id: t!.id }, 201);
   } catch (err) {
     return reponseErreur(err);

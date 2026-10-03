@@ -32,6 +32,7 @@ export async function POST(req: Request) {
         email: texte(c.email, 160),
         ville: texte(c.ville, 80),
         adresse: [texte(c.adresse, 200), texte(c.quartier, 80)].filter(Boolean).join(", ") || null,
+        quartier: texte(c.quartier, 80),
         notes: texte(c.notes, 500),
       },
     });
