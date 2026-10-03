@@ -66,7 +66,9 @@ export async function fetchProducts(): Promise<MedusaProduct[]> {
 
 export async function fetchProductByHandle(handle: string): Promise<MedusaProduct | null> {
   const tous = await fetchProducts();
-  return tous.find((p) => p.handle === handle) ?? null;
+  // La casse ne compte pas : /produits/Essai-100F et /produits/essai-100f désignent le même produit.
+  const voulu = decodeURIComponent(handle).toLowerCase();
+  return tous.find((p) => p.handle.toLowerCase() === voulu) ?? null;
 }
 
 /** Prix en FCFA (XAF) d'un pack. */
