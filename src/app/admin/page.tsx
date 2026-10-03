@@ -407,6 +407,8 @@ type Contenu = {
   accroche?: string; miseEnAvant?: string; avantages?: string[]; raisons?: { titre: string; texte: string; image?: string }[];
   description?: string; ingredients?: string; utilisation?: string; precautions?: string; faq?: { q: string; a: string }[];
   avis?: { nom: string; ville?: string; note: number; texte: string }[]; garantieJours?: number; images?: string[];
+  etapes?: { titre: string; texte: string }[]; chiffres?: { valeur: string; libelle: string }[]; sourceChiffres?: string;
+  comparatif?: { critere: string; nous: string; autres: string }[]; resultats?: string[]; videos?: { url: string; titre?: string }[];
 };
 const lignes = (v: string) => v.split("\n").map((x) => x.trim()).filter(Boolean);
 const enTexte = (c: Contenu) => ({
@@ -416,6 +418,10 @@ const enTexte = (c: Contenu) => ({
   faq: (c.faq ?? []).map((f) => `${f.q} | ${f.a}`).join("\n"),
   avis: (c.avis ?? []).map((a) => `${a.nom} | ${a.ville ?? ""} | ${a.note} | ${a.texte}`).join("\n"),
   garantieJours: String(c.garantieJours ?? 90), images: c.images ?? [],
+  etapes: (c.etapes ?? []).map((e) => `${e.titre} | ${e.texte}`).join("\n"),
+  chiffres: (c.chiffres ?? []).map((x) => `${x.valeur} | ${x.libelle}`).join("\n"), sourceChiffres: c.sourceChiffres ?? "",
+  comparatif: (c.comparatif ?? []).map((r) => `${r.critere} | ${r.nous} | ${r.autres}`).join("\n"), resultats: c.resultats ?? [],
+  videos: (c.videos ?? []).map((v) => `${v.url} | ${v.titre ?? ""}`).join("\n"),
 });
 
 function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer: () => void; enregistre: () => void }) {
@@ -427,13 +433,13 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
   const [charge, setCharge] = useState(false);
   const maj = (k: keyof typeof f, v: string) => setF({ ...f, [k]: v });
 
-  async function envoyerImage(fichier: File | undefined) {
+  async function envoyerImage(fichier: File | undefined, cle: "images" | "resultats" = "images") {
     if (!fichier) return;
     setMsg("");
     const res = await fetch("/api/admin/media", { method: "POST", headers: { "Content-Type": fichier.type }, body: fichier });
     const d = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
     if (!res.ok || !d.url) { setMsg(d.error ?? "Envoi impossible."); return; }
-    setF((x) => ({ ...x, images: [...x.images, d.url!] }));
+    setF((x) => ({ ...x, [cle]: [...x[cle], d.url!] }));
   }
   function deplacer(i: number, sens: -1 | 1) {
     const j = i + sens;
@@ -451,6 +457,11 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
       faq: lignes(f.faq).map((l) => { const [q, ...r] = l.split("|"); return { q: (q ?? "").trim(), a: r.join("|").trim() }; }),
       avis: lignes(f.avis).map((l) => { const [n, v, note, ...r] = l.split("|"); return { nom: (n ?? "").trim(), ville: (v ?? "").trim(), note: Number(note) || 5, texte: r.join("|").trim() }; }),
       garantieJours: Number(f.garantieJours) || 0, images: f.images,
+      etapes: lignes(f.etapes).map((l) => { const [titre, ...r] = l.split("|"); return { titre: (titre ?? "").trim(), texte: r.join("|").trim() }; }),
+      chiffres: lignes(f.chiffres).map((l) => { const [valeur, ...r] = l.split("|"); return { valeur: (valeur ?? "").trim(), libelle: r.join("|").trim() }; }), sourceChiffres: f.sourceChiffres,
+      comparatif: lignes(f.comparatif).map((l) => { const [critere, nous, ...r] = l.split("|"); return { critere: (critere ?? "").trim(), nous: (nous ?? "").trim(), autres: r.join("|").trim() }; }),
+      resultats: f.resultats,
+      videos: lignes(f.videos).map((l) => { const [url, ...r] = l.split("|"); return { url: (url ?? "").trim(), titre: r.join("|").trim() }; }),
     };
     const a = await api(`products/${String(produit.id)}`, { method: "PATCH", body: { name: nom, subtitle: soustitre, description: descCourte, content: contenu } });
     setCharge(false);
@@ -478,6 +489,11 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
       {zone("accroche", "Phrase d'accroche", "(sous le titre, en haut de page)", 60)}
       {zone("avantages", "Avantages", "— un par ligne (les 3 premiers apparaissent en haut de page)", 110)}
       {zone("raisons", "Raisons de choisir ce produit", "— une par ligne, au format  Titre | Texte  (5 maximum)", 110)}
+      {zone("etapes", "Routine / mode d'emploi en étapes", "— une par ligne, au format  Titre | Texte  (6 maximum)", 110)}
+      {zone("chiffres", "Chiffres clés", "— un par ligne, au format  Valeur | Libellé  (ex. 91 % | des utilisatrices …). Uniquement des chiffres que vous pouvez PROUVER.", 80)}
+      <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Source des chiffres <span style={{ fontWeight: 400, color: "#777" }}>(obligatoire : sans source, les chiffres ne sont pas affichés)</span></span><input value={f.sourceChiffres} onChange={(e) => maj("sourceChiffres", e.target.value)} placeholder="ex. test d'usage réalisé en 2026 sur 52 personnes, rapport disponible sur demande" style={champ} /></label>
+      {zone("comparatif", "Comparatif avec les autres solutions", "— une ligne par critère : Critère | Ce produit | Les autres. Critères vérifiables uniquement.", 110)}
+      {zone("videos", "Vidéos", "— une par ligne : lien YouTube ou Vimeo | titre (facultatif). Vos propres vidéos, ou celles que vous avez le droit d'utiliser.", 80)}
       {zone("description", "Description détaillée", "", 90)}
       {zone("ingredients", "Composition", "", 70)}
       {zone("utilisation", "Conseils d'utilisation", "", 70)}
@@ -498,6 +514,18 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
             </div>
           ))}
           <label style={{ ...boutonDiscret, display: "inline-block" }}>+ Ajouter une photo<input type="file" accept="image/png,image/jpeg,image/webp" style={{ display: "none" }} onChange={(e) => { void envoyerImage(e.target.files?.[0]); e.target.value = ""; }} /></label>
+        </div>
+      </div>
+      <div>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Photos de résultats <span style={{ fontWeight: 400, color: "#777" }}>— uniquement avec l'<strong>accord écrit</strong> des personnes photographiées. Jamais de photos reprises d'un autre site.</span></div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-start" }}>
+          {f.resultats.map((src, i) => (
+            <div key={src} style={{ ...carte, padding: 6, width: 110, textAlign: "center" }}>
+              <img src={src} alt="" style={{ width: "100%", height: 80, objectFit: "cover" }} />
+              <button onClick={() => setF({ ...f, resultats: f.resultats.filter((_, k) => k !== i) })} style={{ ...boutonDiscret, padding: "2px 7px", color: "#b91c1c", marginTop: 4 }} aria-label="Retirer">✕ Retirer</button>
+            </div>
+          ))}
+          <label style={{ ...boutonDiscret, display: "inline-block" }}>+ Ajouter une photo de résultat<input type="file" accept="image/png,image/jpeg,image/webp" style={{ display: "none" }} onChange={(e) => { void envoyerImage(e.target.files?.[0], "resultats"); e.target.value = ""; }} /></label>
         </div>
       </div>
       {msg && <div style={{ color: msg.startsWith("Enregistré") ? VERT : "#b91c1c", fontWeight: 700 }}>{msg}</div>}

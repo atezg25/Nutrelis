@@ -15,7 +15,31 @@ export type ContenuProduit = {
   avis?: { nom: string; ville?: string; note: number; texte: string }[];
   garantieJours?: number;
   images?: string[];
+  /** Routine / mode d'emploi en étapes numérotées. */
+  etapes?: { titre: string; texte: string }[];
+  /** Chiffres clés. ⚠️ Affichés SEULEMENT avec une source (étude, test documenté) : sans source, ils sont écartés. */
+  chiffres?: { valeur: string; libelle: string }[];
+  sourceChiffres?: string;
+  /** Comparatif « ce produit / les autres solutions » : à rédiger avec des critères vérifiables. */
+  comparatif?: { critere: string; nous: string; autres: string }[];
+  /** Photos de résultats : uniquement avec l'accord écrit des personnes photographiées. */
+  resultats?: string[];
+  /** Vidéos : lien YouTube ou Vimeo (stocké sous forme d'adresse « embed »). Vos propres vidéos, ou celles dont vous avez le droit. */
+  videos?: { url: string; titre?: string }[];
 };
+
+/**
+ * Ramène un lien YouTube / Vimeo à son adresse d'intégration, ou null si le lien n'est pas reconnu. Idempotent : une adresse
+ * d'intégration déjà normalisée est acceptée telle quelle. Aucun autre site n'est accepté (la politique de sécurité du site ne les chargerait pas).
+ */
+export function versEmbed(brut: string): string | null {
+  const u = brut.trim();
+  const yt = /^https:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/)|youtube-nocookie\.com\/embed\/|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(u);
+  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}`;
+  const vm = /^https:\/\/(?:www\.)?(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d{6,12})/.exec(u);
+  if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
+  return null;
+}
 
 const t = (v: unknown, max: number): string | undefined => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : undefined);
 
@@ -56,6 +80,33 @@ export function nettoyerContenu(brut: unknown): ContenuProduit {
     const ville = t(r?.ville, 80);
     return nom && texte ? { nom, ...(ville ? { ville } : {}), note, texte } : null;
   }));
+  set("etapes", liste(o.etapes, 6, (x) => {
+    const r = x as Record<string, unknown>;
+    const titre = t(r?.titre, 80), texte = t(r?.texte, 300);
+    return titre && texte ? { titre, texte } : null;
+  }));
+  const source = t(o.sourceChiffres, 300);
+  // Pas de source, pas de chiffres : une statistique sans origine n'a pas sa place sur la page.
+  if (source) {
+    set("chiffres", liste(o.chiffres, 4, (x) => {
+      const r = x as Record<string, unknown>;
+      const valeur = t(r?.valeur, 20), libelle = t(r?.libelle, 120);
+      return valeur && libelle ? { valeur, libelle } : null;
+    }));
+    if (c.chiffres?.length) c.sourceChiffres = source;
+  }
+  set("comparatif", liste(o.comparatif, 8, (x) => {
+    const r = x as Record<string, unknown>;
+    const critere = t(r?.critere, 80), nous = t(r?.nous, 120), autres = t(r?.autres, 120);
+    return critere && nous && autres ? { critere, nous, autres } : null;
+  }));
+  set("videos", liste(o.videos, 6, (x) => {
+    const r = x as Record<string, unknown>;
+    const url = typeof r?.url === "string" ? versEmbed(r.url) : null;
+    const titre = t(r?.titre, 80);
+    return url ? { url, ...(titre ? { titre } : {}) } : null;
+  }));
+  set("resultats", liste(o.resultats, 8, (x) => (typeof x === "string" && IMAGE.test(x) ? x : null)));
   if (typeof o.garantieJours === "number" && Number.isInteger(o.garantieJours) && o.garantieJours >= 0 && o.garantieJours <= 365) c.garantieJours = o.garantieJours;
   set("images", liste(o.images, 10, (x) => (typeof x === "string" && IMAGE.test(x) ? x : null)));
   return c;

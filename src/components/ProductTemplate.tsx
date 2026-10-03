@@ -237,6 +237,44 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
         </section>
       )}
 
+      {/* ROUTINE EN ÉTAPES */}
+      {(c.etapes?.length ?? 0) > 0 && (
+        <section style={{ background: "#fff", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 44 }}>
+              <p style={surtitre}>{L("COMMENT L'UTILISER", "HOW TO USE")}</p>
+              <h2 style={h2}>{L(`Une routine en ${c.etapes!.length} étape${c.etapes!.length > 1 ? "s" : ""}`, `A ${c.etapes!.length}-step routine`)}</h2>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : `repeat(${Math.min(c.etapes!.length, 3)}, 1fr)`, gap: 18 }}>
+              {c.etapes!.map((e, i) => (
+                <div key={i} style={{ background: "var(--asta-bg)", border: "1.5px solid var(--asta-border)", borderRadius: 22, padding: 24 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--asta-accent)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontFamily: SORA, marginBottom: 12 }}>{i + 1}</div>
+                  <div style={{ fontFamily: SORA, fontWeight: 800, fontSize: 16, marginBottom: 6 }}>{e.titre}</div>
+                  <div style={{ color: "var(--asta-text2)", fontSize: 14, lineHeight: 1.7 }}>{e.texte}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CHIFFRES CLÉS — toujours accompagnés de leur source */}
+      {(c.chiffres?.length ?? 0) > 0 && c.sourceChiffres && (
+        <section style={{ background: "var(--asta-accent)", padding: isMobile ? `28px ${px}` : `56px ${px}` }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : `repeat(${c.chiffres!.length}, 1fr)`, gap: 24 }}>
+              {c.chiffres!.map((x, i) => (
+                <div key={i}>
+                  <div style={{ color: "#fff", fontFamily: SORA, fontWeight: 900, fontSize: isMobile ? "2rem" : "2.8rem", lineHeight: 1.1 }}>{x.valeur}</div>
+                  <div style={{ color: "rgba(255,255,255,0.85)", fontSize: isMobile ? 12 : 14, marginTop: 6 }}>{x.libelle}</div>
+                </div>
+              ))}
+            </div>
+            <p style={{ color: "rgba(255,255,255,0.65)", fontSize: 12, marginTop: 20 }}>{L("Source", "Source")} : {c.sourceChiffres}</p>
+          </div>
+        </section>
+      )}
+
       {/* COMMANDER */}
       <section id="commander" style={{ padding: isMobile ? `28px ${px}` : `${py} ${px}`, background: "var(--asta-bg)" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -345,6 +383,70 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
           </div>
         </div>
       </section>
+
+      {/* VIDÉOS */}
+      {(c.videos?.length ?? 0) > 0 && (
+        <section style={{ background: "var(--asta-bg)", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 40 }}>
+              <p style={surtitre}>{L("EN VIDÉO", "WATCH")}</p>
+              <h2 style={h2}>{L("Découvrez le produit", "Discover the product")}</h2>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: isSmall || c.videos!.length === 1 ? "1fr" : "1fr 1fr", gap: 20, maxWidth: c.videos!.length === 1 ? 760 : undefined, margin: "0 auto" }}>
+              {c.videos!.map((v) => (
+                <div key={v.url}>
+                  <div style={{ position: "relative", paddingTop: "56.25%", borderRadius: 20, overflow: "hidden", border: "1.5px solid var(--asta-border)", background: "#000" }}>
+                    <iframe src={v.url} title={v.titre ?? produit.name} loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+                  </div>
+                  {v.titre && <p style={{ textAlign: "center", color: "var(--asta-text2)", fontSize: 13, marginTop: 8 }}>{v.titre}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* COMPARATIF */}
+      {(c.comparatif?.length ?? 0) > 0 && (
+        <section style={{ background: "var(--asta-bg2)", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
+          <div style={{ maxWidth: 860, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 36 }}>
+              <p style={{ ...surtitre, color: "var(--asta-accent)" }}>{L("COMPARATIF", "COMPARISON")}</p>
+              <h2 style={h2}>{produit.name} {L("face aux autres solutions", "vs. other solutions")}</h2>
+            </div>
+            <div style={{ background: "#fff", borderRadius: 20, border: "1.5px solid var(--asta-border)", overflow: "hidden" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr 1fr", background: "var(--asta-accent)", color: "#fff", fontWeight: 800, fontSize: isMobile ? 12 : 14, fontFamily: SORA }}>
+                <div style={{ padding: "14px 16px" }} />
+                <div style={{ padding: "14px 16px", textAlign: "center" }}>NUTRELIS</div>
+                <div style={{ padding: "14px 16px", textAlign: "center" }}>{L("Autres", "Others")}</div>
+              </div>
+              {c.comparatif!.map((r, i) => (
+                <div key={i} style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr 1fr", borderTop: "1px solid var(--asta-border)", fontSize: isMobile ? 12 : 14 }}>
+                  <div style={{ padding: "14px 16px", fontWeight: 700 }}>{r.critere}</div>
+                  <div style={{ padding: "14px 16px", textAlign: "center", color: "#1a7a3c", fontWeight: 700 }}>✓ {r.nous}</div>
+                  <div style={{ padding: "14px 16px", textAlign: "center", color: "var(--asta-text2)" }}>{r.autres}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* PHOTOS DE RÉSULTATS — uniquement avec l'accord des personnes */}
+      {(c.resultats?.length ?? 0) > 0 && (
+        <section style={{ background: "#fff", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 40 }}>
+              <p style={surtitre}>{L("RÉSULTATS", "RESULTS")}</p>
+              <h2 style={h2}>{L("Photos de clientes", "Customer photos")}</h2>
+              <p style={{ color: "var(--asta-text2)", fontSize: 13 }}>{L("Publiées avec l'accord des personnes. Les résultats varient d'une personne à l'autre.", "Published with the consent of the people shown. Results vary from person to person.")}</p>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: 14 }}>
+              {c.resultats!.map((src) => <img key={src} src={src} alt="" style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", borderRadius: 18, border: "1.5px solid var(--asta-border)" }} />)}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* AVIS CLIENTS — uniquement de vrais avis saisis dans l'administration */}
       {avis.length > 0 && (
