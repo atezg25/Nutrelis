@@ -65,6 +65,19 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
   const [info, setInfo] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [ajoute, setAjoute] = useState(false);
+  // Barre de commande fixe sur mobile : visible une fois le héros passé, masquée quand le bloc de commande est à l'écran.
+  const [barre, setBarre] = useState(false);
+  useEffect(() => {
+    if (!isSmall) { setBarre(false); return; }
+    const el = document.getElementById("commander");
+    let enVue = false;
+    const maj = () => setBarre(window.scrollY > 500 && !enVue);
+    const io = el ? new IntersectionObserver(([e]) => { enVue = !!e?.isIntersecting; maj(); }, { threshold: 0.12 }) : null;
+    if (el && io) io.observe(el);
+    window.addEventListener("scroll", maj, { passive: true });
+    maj();
+    return () => { io?.disconnect(); window.removeEventListener("scroll", maj); };
+  }, [isSmall]);
   useEffect(() => { if (!packId && defaut) setPackId(defaut.id); }, [defaut, packId]);
 
   const pack = packs.find((p) => p.id === packId) ?? defaut;
@@ -83,6 +96,15 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
     }
     return <>{produit.name}</>;
   })();
+
+  const liens = [
+    c.raisons?.length ? ["avantages", L("Pourquoi", "Why")] : null,
+    c.etapes?.length ? ["routine", L("Routine", "Routine")] : null,
+    ["commander", L("Commander", "Order")],
+    c.videos?.length ? ["videos", L("Vidéos", "Videos")] : null,
+    avis.length ? ["avis", L("Avis", "Reviews")] : null,
+    c.faq?.length ? ["faq", "FAQ"] : null,
+  ].filter((x): x is string[] => x !== null);
 
   async function ajouter(puisCommander: boolean) {
     if (!pack || !pack.inStock) return;
@@ -142,6 +164,17 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
           </div>
         </div>
       </nav>
+
+      {/* NAVIGATION ENTRE SECTIONS */}
+      {liens.length >= 4 && (
+        <div style={{ position: "sticky", top: 60, zIndex: 90, background: "rgba(255,255,255,0.97)", borderBottom: "1px solid var(--asta-border)", backdropFilter: "blur(10px)" }}>
+          <nav aria-label={L("Sections de la page", "Page sections")} style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 12px" : "0 40px", display: "flex", gap: 4, overflowX: "auto", scrollbarWidth: "none" }}>
+            {liens.map(([id, nom]) => (
+              <a key={id} href={`#${id}`} style={{ flexShrink: 0, padding: "11px 14px", fontSize: 13, fontWeight: 700, color: "var(--asta-text2)", textDecoration: "none", whiteSpace: "nowrap" }}>{nom}</a>
+            ))}
+          </nav>
+        </div>
+      )}
 
       {/* HÉROS */}
       <section style={{ background: "#fff", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", minHeight: isSmall ? "auto" : 540, overflow: "hidden" }}>
@@ -215,7 +248,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
 
       {/* RAISONS */}
       {(c.raisons?.length ?? 0) > 0 && (
-        <section style={{ background: "var(--asta-bg2)", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
+        <section id="avantages" style={{ scrollMarginTop: 120, background: "var(--asta-bg2)", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
           <div style={{ maxWidth: 1280, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 48 }}>
               <p style={{ ...surtitre, color: "var(--asta-accent)" }}>{L("POURQUOI NUTRELIS", "WHY NUTRELIS")}</p>
@@ -239,7 +272,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
 
       {/* ROUTINE EN ÉTAPES */}
       {(c.etapes?.length ?? 0) > 0 && (
-        <section style={{ background: "#fff", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
+        <section id="routine" style={{ scrollMarginTop: 120, background: "#fff", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 44 }}>
               <p style={surtitre}>{L("COMMENT L'UTILISER", "HOW TO USE")}</p>
@@ -276,7 +309,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
       )}
 
       {/* COMMANDER */}
-      <section id="commander" style={{ padding: isMobile ? `28px ${px}` : `${py} ${px}`, background: "var(--asta-bg)" }}>
+      <section id="commander" style={{ scrollMarginTop: 120, padding: isMobile ? `28px ${px}` : `${py} ${px}`, background: "var(--asta-bg)" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 52 }}>
             <p style={surtitre}>{L("COMMANDEZ MAINTENANT", "ORDER NOW")}</p>
@@ -287,13 +320,13 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
             {/* Galerie */}
             <div style={{ order: isSmall ? 2 : 1 }}>
               <div style={{ background: "radial-gradient(ellipse at 50% 50%, #f7d5cf 0%, #fde8e4 45%, #fff5f3 100%)", borderRadius: 24, border: "1px solid var(--asta-border)", display: "flex", alignItems: "center", justifyContent: "center", minHeight: isMobile ? 280 : 440, padding: 24 }}>
-                {images[photo] ? <img src={images[photo]} alt={produit.name} style={{ maxWidth: "100%", maxHeight: isMobile ? 280 : 400, objectFit: "contain" }} /> : <span style={{ fontSize: 80 }}>🌿</span>}
+                {images[photo] ? <img src={images[photo]} alt={produit.name} loading="lazy" decoding="async" style={{ maxWidth: "100%", maxHeight: isMobile ? 280 : 400, objectFit: "contain" }} /> : <span style={{ fontSize: 80 }}>🌿</span>}
               </div>
               {images.length > 1 && (
                 <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
                   {images.map((src, i) => (
                     <button key={src} onClick={() => setPhoto(i)} style={{ width: 70, height: 70, borderRadius: 12, padding: 4, background: "#fff", cursor: "pointer", border: `2px solid ${photo === i ? "var(--asta-accent)" : "var(--asta-border)"}` }}>
-                      <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                      <img src={src} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                     </button>
                   ))}
                 </div>
@@ -322,7 +355,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
                 {packs.map((p) => {
                   const choisi = p.id === packId;
                   return (
-                    <button key={p.id} onClick={() => p.inStock && setPackId(p.id)} disabled={!p.inStock}
+                    <button key={p.id} onClick={() => p.inStock && setPackId(p.id)} disabled={!p.inStock} aria-pressed={choisi}
                       style={{ position: "relative", textAlign: "left", display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 16, cursor: p.inStock ? "pointer" : "not-allowed", opacity: p.inStock ? 1 : 0.55, background: choisi ? "#fdecea" : "#fff", border: `2px solid ${choisi ? "var(--asta-accent)" : "var(--asta-border)"}`, transition: "all .2s" }}>
                       {p.popular && <span style={{ position: "absolute", top: -11, right: 16, background: "var(--asta-accent)", color: "#fff", fontSize: 10, fontWeight: 800, letterSpacing: 1, padding: "3px 12px", borderRadius: 20 }}>{L("LE PLUS POPULAIRE", "MOST POPULAR")}</span>}
                       <div style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${choisi ? "var(--asta-accent)" : "#ccc"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -357,7 +390,8 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
               <button onClick={() => void ajouter(false)} disabled={!pack?.inStock} style={{ marginTop: 10, width: "100%", background: "#fff", color: "var(--asta-accent)", border: "2px solid var(--asta-accent)", padding: "13px", borderRadius: 50, fontWeight: 800, fontSize: 14, fontFamily: SORA, cursor: pack?.inStock ? "pointer" : "not-allowed", opacity: pack?.inStock ? 1 : 0.5 }}>
                 {L("Ajouter au panier", "Add to cart")}
               </button>
-              {message && <p style={{ marginTop: 12, color: "#b91c1c", fontWeight: 700, fontSize: 14 }}>{message}</p>}
+              <p style={{ marginTop: 10, color: "var(--asta-text2)", fontSize: 12.5, textAlign: "center" }}>🔒 {L("Paiement Mobile Money sécurisé ou à la livraison", "Secure Mobile Money payment or pay on delivery")}{garantie > 0 ? ` · ✅ ${L(`Garantie ${garantie} jours`, `${garantie}-day guarantee`)}` : ""}</p>
+              {message && <p role="alert" style={{ marginTop: 12, color: "#b91c1c", fontWeight: 700, fontSize: 14 }}>{message}</p>}
               {ajoute && <p style={{ marginTop: 12, fontWeight: 700, fontSize: 14 }}>✓ {L("Ajouté au panier.", "Added to cart.")} <a href="/panier" style={{ color: "var(--asta-accent)" }}>{L("Voir le panier", "View cart")}</a></p>}
 
               {(c.avantages?.length ?? 0) > 0 && (
@@ -386,7 +420,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
 
       {/* VIDÉOS */}
       {(c.videos?.length ?? 0) > 0 && (
-        <section style={{ background: "var(--asta-bg)", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
+        <section id="videos" style={{ scrollMarginTop: 120, background: "var(--asta-bg)", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 40 }}>
               <p style={surtitre}>{L("EN VIDÉO", "WATCH")}</p>
@@ -442,7 +476,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
               <p style={{ color: "var(--asta-text2)", fontSize: 13 }}>{L("Publiées avec l'accord des personnes. Les résultats varient d'une personne à l'autre.", "Published with the consent of the people shown. Results vary from person to person.")}</p>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: 14 }}>
-              {c.resultats!.map((src) => <img key={src} src={src} alt="" style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", borderRadius: 18, border: "1.5px solid var(--asta-border)" }} />)}
+              {c.resultats!.map((src) => <img key={src} src={src} alt="" loading="lazy" decoding="async" style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", borderRadius: 18, border: "1.5px solid var(--asta-border)" }} />)}
             </div>
           </div>
         </section>
@@ -450,7 +484,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
 
       {/* AVIS CLIENTS — uniquement de vrais avis saisis dans l'administration */}
       {avis.length > 0 && (
-        <section style={{ background: "#fff", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
+        <section id="avis" style={{ scrollMarginTop: 120, background: "#fff", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 44 }}>
               <p style={surtitre}>{L("AVIS CLIENTS", "CUSTOMER REVIEWS")}</p>
@@ -471,7 +505,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
 
       {/* FAQ */}
       {(c.faq?.length ?? 0) > 0 && (
-        <section style={{ background: "var(--asta-bg)", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
+        <section id="faq" style={{ scrollMarginTop: 120, background: "var(--asta-bg)", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
           <div style={{ maxWidth: 820, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 40 }}>
               <p style={surtitre}>FAQ</p>
@@ -503,7 +537,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
       )}
 
       {/* PIED DE PAGE */}
-      <footer style={{ background: "#1a0505", padding: `64px ${px} 32px` }}>
+      <footer style={{ background: "#1a0505", padding: `64px ${px} ${isSmall ? 96 : 32}px` }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : sc === "tablet" ? "1fr 1fr 1fr" : "2fr 1fr 1fr 1fr", gap: isMobile ? 24 : 48, marginBottom: 48 }}>
             <div>
@@ -527,6 +561,18 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
           </div>
         </div>
       </footer>
+
+      {isSmall && barre && pack && (
+        <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 95, background: "rgba(255,255,255,0.98)", borderTop: "1px solid var(--asta-border)", boxShadow: "0 -6px 24px rgba(0,0,0,0.10)", padding: "10px 14px calc(10px + env(safe-area-inset-bottom, 0px))", display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontWeight: 800, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{produit.name}</div>
+            <div style={{ color: "var(--asta-accent)", fontWeight: 900, fontFamily: SORA, fontSize: 16 }}>{fcfa(pack.priceFcfa)}</div>
+          </div>
+          {pack.inStock
+            ? <button onClick={() => void ajouter(true)} style={{ ...bouton, padding: "13px 22px", fontSize: 13, flexShrink: 0 }}>{L("COMMANDER", "ORDER")}</button>
+            : <span style={{ color: "#b91c1c", fontWeight: 800, fontSize: 13 }}>{L("Rupture de stock", "Out of stock")}</span>}
+        </div>
+      )}
 
       <FloatingActions accent="#7D0806" />
     </HydrationGuard>

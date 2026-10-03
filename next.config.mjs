@@ -21,7 +21,7 @@ const nextConfig = {
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
               "connect-src 'self'",
-              "frame-src 'self'",
+              "frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com",
               "base-uri 'self'",
               "form-action 'self'",
             ].join("; "),
