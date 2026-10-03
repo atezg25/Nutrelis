@@ -7,7 +7,7 @@ import { useLocale } from "@/context/LocaleContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import HydrationGuard from "@/components/HydrationGuard";
 import FloatingActions from "@/components/FloatingActions";
-import { fetchProducts, getVariantPrice } from "@/lib/medusa-products";
+import { fetchProducts, getVariantPrice, type MedusaProduct } from "@/lib/medusa-products";
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -75,13 +75,17 @@ export default function Homepage() {
   const isMobile = screen === "mobile";
   const isTablet = screen === "tablet";
   const isDesktop = screen === "desktop";
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const fr = locale === "fr";
+  // Catalogue : tous les produits actifs de la boutique (null tant qu'il n'est pas chargé).
+  const [produits, setProduits] = useState<MedusaProduct[] | null>(null);
   const [startPrice, setStartPrice] = useState(15000);
   const [oldPrice, setOldPrice] = useState(18750);
 
   // Charger le prix depuis Medusa
   useEffect(() => {
     fetchProducts().then(products => {
+      setProduits(products);
       const astax = products.find(p => p.handle === "astaxanthine-12mg");
       if (!astax) return;
       const v1 = astax.variants.find(v => v.sku === "NUT-AX-1P");
@@ -258,6 +262,7 @@ export default function Homepage() {
 
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 20 : 24 }}>
             {/* Produit vedette */}
+            {(produits === null || produits.some((p) => p.handle === "astaxanthine-12mg")) && (
             <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(29,185,84,0.3)", borderRadius: isMobile ? 16 : 24, overflow: "hidden" }}>
               <div style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(29,185,84,0.12) 0%, rgba(6,15,8,0.8) 100%)", padding: isMobile ? "24px 20px" : "32px", textAlign: "center", position: "relative" }}>
                 <div style={{ position: "absolute", top: 12, right: 12, background: "var(--accent)", color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 10px", borderRadius: 20 }}>−20%</div>
@@ -287,12 +292,47 @@ export default function Homepage() {
                 </Link>
               </div>
             </div>
+            )}
 
-            {/* Produits à venir */}
+            {/* Les autres produits de la boutique : ajoutés depuis la console, ils apparaissent ici tout seuls */}
+            {(produits ?? []).filter((p) => p.handle !== "astaxanthine-12mg").map((p) => {
+              const prix = Math.min(...p.variants.map(getVariantPrice));
+              const plusieurs = p.variants.length > 1;
+              const barre = p.variants.map((v) => Number((v.metadata as { originalPrice?: number } | null)?.originalPrice ?? 0)).filter((o) => o > 0);
+              const remise = barre.length ? Math.round(100 * (1 - prix / Math.max(...barre))) : 0;
+              const dispo = p.variants.some((v) => v.inStock !== false);
+              return (
+                <div key={p.id} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(29,185,84,0.3)", borderRadius: isMobile ? 16 : 24, overflow: "hidden" }}>
+                  <div style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(29,185,84,0.12) 0%, rgba(6,15,8,0.8) 100%)", padding: isMobile ? "24px 20px" : "32px", textAlign: "center", position: "relative", minHeight: isMobile ? 150 : 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {remise > 0 && <div style={{ position: "absolute", top: 12, right: 12, background: "var(--accent)", color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 10px", borderRadius: 20 }}>−{remise}%</div>}
+                    {p.thumbnail
+                      ? <img src={p.thumbnail} alt={p.title} loading="lazy" style={{ width: isMobile ? "45%" : "55%", maxWidth: isMobile ? 130 : 160, height: "auto", maxHeight: 180, objectFit: "contain" }} />
+                      : <span style={{ fontSize: isMobile ? 48 : 64, opacity: 0.5 }}>🌿</span>}
+                  </div>
+                  <div style={{ padding: isMobile ? "16px" : "28px" }}>
+                    {p.subtitle && <p style={{ color: "var(--accent)", fontSize: 11, fontWeight: 700, letterSpacing: 1.5, marginBottom: 8, textTransform: "uppercase" }}>{p.subtitle}</p>}
+                    <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 16 : 20, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>{p.title}</h3>
+                    {p.description && <p style={{ color: "rgba(255,255,255,0.55)", fontSize: isMobile ? 13 : 14, lineHeight: 1.7, marginBottom: 14, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.description}</p>}
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+                      {prix > 0
+                        ? <><span style={{ color: "rgba(255,255,255,0.45)", fontSize: 12 }}>{plusieurs ? (fr ? "À partir de" : "From") : ""}</span>
+                          <span style={{ color: "var(--accent)", fontSize: isMobile ? 16 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>{prix.toLocaleString("fr-FR")} FCFA</span></>
+                        : null}
+                      {!dispo && <span style={{ color: "#f87171", fontSize: 12, fontWeight: 700 }}>{fr ? "Rupture de stock" : "Out of stock"}</span>}
+                    </div>
+                    <Link href={`/produits/${p.handle}`} style={{ display: "block", textAlign: "center", background: "var(--accent)", color: "#fff", padding: isMobile ? "12px" : "14px", borderRadius: 10, fontSize: isMobile ? 13 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
+                      {t("home.discover")}
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Produits à venir : seulement pour compléter la rangée jusqu'à 3 cartes */}
             {[
               { nom: t("home.collagenName"), desc: t("home.collagenDesc"), emoji: "🧴" },
               { nom: t("home.omega3Name"), desc: t("home.omega3Desc"), emoji: "🫀" },
-            ].map((p, i) => (
+            ].slice(0, Math.max(0, 3 - (produits === null ? 1 : produits.length))).map((p, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: isMobile ? 16 : 24, overflow: "hidden", opacity: 0.6, position: "relative" }}>
                 <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "4px 14px", borderRadius: 20, zIndex: 2, whiteSpace: "nowrap" }}>{t("home.comingSoon")}</div>
                 <div style={{ padding: isMobile ? "28px 20px" : "40px", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", height: isMobile ? 140 : 200 }}>
