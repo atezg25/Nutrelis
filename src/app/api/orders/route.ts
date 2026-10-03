@@ -36,9 +36,12 @@ export async function POST(req: Request) {
       },
     });
 
-    void notifierNouvelleCommande(cmd.numero).catch(() => undefined);
-
-    if (mode === "livraison") return reponse({ numero: cmd.numero, total: cmd.total, mode });
+    // Paiement à la livraison : la commande est ferme dès maintenant, la boutique est prévenue. Paiement en ligne :
+    // elle l'est quand Fapshi confirme le paiement (voir appliquerPaiement).
+    if (mode === "livraison") {
+      void notifierNouvelleCommande(cmd.numero).catch(() => undefined);
+      return reponse({ numero: cmd.numero, total: cmd.total, mode });
+    }
 
     try {
       const base = process.env.NEXT_PUBLIC_URL || "https://nutrelis.bio";

@@ -1,6 +1,7 @@
 import type { PoolClient } from "pg";
 import { query, tx } from "./db";
 import { fapshiConfigure, verifierPaiement } from "./fapshi";
+import { notifierNouvelleCommande } from "./notifier";
 
 export type LigneDemandee = { variantId: string; qty: number };
 export type ClientCommande = {
@@ -143,20 +144,20 @@ export async function appliquerPaiement(transId: string, statut: "payee" | "echo
     await query("UPDATE payment SET provider_status=$2, updated_at=now() WHERE provider='fapshi' AND provider_ref=$1", [transId, brut]);
     return;
   }
-  await tx(async (c) => {
+  const vientDePayer = await tx(async (c): Promise<string | null> => {
     const p = await c.query<{ id: number; order_id: string; status: string }>(
       "SELECT id, order_id, status FROM payment WHERE provider='fapshi' AND provider_ref=$1 FOR UPDATE",
       [transId],
     );
     const pay = p.rows[0];
-    if (!pay || pay.status === statut) return;
+    if (!pay || pay.status === statut) return null;
     await c.query("UPDATE payment SET status=$2, provider_status=$3, updated_at=now() WHERE id=$1", [pay.id, statut, brut]);
     const o = await c.query<{ number: string; status: string; payment_status: string }>(
       "SELECT number, status, payment_status FROM customer_order WHERE id=$1 FOR UPDATE",
       [pay.order_id],
     );
     const ord = o.rows[0];
-    if (!ord) return;
+    if (!ord) return null;
     if (statut === "payee") {
       // Un paiement arrivé APRÈS annulation : on rouvre la commande et on reprend le stock.
       if (ord.status === "annulee") {
@@ -164,12 +165,16 @@ export async function appliquerPaiement(transId: string, statut: "payee" | "echo
         await reprendreStock(c, pay.order_id, ord.number, "paiement reçu après annulation");
       }
       await c.query("UPDATE customer_order SET payment_status='payee', updated_at=now() WHERE id=$1", [pay.order_id]);
+      return ord.number;
     } else if (ord.payment_status !== "payee") {
       // Paiement refusé ou expiré : on libère le stock, le client pourra recommander.
       await c.query("UPDATE customer_order SET payment_status='echouee', status='annulee', updated_at=now() WHERE id=$1", [pay.order_id]);
       await restituerStock(c, pay.order_id, ord.number);
     }
+    return null;
   });
+  // Le client a payé : la boutique est prévenue (une seule fois, car la transition « payée » n'arrive qu'une fois).
+  if (vientDePayer) void notifierNouvelleCommande(vientDePayer, "PAYÉE en ligne ✅").catch(() => undefined);
 }
 
 /** Vérifie auprès de Fapshi les paiements en attente (> 2 min) et applique le verdict. Sans danger à rappeler. */
