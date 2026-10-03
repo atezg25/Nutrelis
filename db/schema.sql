@@ -203,6 +203,12 @@ CREATE TABLE IF NOT EXISTS shipment_event (
 );
 CREATE INDEX IF NOT EXISTS shipment_event_idx ON shipment_event (shipment_id, at);
 
+-- Vidéos MP4 envoyées depuis l'administration (25 Mo au plus) : mêmes règles que les images, servies avec « Range » pour iOS.
+ALTER TABLE media DROP CONSTRAINT IF EXISTS media_content_type_check;
+ALTER TABLE media ADD CONSTRAINT media_content_type_check CHECK (content_type IN ('image/png','image/jpeg','image/webp','video/mp4'));
+ALTER TABLE media DROP CONSTRAINT IF EXISTS media_data_check;
+ALTER TABLE media ADD CONSTRAINT media_data_check CHECK (octet_length(data) <= 26214400);
+
 -- Vue pratique : stock courant par variante.
 CREATE OR REPLACE VIEW variant_stock AS
 SELECT v.id AS variant_id, COALESCE(SUM(m.delta), 0)::int AS stock

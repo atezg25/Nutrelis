@@ -430,7 +430,9 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
               {c.videos!.map((v) => (
                 <div key={v.url}>
                   <div style={{ position: "relative", paddingTop: "56.25%", borderRadius: 20, overflow: "hidden", border: "1.5px solid var(--asta-border)", background: "#000" }}>
-                    <iframe src={v.url} title={v.titre ?? produit.name} loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+                    {v.url.startsWith("/api/media/")
+                      ? <video src={v.url} controls playsInline preload="metadata" aria-label={v.titre ?? produit.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", background: "#000" }} />
+                      : <iframe src={v.url} title={v.titre ?? produit.name} loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />}
                   </div>
                   {v.titre && <p style={{ textAlign: "center", color: "var(--asta-text2)", fontSize: 13, marginTop: 8 }}>{v.titre}</p>}
                 </div>

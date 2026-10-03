@@ -34,6 +34,8 @@ export type ContenuProduit = {
  */
 export function versEmbed(brut: string): string | null {
   const u = brut.trim();
+  // Vidéo envoyée depuis l'administration : adresse interne, acceptée telle quelle.
+  if (/^\/api\/media\/[0-9a-f-]{36}$/i.test(u)) return u;
   const yt = /^https:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/)|youtube-nocookie\.com\/embed\/|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(u);
   if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}`;
   const vm = /^https:\/\/(?:www\.)?(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d{6,12})/.exec(u);

@@ -433,6 +433,15 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
   const [charge, setCharge] = useState(false);
   const maj = (k: keyof typeof f, v: string) => setF({ ...f, [k]: v });
 
+  async function envoyerVideo(fichier: File | undefined) {
+    if (!fichier) return;
+    setMsg("Envoi de la vidéo en cours…");
+    const res = await fetch("/api/admin/media", { method: "POST", headers: { "Content-Type": fichier.type || "video/mp4" }, body: fichier });
+    const d = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+    if (!res.ok || !d.url) { setMsg(d.error ?? "Envoi impossible."); return; }
+    setMsg("Vidéo envoyée : n'oubliez pas d'enregistrer la fiche.");
+    setF((x) => ({ ...x, videos: `${x.videos}${x.videos ? "\n" : ""}${d.url} | ` }));
+  }
   async function envoyerImage(fichier: File | undefined, cle: "images" | "resultats" = "images") {
     if (!fichier) return;
     setMsg("");
@@ -494,6 +503,7 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
       <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Source des chiffres <span style={{ fontWeight: 400, color: "#777" }}>(obligatoire : sans source, les chiffres ne sont pas affichés)</span></span><input value={f.sourceChiffres} onChange={(e) => maj("sourceChiffres", e.target.value)} placeholder="ex. test d'usage réalisé en 2026 sur 52 personnes, rapport disponible sur demande" style={champ} /></label>
       {zone("comparatif", "Comparatif avec les autres solutions", "— une ligne par critère : Critère | Ce produit | Les autres. Critères vérifiables uniquement.", 110)}
       {zone("videos", "Vidéos", "— une par ligne : lien YouTube ou Vimeo | titre (facultatif). Vos propres vidéos, ou celles que vous avez le droit d'utiliser.", 80)}
+      <div style={{ marginTop: -6 }}><label style={{ ...boutonDiscret, display: "inline-block" }}>+ Envoyer une vidéo MP4 (25 Mo maximum)<input type="file" accept="video/mp4" style={{ display: "none" }} onChange={(e) => { void envoyerVideo(e.target.files?.[0]); e.target.value = ""; }} /></label></div>
       {zone("description", "Description détaillée", "", 90)}
       {zone("ingredients", "Composition", "", 70)}
       {zone("utilisation", "Conseils d'utilisation", "", 70)}
