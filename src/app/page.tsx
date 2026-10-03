@@ -330,8 +330,7 @@ export default function Homepage() {
 
             {/* Produits à venir : seulement pour compléter la rangée jusqu'à 3 cartes */}
             {[
-              { nom: t("home.collagenName"), desc: t("home.collagenDesc"), emoji: "🧴" },
-              { nom: t("home.omega3Name"), desc: t("home.omega3Desc"), emoji: "🫀" },
+              { nom: t("home.gelName"), desc: t("home.gelDesc"), emoji: "🍊" },
             ].slice(0, Math.max(0, 3 - (produits === null ? 1 : produits.length))).map((p, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: isMobile ? 16 : 24, overflow: "hidden", opacity: 0.6, position: "relative" }}>
                 <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 10, fontWeight: 700, padding: "4px 14px", borderRadius: 20, zIndex: 2, whiteSpace: "nowrap" }}>{t("home.comingSoon")}</div>
