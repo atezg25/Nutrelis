@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 // Un seul écran à onglets. Tout passe par /api/admin/* (cookie signé, mot de passe unique).
 // ============================================================
 type Ligne = Record<string, string | number | boolean | null>;
-type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "utilisateurs" | "parametres" | "journal" | "compte";
+type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "avis" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "utilisateurs" | "parametres" | "journal" | "compte";
 
 const VERT = "#1f7a3a";
 const fcfa = (n: unknown) => `${Number(n ?? 0).toLocaleString("fr-FR")} FCFA`;
@@ -728,6 +728,7 @@ function DetailColis({ id, fermer, recharger }: { id: string; fermer: () => void
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <a href={`/admin/bordereau/${id}`} target="_blank" rel="noreferrer" style={{ ...bouton, textDecoration: "none" }}>🖨️ Bordereau</a>
           <a href={`https://wa.me/${tel}?text=${encodeURIComponent(message)}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>💬 Prévenir le client</a>
+          {c.status === "livree" && <a href={`https://wa.me/${tel}?text=${encodeURIComponent(`Bonjour ${String(c.customer_name)}, merci pour votre commande NUTRELIS ${String(c.number)} ! Votre avis compte beaucoup : donnez-le en 1 minute ici : https://nutrelis.bio/avis?commande=${String(c.number)}`)}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>⭐ Demander un avis</a>}
           <button onClick={fermer} style={boutonDiscret}>Fermer</button>
         </div>
       </div>
@@ -910,6 +911,52 @@ function Expeditions() {
   );
 }
 
+// ---------------------------------------------------------------- Avis clients (vérifiés)
+function Avis() {
+  const [d, setD] = useState<{ avis: Ligne[]; compteurs: Ligne } | null>(null);
+  const [statut, setStatut] = useState("en_attente");
+  const [rep, setRep] = useState<Record<string, string>>({});
+  const [err, setErr] = useState("");
+  const charger = useCallback(() => { void api<{ avis: Ligne[]; compteurs: Ligne }>(`reviews?statut=${statut}`).then((r) => r.ok && setD(r.data)); }, [statut]);
+  useEffect(charger, [charger]);
+  async function agir(id: string, corps: Record<string, unknown>) {
+    setErr("");
+    const r = await api(`reviews/${id}`, { method: "PATCH", body: corps });
+    if (!r.ok) setErr(r.data.error ?? "Échec."); else charger();
+  }
+  const onglets: [string, string, unknown][] = [["en_attente", "À valider", d?.compteurs.en_attente], ["publie", "Publiés", d?.compteurs.publies], ["refuse", "Refusés", undefined]];
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
+      <div style={{ ...carte, background: "#f4fbf6", fontSize: 13.5, color: "#2b312b" }}>
+        Ces avis viennent <strong>uniquement de clients dont le colis est livré</strong> (preuve d'achat : numéro de commande et téléphone). Ils ne s'affichent sur la page du produit qu'après votre validation, avec la mention « Achat vérifié ». <strong>Le texte du client ne se modifie pas</strong> : vous pouvez publier, refuser, ou répondre. Pour en recevoir, ouvrez un colis livré (Expéditions) et cliquez sur « Demander un avis » : le client reçoit un lien sur WhatsApp.
+      </div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {onglets.map(([k, t, n]) => <button key={k} onClick={() => setStatut(k)} style={{ ...boutonDiscret, ...(statut === k ? { background: VERT, color: "#fff", borderColor: VERT } : {}) }}>{t}{n !== undefined && Number(n) > 0 ? ` (${String(n)})` : ""}</button>)}
+      </div>
+      {err && <div style={{ color: "#b91c1c" }}>{err}</div>}
+      {(d?.avis ?? []).length === 0 && <div style={{ ...carte, color: "#777" }}>Aucun avis dans cette liste.</div>}
+      {(d?.avis ?? []).map((a) => {
+        const id = String(a.id);
+        return (
+          <div key={id} style={carte}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+              <div><strong>{String(a.display_name)}</strong>{a.city ? ` · ${String(a.city)}` : ""} <span style={{ color: "#f5a623" }}>{"★".repeat(Number(a.rating))}{"☆".repeat(5 - Number(a.rating))}</span><br /><span style={{ color: "#777", fontSize: 12 }}>{String(a.product_name)} · commande {String(a.number)} · {date(a.created_at)}</span></div>
+              <Badge texte={a.status === "publie" ? "Publié" : a.status === "refuse" ? "Refusé" : "À valider"} couleur={a.status === "publie" ? VERT : a.status === "refuse" ? "#b91c1c" : "#b45309"} />
+            </div>
+            <p style={{ margin: "10px 0", lineHeight: 1.6, whiteSpace: "pre-line" }}>« {String(a.body)} »</p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <input defaultValue={String(a.shop_reply ?? "")} onChange={(e) => setRep({ ...rep, [id]: e.target.value })} placeholder="Réponse de la boutique (facultatif, affichée sous l'avis)" style={{ ...champ, flex: 1, minWidth: 220 }} />
+              <button onClick={() => void agir(id, { reponse: rep[id] ?? String(a.shop_reply ?? "") })} style={boutonDiscret}>Enregistrer la réponse</button>
+              {a.status !== "publie" && <button onClick={() => void agir(id, { statut: "publie" })} style={bouton}>✓ Publier</button>}
+              {a.status !== "refuse" && <button onClick={() => void agir(id, { statut: "refuse" })} style={{ ...boutonDiscret, color: "#b91c1c" }}>Refuser</button>}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- Clients
 function Clients() {
   const [lignes, setLignes] = useState<Ligne[]>([]);
@@ -1047,7 +1094,7 @@ const LIB_ACTION: Record<string, string> = {
   produit_cree: "Produit créé", produit_modifie: "Produit modifié", pack_cree: "Pack créé", pack_modifie: "Pack modifié", revendeur_cree: "Revendeur créé", revendeur_modifie: "Revendeur modifié",
   image_envoyee: "Image envoyée", reglage: "Réglage modifié",
   colis_cree: "Colis créé", colis_modifie: "Colis modifié", colis_statut: "Statut de colis", transporteur_cree: "Transporteur créé", transporteur_modifie: "Transporteur modifié",
-  tarif_ville: "Tarif de ville", tarif_ville_modifie: "Tarif de ville modifié", tarif_ville_supprime: "Tarif de ville supprimé",
+  avis_modere: "Avis modéré", tarif_ville: "Tarif de ville", tarif_ville_modifie: "Tarif de ville modifié", tarif_ville_supprime: "Tarif de ville supprimé",
 };
 function Journal() {
   const [lignes, setLignes] = useState<Ligne[]>([]);
@@ -1104,6 +1151,7 @@ const MENU: { id: Onglet; titre: string; icone: string; proprietaire?: boolean; 
   { id: "commandes", titre: "Commandes", icone: "🧾" },
   { id: "expeditions", titre: "Expéditions", icone: "🚚" },
   { id: "paiements", titre: "Paiements", icone: "💳" },
+  { id: "avis", titre: "Avis clients", icone: "⭐" },
   { id: "clients", titre: "Clients", icone: "👥" },
   { id: "stock", titre: "Stock", icone: "📦" },
   { id: "produits", titre: "Produits", icone: "🌿" },
@@ -1179,6 +1227,7 @@ export default function Admin() {
       {onglet === "commandes" && <Commandes />}
       {onglet === "expeditions" && <Expeditions />}
       {onglet === "paiements" && <Paiements />}
+      {onglet === "avis" && <Avis />}
       {onglet === "clients" && <Clients />}
       {onglet === "stock" && <Stock />}
       {onglet === "produits" && <Produits />}

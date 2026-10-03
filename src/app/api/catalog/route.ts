@@ -32,6 +32,14 @@ export async function GET() {
         stockFaible: r.stock > 0 && r.stock <= 5,
       });
     }
+    // Avis clients vérifiés (achat livré) validés par la boutique.
+    const avis = await query<{ product_id: string; rating: number; body: string; display_name: string; city: string | null; shop_reply: string | null; created_at: string }>(
+      "SELECT product_id, rating, body, display_name, city, shop_reply, created_at FROM review WHERE status='publie' ORDER BY created_at DESC",
+    );
+    for (const a of avis) {
+      const p = produits.get(a.product_id);
+      if (p) ((p.avisVerifies as unknown[] | undefined) ?? (p.avisVerifies = [])).push({ rating: a.rating, body: a.body, display_name: a.display_name, city: a.city, shop_reply: a.shop_reply, created_at: a.created_at });
+    }
     return reponse({ products: [...produits.values()] });
   } catch (err) {
     return reponseErreur(err);

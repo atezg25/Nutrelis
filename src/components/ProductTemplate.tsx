@@ -21,6 +21,7 @@ export type PackCatalogue = {
 export type ProduitCatalogue = {
   id: string; slug: string; name: string; subtitle: string | null; description: string | null; imageUrl: string | null;
   content: ContenuProduit; variants: PackCatalogue[];
+  avisVerifies?: { rating: number; body: string; display_name: string; city: string | null; shop_reply: string | null; created_at: string }[];
 };
 
 const SORA = "var(--font-sora), sans-serif";
@@ -82,7 +83,9 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
 
   const pack = packs.find((p) => p.id === packId) ?? defaut;
   const remise = (p?: PackCatalogue) => (p && p.originalPriceFcfa && p.originalPriceFcfa > p.priceFcfa ? Math.round(100 * (1 - p.priceFcfa / p.originalPriceFcfa)) : 0);
-  const avis = c.avis ?? [];
+  // Avis vérifiés (acheteurs dont le colis est livré, validés par la boutique) d'abord ; avis saisis à la main ensuite.
+  const verifies = (produit.avisVerifies ?? []).map((a) => ({ nom: a.display_name, ville: a.city ?? undefined, note: a.rating, texte: a.body, reponse: a.shop_reply ?? undefined, verifie: true }));
+  const avis: { nom: string; ville?: string; note: number; texte: string; reponse?: string; verifie: boolean }[] = [...verifies, ...(c.avis ?? []).map((a) => ({ ...a, verifie: false }))];
   const moyenne = avis.length ? avis.reduce((a, r) => a + r.note, 0) / avis.length : 0;
   const garantie = c.garantieJours ?? 90;
   const enStock = packs.some((p) => p.inStock);
@@ -498,6 +501,8 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
                   <Etoiles note={r.note} />
                   <p style={{ color: "var(--asta-text)", fontSize: 14, lineHeight: 1.7, margin: "10px 0 14px", whiteSpace: "pre-line" }}>« {r.texte} »</p>
                   <div style={{ fontWeight: 800, fontSize: 13 }}>{r.nom}{r.ville ? <span style={{ color: "var(--asta-text2)", fontWeight: 500 }}> · {r.ville}</span> : null}</div>
+                  {r.verifie && <div style={{ color: "#1a7a3c", fontSize: 12, fontWeight: 700, marginTop: 4 }}>✓ {L("Achat vérifié", "Verified purchase")}</div>}
+                  {r.reponse && <div style={{ marginTop: 10, paddingLeft: 12, borderLeft: "3px solid var(--asta-accent)", color: "var(--asta-text2)", fontSize: 13, lineHeight: 1.6 }}><strong>{L("Réponse de la boutique", "Reply from the shop")} :</strong> {r.reponse}</div>}
                 </div>
               ))}
             </div>

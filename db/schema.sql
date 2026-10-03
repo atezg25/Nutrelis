@@ -209,6 +209,24 @@ ALTER TABLE media ADD CONSTRAINT media_content_type_check CHECK (content_type IN
 ALTER TABLE media DROP CONSTRAINT IF EXISTS media_data_check;
 ALTER TABLE media ADD CONSTRAINT media_data_check CHECK (octet_length(data) <= 26214400);
 
+-- Avis clients VÉRIFIÉS : un avis n'existe que pour un produit réellement livré à son auteur (commande + téléphone), et ne s'affiche
+-- qu'après validation par la boutique. Un avis par produit et par commande. Idempotent.
+CREATE TABLE IF NOT EXISTS review (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id     UUID NOT NULL REFERENCES customer_order(id) ON DELETE CASCADE,
+  product_id   UUID NOT NULL REFERENCES product(id) ON DELETE CASCADE,
+  rating       INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  body         TEXT NOT NULL CHECK (char_length(body) BETWEEN 3 AND 1200),
+  display_name TEXT NOT NULL,
+  city         TEXT,
+  status       TEXT NOT NULL DEFAULT 'en_attente' CHECK (status IN ('en_attente','publie','refuse')),
+  shop_reply   TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  decided_at   TIMESTAMPTZ,
+  UNIQUE (order_id, product_id)
+);
+CREATE INDEX IF NOT EXISTS review_product_idx ON review (product_id, status, created_at DESC);
+
 -- Vue pratique : stock courant par variante.
 CREATE OR REPLACE VIEW variant_stock AS
 SELECT v.id AS variant_id, COALESCE(SUM(m.delta), 0)::int AS stock
