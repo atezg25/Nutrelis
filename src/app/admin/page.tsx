@@ -105,7 +105,7 @@ function FormMotDePasse({ onFait, obligatoire }: { onFait: () => void; obligatoi
     onFait();
   }
   return (
-    <form onSubmit={envoyer} style={{ ...carte, display: "grid", gap: 10, maxWidth: 420 }}>
+    <form onSubmit={envoyer} style={{ ...carte, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 10, maxWidth: 420 }}>
       <strong>{obligatoire ? "Choisissez votre mot de passe" : "Changer mon mot de passe"}</strong>
       {obligatoire && <div style={{ fontSize: 13, color: "#555" }}>Pour votre sécurité, remplacez le mot de passe provisoire par un mot de passe que vous seul connaissez.</div>}
       <input type="password" autoComplete="current-password" placeholder={obligatoire ? "Mot de passe provisoire (actuel)" : "Mot de passe actuel"} value={actuel} onChange={(e) => setActuel(e.target.value)} style={champ} />
@@ -132,7 +132,7 @@ function TableauDeBord({ ouvrir }: { ouvrir: (o: Onglet) => void }) {
     ["Pas encore payées", String(c.impayees), "paiements"],
   ];
   return (
-    <div style={{ display: "grid", gap: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
       <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
         {tuiles.map(([t, v, o]) => (
           <button key={t} onClick={() => o && ouvrir(o)} style={{ ...carte, textAlign: "left", cursor: "pointer" }}>
@@ -249,7 +249,7 @@ function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => 
     if (!r.ok) setErr(r.data.error ?? "Échec."); else fait();
   }
   return (
-    <div style={{ ...carte, marginBottom: 14, display: "grid", gap: 10 }}>
+    <div style={{ ...carte, marginBottom: 14, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 10 }}>
       <h3 style={{ margin: 0 }}>Nouvelle commande (vente directe ou revendeur)</h3>
       <select value={revendeurId} onChange={(e) => setRevendeurId(e.target.value)} style={champ}>
         <option value="">Vente directe (prix public)</option>
@@ -333,7 +333,7 @@ function Paiements() {
   useEffect(() => { void api<{ resume: Ligne; paiements: Ligne[] }>("payments").then((r) => r.ok && setD(r.data)); }, []);
   if (!d) return <p>Chargement…</p>;
   return (
-    <div style={{ display: "grid", gap: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
       <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))" }}>
         {([["Encaissé", d.resume.encaisse], ["En attente de paiement", d.resume.en_attente], ["À encaisser à la livraison", d.resume.a_la_livraison]] as const).map(([t, v]) => (
           <div key={t} style={carte}><div style={{ fontSize: 12.5, color: "#666" }}>{t}</div><div style={{ fontSize: 22, fontWeight: 800, marginTop: 4 }}>{fcfa(v)}</div></div>
@@ -366,14 +366,14 @@ function Stock() {
   }
   if (!d) return <p>Chargement…</p>;
   return (
-    <div style={{ display: "grid", gap: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
       <Tableau lignes={d.variantes} colonnes={[
         { titre: "Produit", rendu: (l) => String(l.product_name) },
         { titre: "Pack", rendu: (l) => <>{String(l.label)} <span style={{ color: "#777", fontSize: 12 }}>{String(l.sku)}</span></> },
         { titre: "En stock", rendu: (l) => <strong style={{ color: Number(l.stock) <= Number(l.low_stock_alert) ? "#b91c1c" : "inherit" }}>{String(l.stock)}</strong> },
         { titre: "Alerte à", rendu: (l) => String(l.low_stock_alert) },
       ]} />
-      <div style={{ ...carte, display: "grid", gap: 10 }}>
+      <div style={{ ...carte, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 10 }}>
         <strong>Entrée ou sortie de stock</strong>
         <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
           <select value={f.variantId} onChange={(e) => setF({ ...f, variantId: e.target.value })} style={champ}>
@@ -457,24 +457,24 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
     if (!a.ok) setMsg(a.data.error ?? "Échec de l'enregistrement."); else { setMsg("Enregistré ✓"); enregistre(); }
   }
   const zone = (k: keyof typeof f, titre: string, aide: string, hauteur = 70) => (
-    <label style={{ display: "grid", gap: 4 }}>
+    <label style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 4 }}>
       <span style={{ fontWeight: 700, fontSize: 13 }}>{titre} <span style={{ fontWeight: 400, color: "#777" }}>{aide}</span></span>
       <textarea value={f[k] as string} onChange={(e) => maj(k, e.target.value)} style={{ ...champ, minHeight: hauteur, fontFamily: "inherit", resize: "vertical" }} />
     </label>
   );
   return (
-    <div style={{ ...carte, borderColor: VERT, display: "grid", gap: 12, marginTop: 12 }}>
+    <div style={{ ...carte, borderColor: VERT, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12, marginTop: 12 }}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
         <strong style={{ fontSize: 16 }}>Fiche de « {nom} » — ce que les clients voient</strong>
         <a href={`/produits/${String(produit.slug)}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>Voir la page ↗</a>
       </div>
       <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
-        <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Nom du produit</span><input value={nom} onChange={(e) => setNom(e.target.value)} style={champ} /></label>
-        <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Sous-titre</span><input value={soustitre} onChange={(e) => setSoustitre(e.target.value)} style={champ} /></label>
-        <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Mot à mettre en rouge dans le titre <span style={{ fontWeight: 400, color: "#777" }}>(facultatif)</span></span><input value={f.miseEnAvant} onChange={(e) => maj("miseEnAvant", e.target.value)} style={champ} /></label>
-        <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Garantie « satisfait ou remboursé » (jours, 0 = aucune)</span><input type="number" min={0} max={365} value={f.garantieJours} onChange={(e) => maj("garantieJours", e.target.value)} style={champ} /></label>
+        <label style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Nom du produit</span><input value={nom} onChange={(e) => setNom(e.target.value)} style={champ} /></label>
+        <label style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Sous-titre</span><input value={soustitre} onChange={(e) => setSoustitre(e.target.value)} style={champ} /></label>
+        <label style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Mot à mettre en rouge dans le titre <span style={{ fontWeight: 400, color: "#777" }}>(facultatif)</span></span><input value={f.miseEnAvant} onChange={(e) => maj("miseEnAvant", e.target.value)} style={champ} /></label>
+        <label style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Garantie « satisfait ou remboursé » (jours, 0 = aucune)</span><input type="number" min={0} max={365} value={f.garantieJours} onChange={(e) => maj("garantieJours", e.target.value)} style={champ} /></label>
       </div>
-      <label style={{ display: "grid", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Description courte <span style={{ fontWeight: 400, color: "#777" }}>(à côté du prix)</span></span><textarea value={descCourte} onChange={(e) => setDescCourte(e.target.value)} style={{ ...champ, minHeight: 60, fontFamily: "inherit" }} /></label>
+      <label style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>Description courte <span style={{ fontWeight: 400, color: "#777" }}>(à côté du prix)</span></span><textarea value={descCourte} onChange={(e) => setDescCourte(e.target.value)} style={{ ...champ, minHeight: 60, fontFamily: "inherit" }} /></label>
       {zone("accroche", "Phrase d'accroche", "(sous le titre, en haut de page)", 60)}
       {zone("avantages", "Avantages", "— un par ligne (les 3 premiers apparaissent en haut de page)", 110)}
       {zone("raisons", "Raisons de choisir ce produit", "— une par ligne, au format  Titre | Texte  (5 maximum)", 110)}
@@ -534,7 +534,7 @@ function Produits() {
   }
   if (!d) return <p>Chargement…</p>;
   return (
-    <div style={{ display: "grid", gap: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
       {err && <div style={{ color: "#b91c1c" }}>{err}</div>}
       {d.produits.map((p) => {
         const id = String(p.id);
@@ -577,7 +577,7 @@ function Produits() {
           </div>
         );
       })}
-      <div style={{ ...carte, display: "grid", gap: 8 }}>
+      <div style={{ ...carte, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 8 }}>
         <strong>Ajouter un produit à vendre</strong>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <input placeholder="Nom du produit" value={nouv.name} onChange={(e) => setNouv({ ...nouv, name: e.target.value })} style={{ ...champ, flex: 1, minWidth: 160 }} />
@@ -616,7 +616,7 @@ function Revendeurs() {
     if (!r.ok) setErr(r.data.error ?? "Échec."); else { charger(); if (detail) void voir(id); }
   }
   return (
-    <div style={{ display: "grid", gap: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
       {err && <div style={{ color: "#b91c1c" }}>{err}</div>}
       <div style={{ ...carte, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         <strong>Nouveau revendeur</strong>
@@ -663,7 +663,7 @@ function Clients() {
   const [q, setQ] = useState("");
   useEffect(() => { void api<{ clients: Ligne[] }>(`customers?q=${encodeURIComponent(q)}`).then((r) => r.ok && setLignes(r.data.clients ?? [])); }, [q]);
   return (
-    <div style={{ display: "grid", gap: 12 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
       <input placeholder="Rechercher (nom, téléphone, e-mail, ville)" value={q} onChange={(e) => setQ(e.target.value)} style={champ} />
       <Tableau lignes={lignes} colonnes={[
         { titre: "Client", rendu: (l) => <><strong>{String(l.nom)}</strong><br /><span style={{ color: "#777", fontSize: 12 }}>{[l.ville, l.email].filter(Boolean).join(" · ")}</span></> },
@@ -685,7 +685,7 @@ function Rapports() {
   if (!d) return <p>Chargement…</p>;
   const max = Math.max(1, ...d.parJour.map((x) => Number(x.encaisse)));
   return (
-    <div style={{ display: "grid", gap: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
       <div style={{ display: "flex", gap: 6 }}>
         {[7, 30, 90].map((j) => <button key={j} onClick={() => setJours(j)} style={{ ...boutonDiscret, ...(jours === j ? { background: VERT, color: "#fff", borderColor: VERT } : {}) }}>{j} jours</button>)}
       </div>
@@ -715,7 +715,7 @@ function Rapports() {
 // ---------------------------------------------------------------- Mon compte
 function MonCompte({ moi, onChange }: { moi: Moi; onChange: () => void }) {
   return (
-    <div style={{ display: "grid", gap: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
       <div style={{ ...carte, maxWidth: 420 }}>
         <div style={{ fontSize: 12.5, color: "#666" }}>Connecté en tant que</div>
         <div style={{ fontWeight: 800, fontSize: 17 }}>{moi.name}</div>
@@ -751,7 +751,7 @@ function Utilisateurs() {
     charger();
   }
   return (
-    <div style={{ display: "grid", gap: 14 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
       {temp && (
         <div style={{ ...carte, borderColor: "#f1c27d", background: "#fffaf0" }}>
           <strong>Mot de passe provisoire de {temp.email}</strong>
@@ -772,7 +772,7 @@ function Utilisateurs() {
             <button onClick={() => void agir(String(l.id), { role: l.role === "proprietaire" ? "gestionnaire" : "proprietaire" }, String(l.email))} style={boutonDiscret}>{l.role === "proprietaire" ? "Rendre gestionnaire" : "Rendre propriétaire"}</button>
           </div>) },
       ]} />
-      <div style={{ ...carte, display: "grid", gap: 8 }}>
+      <div style={{ ...carte, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 8 }}>
         <strong>Ajouter un utilisateur</strong>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <input placeholder="Nom" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} style={{ ...champ, flex: 1, minWidth: 140 }} />
@@ -799,7 +799,7 @@ function Journal() {
   const [action, setAction] = useState("");
   useEffect(() => { void api<{ journal: Ligne[] }>(`journal${action ? `?action=${action}` : ""}`).then((r) => r.ok && setLignes(r.data.journal ?? [])); }, [action]);
   return (
-    <div style={{ display: "grid", gap: 12 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
       <select value={action} onChange={(e) => setAction(e.target.value)} style={{ ...champ, maxWidth: 320 }}>
         <option value="">Toutes les actions</option>
         {Object.entries(LIB_ACTION).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -827,9 +827,9 @@ function Parametres() {
     setMsg(r.ok ? "Enregistré ✓" : d.error ?? "Échec.");
   }
   return (
-    <div style={{ ...carte, display: "grid", gap: 14, maxWidth: 640 }}>
+    <div style={{ ...carte, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14, maxWidth: 640 }}>
       {regl.map((x) => (
-        <label key={x.cle} style={{ display: "grid", gap: 4 }}>
+        <label key={x.cle} style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 4 }}>
           <span style={{ fontWeight: 700, fontSize: 13 }}>{x.titre}</span>
           <input value={vals[x.cle] ?? ""} onChange={(e) => setVals({ ...vals, [x.cle]: e.target.value })} style={champ} />
           <span style={{ fontSize: 12.5, color: "#666" }}>{x.aide}</span>
@@ -955,7 +955,7 @@ export default function Admin() {
       <aside style={{ background: "#fff", borderRight: "1px solid #e4e7e2", padding: 16, position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", gap: 14, overflowY: "auto" }}>
         <div style={{ fontWeight: 900, fontSize: 18, color: VERT, letterSpacing: -0.3 }}>NUTRELIS<div style={{ fontSize: 11, letterSpacing: 2, color: "#8a948a", fontWeight: 700 }}>CONSOLE</div></div>
         <div style={{ flex: 1 }}>{navigation}</div>
-        <div style={{ borderTop: "1px solid #e4e7e2", paddingTop: 12, display: "grid", gap: 8 }}>{identite}<button onClick={deconnexion} style={boutonDiscret}>Déconnexion</button></div>
+        <div style={{ borderTop: "1px solid #e4e7e2", paddingTop: 12, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 8 }}>{identite}<button onClick={deconnexion} style={boutonDiscret}>Déconnexion</button></div>
       </aside>
       <main style={{ padding: "22px 28px 80px", maxWidth: 1240 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 18px" }}>{titreOnglet}</h1>
