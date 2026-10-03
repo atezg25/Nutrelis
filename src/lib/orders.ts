@@ -2,7 +2,7 @@ import type { PoolClient } from "pg";
 import { query, tx } from "./db";
 import { fapshiConfigure, verifierPaiement } from "./fapshi";
 import { notifierNouvelleCommande } from "./notifier";
-import { lireReglage } from "./reglages";
+import { fraisPourVille } from "./livraison";
 
 export type LigneDemandee = { variantId: string; qty: number };
 export type ClientCommande = {
@@ -88,7 +88,7 @@ export async function creerCommande(p: {
       sousTotal += unit * qty;
       items.push({ v, qty, unit });
     }
-    const livraison = p.revendeurId ? 0 : Number(await lireReglage("frais_livraison_fcfa")) || 0;
+    const livraison = p.revendeurId ? 0 : (await fraisPourVille(p.client.ville)).fraisFcfa;
     const total = sousTotal + livraison;
 
     const num = await c.query<{ n: string }>("SELECT nextval('order_number_seq')::text AS n");

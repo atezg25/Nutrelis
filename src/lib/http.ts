@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { adminCourant } from "./admin-auth";
 import { ErreurCommande } from "./orders";
+import { ErreurExpedition } from "./expeditions";
 
 export const reponse = (data: unknown, status = 200) => NextResponse.json(data, { status });
 export const erreur = (message: string, status = 400, code?: string) => NextResponse.json({ error: message, code }, { status });
@@ -24,6 +25,7 @@ export async function refuserSiNonProprietaire(): Promise<NextResponse | null> {
 
 /** Traduit une erreur métier (stock, panier…) en réponse claire ; le reste devient un 500 sans détail technique. */
 export function reponseErreur(err: unknown): NextResponse {
+  if (err instanceof ErreurExpedition) return erreur(err.message, err.code === "COMMANDE_INTROUVABLE" || err.code === "COLIS_INTROUVABLE" ? 404 : 409, err.code);
   if (err instanceof ErreurCommande) return erreur(err.message, err.code === "STOCK_INSUFFISANT" ? 409 : 400, err.code);
   console.error("[nutrelis]", err instanceof Error ? err.message : err);
   return erreur("Erreur serveur. Réessayez dans un instant.", 500, "SERVEUR");

@@ -16,6 +16,15 @@ export default function Checkout() {
     adresse: "", ville: "", quartier: "",
   });
 
+  // Frais de livraison : tarif de la ville saisie (table des tarifs de la console), sinon tarif par défaut.
+  const [tarifs, setTarifs] = useState<{ villes: { ville: string; fraisFcfa: number; delai: string | null }[]; defautFcfa: number } | null>(null);
+  useEffect(() => {
+    void fetch("/api/shipping/rates", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(setTarifs).catch(() => setTarifs(null));
+  }, []);
+  const tarifVille = tarifs?.villes.find(v => v.ville.toLowerCase() === form.ville.trim().toLowerCase());
+  const frais = tarifVille ? tarifVille.fraisFcfa : (tarifs?.defautFcfa ?? 0);
+  const totalAPayer = totalPrix + frais;
+
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
   const isSmall = sc === "mobile" || sc === "tablet";
@@ -87,7 +96,7 @@ export default function Checkout() {
         ville: form.ville,
         quartier: form.quartier,
         items,
-        total: totalPrix,
+        total: totalAPayer,
       }));
 
       if (data.checkoutUrl) {
@@ -226,7 +235,7 @@ export default function Checkout() {
                   <div key={f.key}>
                     <label style={{ display: "block", fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#333" }}>{f.label}</label>
                     <input
-                      type="text" placeholder={f.placeholder}
+                      type="text" placeholder={f.placeholder} list={f.key === "ville" ? "villes-cm" : undefined}
                       value={(form as any)[f.key]}
                       onChange={e => setForm({ ...form, [f.key]: e.target.value })}
                       style={{ width: "100%", padding: "13px 16px", borderRadius: 10, border: "1.5px solid #ddd", fontSize: 15, outline: "none", boxSizing: "border-box" }}
@@ -236,6 +245,9 @@ export default function Checkout() {
                   </div>
                 ))}
               </div>
+              <datalist id="villes-cm">
+                {Array.from(new Set([...(tarifs?.villes.map(v => v.ville) ?? []), "Douala", "Yaoundé", "Bafoussam", "Bamenda", "Garoua", "Maroua", "Ngaoundéré", "Bertoua", "Ebolowa", "Kribi", "Limbe", "Buea", "Edéa", "Dschang"])).map(v => <option key={v} value={v} />)}
+              </datalist>
             </div>
 
             {formErreur && <p style={{ color: "#e53e3e", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{formErreur}</p>}
@@ -299,7 +311,7 @@ export default function Checkout() {
                   {modePaiement === "mobile_money" ? t("checkout.payOnlineInfo") : t("checkout.payOnDeliveryInfo")}
                 </p>
                 <p style={{ fontSize: 14, color: "#555", margin: 0 }}>
-                  <strong>{t("checkout.amount")} : {totalPrix.toLocaleString()} FCFA</strong>
+                  <strong>{t("checkout.amount")} : {totalAPayer.toLocaleString()} FCFA</strong>
                 </p>
               </div>
             )}
@@ -357,11 +369,11 @@ export default function Checkout() {
               <span>{t("cart.subtotal")}</span><span>{totalPrix.toLocaleString()} FCFA</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: "#555" }}>
-              <span>{t("cart.shipping")}</span><span style={{ color: "var(--accent)", fontWeight: 700 }}>{t("common.freeShipping")}</span>
+              <span>{t("cart.shipping")}{tarifVille?.delai ? ` (${tarifVille.delai})` : ""}</span><span style={{ color: frais === 0 ? "var(--accent)" : "#333", fontWeight: 700 }}>{frais === 0 ? t("common.freeShipping") : `${frais.toLocaleString()} FCFA`}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 900, fontSize: 16, paddingTop: 12, borderTop: "1px solid #eee" }}>
               <span>{t("cart.total")}</span>
-              <span style={{ color: "#7D0806" }}>{totalPrix.toLocaleString()} FCFA</span>
+              <span style={{ color: "#7D0806" }}>{totalAPayer.toLocaleString()} FCFA</span>
             </div>
           </div>
 

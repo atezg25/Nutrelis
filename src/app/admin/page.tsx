@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 // Un seul écran à onglets. Tout passe par /api/admin/* (cookie signé, mot de passe unique).
 // ============================================================
 type Ligne = Record<string, string | number | boolean | null>;
-type Onglet = "tableau" | "commandes" | "paiements" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "utilisateurs" | "parametres" | "journal" | "compte";
+type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "utilisateurs" | "parametres" | "journal" | "compte";
 
 const VERT = "#1f7a3a";
 const fcfa = (n: unknown) => `${Number(n ?? 0).toLocaleString("fr-FR")} FCFA`;
@@ -657,6 +657,221 @@ function Revendeurs() {
   );
 }
 
+// ---------------------------------------------------------------- Expéditions (colis au Cameroun)
+const LIB_COLIS: Record<string, string> = { expediee: "Expédié", en_livraison: "En livraison", livree: "Livré", echec: "Échec de livraison", retournee: "Retourné" };
+const COULEUR_COLIS: Record<string, string> = { expediee: "#1d4ed8", en_livraison: "#6d28d9", livree: VERT, echec: "#b45309", retournee: "#b91c1c" };
+type Transporteur = { id: string; name: string; phone: string | null; notes: string | null; active: boolean; en_cours: number; total: number };
+
+function DetailColis({ id, fermer, recharger }: { id: string; fermer: () => void; recharger: () => void }) {
+  type D = { colis: Ligne; items: Ligne[]; evenements: Ligne[]; expediteur: { nom: string; telephone: string; adresse: string } };
+  const [d, setD] = useState<D | null>(null);
+  const [note, setNote] = useState("");
+  const [suivi, setSuivi] = useState("");
+  const [transp, setTransp] = useState<Transporteur[]>([]);
+  const [msg, setMsg] = useState("");
+  const charger = useCallback(() => { void api<D>(`shipments/${id}`).then((r) => { if (r.ok) { setD(r.data); setSuivi(String(r.data.colis.tracking ?? "")); } }); }, [id]);
+  useEffect(charger, [charger]);
+  useEffect(() => { void api<{ transporteurs: Transporteur[] }>("carriers").then((r) => r.ok && setTransp(r.data.transporteurs.filter((t) => t.active))); }, []);
+  async function agir(corps: Record<string, unknown>) {
+    setMsg("");
+    const r = await api(`shipments/${id}`, { method: "PATCH", body: corps });
+    if (!r.ok) { setMsg(r.data.error ?? "Échec."); return; }
+    setNote(""); charger(); recharger();
+  }
+  if (!d) return null;
+  const c = d.colis;
+  const tel = String(c.phone ?? "").replace(/[^\d]/g, "");
+  const lienSuivi = `https://nutrelis.bio/suivi?commande=${String(c.number)}`;
+  const message = `Bonjour ${String(c.customer_name)}, votre colis NUTRELIS ${String(c.number)} est ${c.status === "livree" ? "livré. Merci pour votre confiance !" : c.status === "en_livraison" ? "en cours de livraison : le livreur va vous appeler." : "expédié" + (c.carrier_name ? ` avec ${String(c.carrier_name)}` : "") + (c.tracking ? ` (suivi : ${String(c.tracking)})` : "") + "."} Suivi : ${lienSuivi}`;
+  return (
+    <div style={{ ...carte, marginBottom: 14, borderColor: VERT }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+        <h3 style={{ margin: 0 }}>Colis {String(c.number)} <Badge texte={LIB_COLIS[String(c.status)] ?? String(c.status)} couleur={COULEUR_COLIS[String(c.status)] ?? "#555"} /></h3>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <a href={`/admin/bordereau/${id}`} target="_blank" rel="noreferrer" style={{ ...bouton, textDecoration: "none" }}>🖨️ Bordereau</a>
+          <a href={`https://wa.me/${tel}?text=${encodeURIComponent(message)}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>💬 Prévenir le client</a>
+          <button onClick={fermer} style={boutonDiscret}>Fermer</button>
+        </div>
+      </div>
+      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", marginTop: 12 }}>
+        <div>
+          <strong>{String(c.customer_name)}</strong><br />
+          <a href={`tel:+${tel}`} style={{ color: VERT, fontWeight: 700 }}>{String(c.phone)}</a><br />
+          {[c.address, c.city].filter(Boolean).join(", ") || "Adresse non renseignée"}
+          {c.order_notes ? <><br /><em>« {String(c.order_notes)} »</em></> : null}
+        </div>
+        <div>
+          {d.items.map((i, k) => <div key={k}>{String(i.qty)} × {String(i.name)}</div>)}
+          <div style={{ marginTop: 6, fontWeight: 800 }}>Commande : {fcfa(c.total_fcfa)}</div>
+          {Number(c.cod_fcfa) > 0
+            ? <div style={{ marginTop: 6, color: c.cod_collected ? VERT : "#b91c1c", fontWeight: 800 }}>{c.cod_collected ? `✓ ${fcfa(c.cod_fcfa)} encaissés à la remise` : `À ENCAISSER à la remise : ${fcfa(c.cod_fcfa)}`}</div>
+            : <div style={{ marginTop: 6, color: VERT, fontWeight: 700 }}>Déjà payé : rien à encaisser</div>}
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12, alignItems: "center" }}>
+        <select value={String(c.carrier_id ?? "")} onChange={(e) => void agir({ transporteurId: e.target.value || null })} style={champ}>
+          <option value="">Sans transporteur</option>
+          {transp.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
+        <input value={suivi} onChange={(e) => setSuivi(e.target.value)} placeholder="N° de suivi / de bordereau" style={{ ...champ, width: 220 }} />
+        <button onClick={() => void agir({ suivi })} style={boutonDiscret}>Enregistrer le suivi</button>
+      </div>
+      <div style={{ marginTop: 14 }}>
+        <div style={{ fontSize: 13, color: "#555", marginBottom: 6 }}>Faire avancer le colis <span style={{ color: "#888" }}>(la note est visible par le client sur la page de suivi)</span> :</div>
+        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (facultatif) — ex. « client injoignable, nouvelle tentative demain »" style={{ ...champ, width: "100%", boxSizing: "border-box", marginBottom: 8 }} />
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {(["expediee", "en_livraison", "livree", "echec", "retournee"] as const).map((s) => (
+            <button key={s} onClick={() => void agir({ statut: s, note })} style={{ ...boutonDiscret, ...(c.status === s ? { background: COULEUR_COLIS[s], color: "#fff", borderColor: COULEUR_COLIS[s] } : {}) }}>{LIB_COLIS[s]}</button>
+          ))}
+        </div>
+        <div style={{ fontSize: 12.5, color: "#666", marginTop: 6 }}>« Livré » marque la commande livrée et, pour un paiement à la livraison, la somme comme encaissée. « Retourné » annule la commande et remet le stock.</div>
+      </div>
+      <ol style={{ listStyle: "none", padding: 0, margin: "14px 0 0", display: "grid", gap: 6 }}>
+        {[...d.evenements].reverse().map((e, i) => (
+          <li key={i} style={{ fontSize: 13 }}><strong>{date(e.at)}</strong> — {LIB_COLIS[String(e.status)] ?? String(e.status)}{e.note ? ` · ${String(e.note)}` : ""}{e.admin_name ? <span style={{ color: "#888" }}> ({String(e.admin_name)})</span> : null}</li>
+        ))}
+      </ol>
+      {msg && <div style={{ color: "#b91c1c", marginTop: 8 }}>{msg}</div>}
+    </div>
+  );
+}
+
+function ConfigExpeditions() {
+  const [transp, setTransp] = useState<Transporteur[]>([]);
+  const [tarifs, setTarifs] = useState<Ligne[]>([]);
+  const [nt, setNt] = useState({ name: "", phone: "", notes: "" });
+  const [nv, setNv] = useState({ ville: "", fraisFcfa: "", delai: "" });
+  const [err, setErr] = useState("");
+  const charger = useCallback(() => {
+    void api<{ transporteurs: Transporteur[] }>("carriers").then((r) => r.ok && setTransp(r.data.transporteurs));
+    void api<{ tarifs: Ligne[] }>("rates").then((r) => r.ok && setTarifs(r.data.tarifs));
+  }, []);
+  useEffect(charger, [charger]);
+  async function appel(chemin: string, methode: string, corps?: unknown) {
+    setErr("");
+    const r = await api(chemin, { method: methode, body: corps });
+    if (!r.ok) setErr(r.data.error ?? "Échec."); else charger();
+    return r.ok;
+  }
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 18 }}>
+      {err && <div style={{ color: "#b91c1c" }}>{err}</div>}
+      <div>
+        <h3 style={{ margin: "0 0 8px" }}>Transporteurs</h3>
+        <Tableau lignes={transp as unknown as Ligne[]} colonnes={[
+          { titre: "Transporteur", rendu: (l) => <><strong>{String(l.name)}</strong>{l.active ? null : <span style={{ color: "#b91c1c" }}> (désactivé)</span>}<br /><span style={{ color: "#777", fontSize: 12 }}>{[l.phone, l.notes].filter(Boolean).join(" · ")}</span></> },
+          { titre: "Colis en cours", rendu: (l) => String(l.en_cours) },
+          { titre: "Total expédié", rendu: (l) => String(l.total) },
+          { titre: "", rendu: (l) => <button onClick={() => void appel(`carriers/${String(l.id)}`, "PATCH", { active: !l.active })} style={boutonDiscret}>{l.active ? "Désactiver" : "Réactiver"}</button> },
+        ]} />
+        <div style={{ ...carte, display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+          <input placeholder="Nom (ex. ATEZ Express, agence de voyage, livreur moto)" value={nt.name} onChange={(e) => setNt({ ...nt, name: e.target.value })} style={{ ...champ, flex: 2, minWidth: 220 }} />
+          <input placeholder="Téléphone" value={nt.phone} onChange={(e) => setNt({ ...nt, phone: e.target.value })} style={{ ...champ, width: 150 }} />
+          <input placeholder="Note (agence, horaires…)" value={nt.notes} onChange={(e) => setNt({ ...nt, notes: e.target.value })} style={{ ...champ, flex: 1, minWidth: 160 }} />
+          <button disabled={!nt.name} onClick={() => void appel("carriers", "POST", nt).then((ok) => ok && setNt({ name: "", phone: "", notes: "" }))} style={bouton}>Ajouter</button>
+        </div>
+      </div>
+      <div>
+        <h3 style={{ margin: "0 0 4px" }}>Tarifs de livraison par ville</h3>
+        <p style={{ margin: "0 0 8px", color: "#666", fontSize: 13 }}>Le client voit les frais dès qu'il saisit sa ville. Une ville sans tarif paie le tarif par défaut (Paramètres).</p>
+        <Tableau lignes={tarifs} colonnes={[
+          { titre: "Ville", rendu: (l) => <span style={{ opacity: l.active ? 1 : 0.5 }}><strong>{String(l.city)}</strong></span> },
+          { titre: "Frais (FCFA)", rendu: (l) => <input defaultValue={String(l.fee_fcfa)} onBlur={(e) => Number(e.target.value) !== Number(l.fee_fcfa) && void appel(`rates/${String(l.id)}`, "PATCH", { fraisFcfa: Number(e.target.value) })} style={{ ...champ, width: 100 }} /> },
+          { titre: "Délai", rendu: (l) => <input defaultValue={String(l.delay ?? "")} placeholder="ex. 24-48 h" onBlur={(e) => void appel(`rates/${String(l.id)}`, "PATCH", { delai: e.target.value })} style={{ ...champ, width: 130 }} /> },
+          { titre: "", rendu: (l) => <div style={{ display: "flex", gap: 6 }}><button onClick={() => void appel(`rates/${String(l.id)}`, "PATCH", { active: !l.active })} style={boutonDiscret}>{l.active ? "Désactiver" : "Activer"}</button><button onClick={() => void appel(`rates/${String(l.id)}`, "DELETE")} style={{ ...boutonDiscret, color: "#b91c1c" }}>Supprimer</button></div> },
+        ]} />
+        <div style={{ ...carte, display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+          <input placeholder="Ville (ex. Douala)" value={nv.ville} onChange={(e) => setNv({ ...nv, ville: e.target.value })} style={{ ...champ, flex: 1, minWidth: 150 }} />
+          <input type="number" min={0} placeholder="Frais (FCFA)" value={nv.fraisFcfa} onChange={(e) => setNv({ ...nv, fraisFcfa: e.target.value })} style={{ ...champ, width: 130 }} />
+          <input placeholder="Délai (ex. 24-48 h)" value={nv.delai} onChange={(e) => setNv({ ...nv, delai: e.target.value })} style={{ ...champ, width: 150 }} />
+          <button disabled={!nv.ville || nv.fraisFcfa === ""} onClick={() => void appel("rates", "POST", { ville: nv.ville, fraisFcfa: Number(nv.fraisFcfa), delai: nv.delai }).then((ok) => ok && setNv({ ville: "", fraisFcfa: "", delai: "" }))} style={bouton}>Ajouter ou mettre à jour</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Expeditions() {
+  const [vue, setVue] = useState<"a_expedier" | "en_cours" | "livrees" | "incidents" | "config">("a_expedier");
+  const [q, setQ] = useState("");
+  const [d, setD] = useState<{ compteurs: Ligne; commandes?: Ligne[]; colis?: Ligne[] } | null>(null);
+  const [ouvert, setOuvert] = useState<string | null>(null);
+  const [expedier, setExpedier] = useState<string | null>(null);
+  const [transp, setTransp] = useState<Transporteur[]>([]);
+  const [f, setF] = useState({ transporteurId: "", suivi: "", notes: "" });
+  const [err, setErr] = useState("");
+  const charger = useCallback(() => {
+    if (vue === "config") { void api<{ compteurs: Ligne }>("shipments?vue=en_cours").then((r) => r.ok && setD(r.data)); return; }
+    void api<{ compteurs: Ligne; commandes?: Ligne[]; colis?: Ligne[] }>(`shipments?vue=${vue}&q=${encodeURIComponent(q)}`).then((r) => r.ok && setD(r.data));
+  }, [vue, q]);
+  useEffect(charger, [charger]);
+  useEffect(() => { void api<{ transporteurs: Transporteur[] }>("carriers").then((r) => r.ok && setTransp(r.data.transporteurs.filter((t) => t.active))); }, []);
+  async function creer(orderId: string) {
+    setErr("");
+    const r = await api<{ id: string }>("shipments", { method: "POST", body: { orderId, transporteurId: f.transporteurId || undefined, suivi: f.suivi, notes: f.notes } });
+    if (!r.ok) { setErr(r.data.error ?? "Échec."); return; }
+    setExpedier(null); setF({ transporteurId: "", suivi: "", notes: "" }); setVue("en_cours"); setOuvert(r.data.id);
+  }
+  const c = d?.compteurs;
+  const onglets: [typeof vue, string, unknown][] = [["a_expedier", "À expédier", c?.a_expedier], ["en_cours", "En cours", c?.en_cours], ["livrees", "Livrés", c?.livrees], ["incidents", "Incidents et retours", c?.incidents], ["config", "Transporteurs et tarifs", undefined]];
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+        {onglets.map(([k, t, n]) => (
+          <button key={k} onClick={() => { setVue(k); setOuvert(null); setExpedier(null); }} style={{ ...boutonDiscret, ...(vue === k ? { background: VERT, color: "#fff", borderColor: VERT } : {}) }}>
+            {t}{n !== undefined && Number(n) > 0 ? ` (${String(n)})` : ""}
+          </button>
+        ))}
+      </div>
+      {vue === "config" ? <ConfigExpeditions /> : (
+        <>
+          <input placeholder="Rechercher (n°, client, téléphone, ville, suivi)" value={q} onChange={(e) => setQ(e.target.value)} style={{ ...champ, width: "100%", boxSizing: "border-box", marginBottom: 12 }} />
+          {err && <div style={{ color: "#b91c1c", marginBottom: 8 }}>{err}</div>}
+          {ouvert && <DetailColis id={ouvert} fermer={() => setOuvert(null)} recharger={charger} />}
+          {vue === "a_expedier" && (
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 10 }}>
+              {(d?.commandes ?? []).length === 0 && <div style={{ ...carte, color: "#777" }}>Aucune commande à expédier. Les commandes en ligne apparaissent ici une fois payées ; celles à la livraison, dès leur création.</div>}
+              {(d?.commandes ?? []).map((o) => (
+                <div key={String(o.id)} style={carte}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                    <div><strong>{String(o.number)}</strong> · {String(o.customer_name)} · <a href={`tel:${String(o.phone)}`} style={{ color: VERT, fontWeight: 700 }}>{String(o.phone)}</a><br /><span style={{ color: "#555", fontSize: 13 }}>{[o.address, o.city].filter(Boolean).join(", ") || "Adresse non renseignée"}</span></div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontWeight: 800 }}>{fcfa(o.total_fcfa)}</div>
+                      {o.payment_status === "payee" ? <Badge texte="Payée" couleur={VERT} /> : <Badge texte={`À encaisser ${fcfa(o.total_fcfa)}`} couleur="#b91c1c" />}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 13, color: "#555", margin: "6px 0" }}>{String(o.resume ?? "")}</div>
+                  {expedier === String(o.id) ? (
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                      <select value={f.transporteurId} onChange={(e) => setF({ ...f, transporteurId: e.target.value })} style={champ}>
+                        <option value="">Choisir le transporteur…</option>
+                        {transp.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                      </select>
+                      <input placeholder="N° de suivi (facultatif)" value={f.suivi} onChange={(e) => setF({ ...f, suivi: e.target.value })} style={{ ...champ, width: 200 }} />
+                      <input placeholder="Note (facultatif)" value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} style={{ ...champ, flex: 1, minWidth: 140 }} />
+                      <button onClick={() => void creer(String(o.id))} style={bouton}>Confirmer l'expédition</button>
+                      <button onClick={() => setExpedier(null)} style={boutonDiscret}>Annuler</button>
+                    </div>
+                  ) : <button onClick={() => setExpedier(String(o.id))} style={bouton}>📦 Expédier</button>}
+                </div>
+              ))}
+            </div>
+          )}
+          {vue !== "a_expedier" && (
+            <Tableau lignes={d?.colis ?? []} onClic={(l) => setOuvert(String(l.id))} colonnes={[
+              { titre: "Colis", rendu: (l) => <><strong>{String(l.number)}</strong><br /><span style={{ color: "#777", fontSize: 12 }}>{date(l.shipped_at)}</span></> },
+              { titre: "Destinataire", rendu: (l) => <>{String(l.customer_name)}<br /><span style={{ color: "#777", fontSize: 12 }}>{String(l.phone)}{l.city ? ` · ${String(l.city)}` : ""}</span></> },
+              { titre: "Transporteur", rendu: (l) => <>{String(l.carrier_name ?? "—")}{l.tracking ? <><br /><span style={{ color: "#777", fontSize: 12 }}>{String(l.tracking)}</span></> : null}</> },
+              { titre: "Statut", rendu: (l) => <Badge texte={LIB_COLIS[String(l.status)] ?? String(l.status)} couleur={COULEUR_COLIS[String(l.status)] ?? "#555"} /> },
+              { titre: "À encaisser", rendu: (l) => (Number(l.cod_fcfa) > 0 ? (l.cod_collected ? <span style={{ color: VERT, fontWeight: 700 }}>✓ encaissé</span> : <strong style={{ color: "#b91c1c" }}>{fcfa(l.cod_fcfa)}</strong>) : <span style={{ color: "#888" }}>—</span>) },
+            ]} />
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- Clients
 function Clients() {
   const [lignes, setLignes] = useState<Ligne[]>([]);
@@ -793,6 +1008,8 @@ const LIB_ACTION: Record<string, string> = {
   commande_statut: "Statut de commande", commande_payee_manuel: "Paiement encaissé à la main", commande_saisie: "Commande saisie", stock: "Mouvement de stock",
   produit_cree: "Produit créé", produit_modifie: "Produit modifié", pack_cree: "Pack créé", pack_modifie: "Pack modifié", revendeur_cree: "Revendeur créé", revendeur_modifie: "Revendeur modifié",
   image_envoyee: "Image envoyée", reglage: "Réglage modifié",
+  colis_cree: "Colis créé", colis_modifie: "Colis modifié", colis_statut: "Statut de colis", transporteur_cree: "Transporteur créé", transporteur_modifie: "Transporteur modifié",
+  tarif_ville: "Tarif de ville", tarif_ville_modifie: "Tarif de ville modifié", tarif_ville_supprime: "Tarif de ville supprimé",
 };
 function Journal() {
   const [lignes, setLignes] = useState<Ligne[]>([]);
@@ -847,6 +1064,7 @@ type Moi = { email: string; name: string; role: "proprietaire" | "gestionnaire";
 const MENU: { id: Onglet; titre: string; icone: string; proprietaire?: boolean; groupe?: string }[] = [
   { id: "tableau", titre: "Tableau de bord", icone: "📊" },
   { id: "commandes", titre: "Commandes", icone: "🧾" },
+  { id: "expeditions", titre: "Expéditions", icone: "🚚" },
   { id: "paiements", titre: "Paiements", icone: "💳" },
   { id: "clients", titre: "Clients", icone: "👥" },
   { id: "stock", titre: "Stock", icone: "📦" },
@@ -863,6 +1081,7 @@ export default function Admin() {
   const [moi, setMoi] = useState<Moi | null | "inconnu">("inconnu");
   const [onglet, setOnglet] = useState<Onglet>("tableau");
   const [aTraiter, setATraiter] = useState(0);
+  const [aExpedier, setAExpedier] = useState(0);
   const [etroit, setEtroit] = useState(false);
   const [menuOuvert, setMenuOuvert] = useState(false);
 
@@ -878,7 +1097,10 @@ export default function Admin() {
     return () => window.removeEventListener("resize", f);
   }, []);
   useEffect(() => {
-    if (moi && moi !== "inconnu" && !moi.mustChange) void api<{ chiffres: Ligne }>("stats").then((r) => r.ok && setATraiter(Number(r.data.chiffres.a_traiter)));
+    if (moi && moi !== "inconnu" && !moi.mustChange) {
+      void api<{ chiffres: Ligne }>("stats").then((r) => r.ok && setATraiter(Number(r.data.chiffres.a_traiter)));
+      void api<{ compteurs: Ligne }>("shipments?vue=en_cours").then((r) => r.ok && setAExpedier(Number(r.data.compteurs.a_expedier)));
+    }
   }, [moi, onglet]);
 
   if (moi === "inconnu") return <p style={{ padding: 20 }}>Chargement…</p>;
@@ -905,6 +1127,7 @@ export default function Admin() {
           <button onClick={() => aller(m.id)} style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, border: 0, cursor: "pointer", fontSize: 14, fontWeight: onglet === m.id ? 800 : 600, background: onglet === m.id ? VERT : "transparent", color: onglet === m.id ? "#fff" : "#2b312b" }}>
             <span aria-hidden>{m.icone}</span>
             <span style={{ flex: 1 }}>{m.titre}</span>
+            {m.id === "expeditions" && aExpedier > 0 && <span style={{ background: onglet === m.id ? "#fff" : "#b45309", color: onglet === m.id ? VERT : "#fff", borderRadius: 999, padding: "1px 8px", fontSize: 12, fontWeight: 800 }}>{aExpedier}</span>}
             {m.id === "commandes" && aTraiter > 0 && <span style={{ background: onglet === m.id ? "#fff" : "#b91c1c", color: onglet === m.id ? VERT : "#fff", borderRadius: 999, padding: "1px 8px", fontSize: 12, fontWeight: 800 }}>{aTraiter}</span>}
           </button>
         </div>
@@ -916,6 +1139,7 @@ export default function Admin() {
     <>
       {onglet === "tableau" && <TableauDeBord ouvrir={aller} />}
       {onglet === "commandes" && <Commandes />}
+      {onglet === "expeditions" && <Expeditions />}
       {onglet === "paiements" && <Paiements />}
       {onglet === "clients" && <Clients />}
       {onglet === "stock" && <Stock />}

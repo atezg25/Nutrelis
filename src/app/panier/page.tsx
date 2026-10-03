@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import HydrationGuard from "@/components/HydrationGuard";
+import { useEffect, useState } from "react";
 import { useLocale } from "@/context/LocaleContext";
 
 export default function Panier() {
@@ -10,8 +11,17 @@ export default function Panier() {
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
   const isSmall = sc === "mobile" || sc === "tablet";
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const fr = locale === "fr";
   const px = isMobile ? "16px" : sc === "tablet" ? "28px" : "60px";
+  // Si la boutique facture la livraison (tarif par défaut ou tarif d'une ville), on ne peut plus écrire « Gratuite ».
+  const [fraisApplicables, setFraisApplicables] = useState(false);
+  useEffect(() => {
+    void fetch("/api/shipping/rates", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d) setFraisApplicables(d.defautFcfa > 0 || d.villes.some((v: { fraisFcfa: number }) => v.fraisFcfa > 0)); })
+      .catch(() => undefined);
+  }, []);
 
   return (
     <HydrationGuard bg="#fff" style={{ color: "#1a1a1a", minHeight: "100vh" }}>
@@ -133,7 +143,7 @@ export default function Panier() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: "#555" }}>
                   <span>{t("cart.shipping")}</span>
-                  <span style={{ color: "var(--accent)", fontWeight: 700 }}>{t("common.freeShipping")}</span>
+                  <span style={{ color: fraisApplicables ? "#333" : "var(--accent)", fontWeight: 700 }}>{fraisApplicables ? (fr ? "Calculée à la commande, selon votre ville" : "Calculated at checkout, by city") : t("common.freeShipping")}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: "#555" }}>
                   <span>{t("common.guarantee90")}</span>

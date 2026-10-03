@@ -153,6 +153,56 @@ CREATE TABLE IF NOT EXISTS setting (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Expéditions de colis au Cameroun : transporteurs, tarifs par ville, colis et leur historique. Idempotent.
+
+CREATE TABLE IF NOT EXISTS carrier (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name       TEXT NOT NULL UNIQUE,
+  phone      TEXT,
+  notes      TEXT,
+  active     BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Tarif de livraison par ville (une ville = une ligne, insensible à la casse). Une ville absente de cette table
+-- paie le tarif par défaut des réglages (`frais_livraison_fcfa`).
+CREATE TABLE IF NOT EXISTS shipping_rate (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  city       TEXT NOT NULL,
+  fee_fcfa   INTEGER NOT NULL CHECK (fee_fcfa >= 0),
+  delay      TEXT,
+  active     BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS shipping_rate_city_idx ON shipping_rate (lower(city));
+
+-- Un colis par commande. `cod_fcfa` = somme à encaisser auprès du destinataire à la remise (paiement à la livraison).
+CREATE TABLE IF NOT EXISTS shipment (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id      UUID NOT NULL UNIQUE REFERENCES customer_order(id) ON DELETE CASCADE,
+  carrier_id    UUID REFERENCES carrier(id),
+  tracking      TEXT,
+  status        TEXT NOT NULL DEFAULT 'expediee' CHECK (status IN ('expediee','en_livraison','livree','echec','retournee')),
+  cod_fcfa      INTEGER NOT NULL DEFAULT 0 CHECK (cod_fcfa >= 0),
+  cod_collected BOOLEAN NOT NULL DEFAULT FALSE,
+  notes         TEXT,
+  shipped_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  delivered_at  TIMESTAMPTZ,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS shipment_status_idx ON shipment (status, shipped_at DESC);
+
+CREATE TABLE IF NOT EXISTS shipment_event (
+  id          BIGSERIAL PRIMARY KEY,
+  shipment_id UUID NOT NULL REFERENCES shipment(id) ON DELETE CASCADE,
+  at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  status      TEXT NOT NULL,
+  note        TEXT,
+  admin_name  TEXT
+);
+CREATE INDEX IF NOT EXISTS shipment_event_idx ON shipment_event (shipment_id, at);
+
 -- Vue pratique : stock courant par variante.
 CREATE OR REPLACE VIEW variant_stock AS
 SELECT v.id AS variant_id, COALESCE(SUM(m.delta), 0)::int AS stock

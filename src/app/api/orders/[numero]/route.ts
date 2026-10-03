@@ -38,7 +38,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ numero: 
         } catch { /* Fapshi indisponible : on renvoie l'état connu. */ }
       }
     }
-    return reponse({ numero: o.number, statut: o.status, paiement: o.payment_status, total: o.total_fcfa, client: o.customer_name });
+    // État du colis (s'il est parti) : transporteur, suivi, et historique visible par le client.
+    const colis = (await query<{ id: string; status: string; tracking: string | null; shipped_at: string; delivered_at: string | null; carrier_name: string | null }>(
+      "SELECT s.id, s.status, s.tracking, s.shipped_at, s.delivered_at, ca.name AS carrier_name FROM shipment s LEFT JOIN carrier ca ON ca.id=s.carrier_id WHERE s.order_id=$1",
+      [o.id],
+    ))[0];
+    const evenements = colis
+      ? await query<{ at: string; status: string; note: string | null }>("SELECT at, status, note FROM shipment_event WHERE shipment_id=$1 ORDER BY at, id", [colis.id])
+      : [];
+    return reponse({
+      numero: o.number, statut: o.status, paiement: o.payment_status, total: o.total_fcfa, client: o.customer_name,
+      colis: colis ? { statut: colis.status, transporteur: colis.carrier_name, suivi: colis.tracking, expedieLe: colis.shipped_at, livreLe: colis.delivered_at, evenements } : null,
+    });
   } catch (err) {
     return reponseErreur(err);
   }
