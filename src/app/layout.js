@@ -1,7 +1,6 @@
 import { Sora, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
-import { AuthProvider } from "@/context/AuthContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import { ScreenSizeProvider } from "@/context/ScreenSizeContext";
 
@@ -112,11 +111,9 @@ export default function RootLayout({ children }) {
         />
         <LocaleProvider>
           <ScreenSizeProvider>
-            <AuthProvider>
-              <CartProvider>
-                {children}
-              </CartProvider>
-            </AuthProvider>
+            <CartProvider>
+              {children}
+            </CartProvider>
           </ScreenSizeProvider>
         </LocaleProvider>
       </body>

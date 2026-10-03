@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import { useLocale } from "@/context/LocaleContext";
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +11,6 @@ interface NavbarCartProps {
 
 export default function NavbarCart({ dark = true }: NavbarCartProps) {
   const { totalItems } = useCart();
-  const { customer } = useAuth();
   const isMobile = useScreenSize() === "mobile";
   const { t } = useLocale();
   const [bouncing, setBouncing] = useState(false);
@@ -52,30 +50,6 @@ export default function NavbarCart({ dark = true }: NavbarCartProps) {
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 10 }}>
-
-      {/* Lien Mon compte */}
-      {customer ? (
-        <Link href="/compte" style={isMobile ? { ...btnStyle, width: size, padding: 0 } : btnStyle}
-          onMouseEnter={e => e.currentTarget.style.borderColor = borderHover}
-          onMouseLeave={e => e.currentTarget.style.borderColor = borderColor}
-        >
-          <div style={{ width: isMobile ? 22 : 26, height: isMobile ? 22 : 26, borderRadius: "50%", background: "#7D0806", display: "flex", alignItems: "center", justifyContent: "center", fontSize: isMobile ? 9 : 11, fontWeight: 900, color: "#fff", flexShrink: 0 }}>
-            {customer.first_name?.charAt(0)}{customer.last_name?.charAt(0)}
-          </div>
-          {!isMobile && <span>{customer.first_name}</span>}
-        </Link>
-      ) : (
-        <Link href="/auth/connexion" style={btnStyle}
-          onMouseEnter={e => e.currentTarget.style.borderColor = borderHover}
-          onMouseLeave={e => e.currentTarget.style.borderColor = borderColor}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-          </svg>
-          {!isMobile && <span>{t("nav.login")}</span>}
-        </Link>
-      )}
 
       {/* Icône panier */}
       <Link href="/panier" style={{ ...btnStyle, position: "relative", width: size, padding: 0, justifyContent: "center" }}

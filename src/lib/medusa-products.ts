@@ -1,14 +1,8 @@
-const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
-const PUB_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
-
-/** Corriger les URLs localhost:9000 retournées par le file provider local Medusa.
- *  Si le backend utilise S3/R2 les URLs sont déjà publiques → pas de réécriture. */
-function fixMediaUrl(url: string | null): string | null {
-  if (!url) return null;
-  if (url.startsWith("https://")) return url;
-  return url.replace("http://localhost:9000", BACKEND);
-}
-
+/**
+ * CATALOGUE — ex-« medusa-products ». Le nom du fichier est conservé pour ne pas toucher aux pages qui l'importent,
+ * mais les produits viennent désormais de NOTRE base (via /api/catalog), plus de Medusa.
+ * Les formes (`MedusaProduct`, `getVariantPrice`) restent identiques : les pages n'ont rien à changer.
+ */
 export interface MedusaVariant {
   id: string;
   title: string;
@@ -16,6 +10,9 @@ export interface MedusaVariant {
   prices: { amount: number; currency_code: string }[];
   options: { value: string }[];
   metadata: Record<string, unknown> | null;
+  /** Ajouts NUTRELIS : disponibilité. */
+  inStock?: boolean;
+  stockFaible?: boolean;
 }
 
 export interface MedusaProduct {
@@ -30,52 +27,50 @@ export interface MedusaProduct {
   metadata: Record<string, unknown> | null;
 }
 
-/** Corriger toutes les URLs media d'un produit Medusa */
-function fixProductUrls(product: MedusaProduct): MedusaProduct {
+type ApiVariant = { id: string; sku: string; label: string; priceFcfa: number; originalPriceFcfa: number | null; inStock: boolean; stockFaible: boolean };
+type ApiProduct = { id: string; slug: string; name: string; subtitle: string | null; description: string | null; imageUrl: string | null; variants: ApiVariant[] };
+
+function versProduit(p: ApiProduct): MedusaProduct {
   return {
-    ...product,
-    thumbnail: fixMediaUrl(product.thumbnail),
-    images: product.images?.map(img => ({ ...img, url: fixMediaUrl(img.url) || img.url })) || [],
+    id: p.id,
+    title: p.name,
+    subtitle: p.subtitle,
+    description: p.description,
+    handle: p.slug,
+    thumbnail: p.imageUrl,
+    images: p.imageUrl ? [{ url: p.imageUrl }] : [],
+    metadata: null,
+    variants: p.variants.map((v) => ({
+      id: v.id,
+      title: v.label,
+      sku: v.sku,
+      prices: [{ amount: v.priceFcfa, currency_code: "xaf" }],
+      options: [{ value: v.label }],
+      metadata: v.originalPriceFcfa ? { originalPrice: v.originalPriceFcfa } : null,
+      inStock: v.inStock,
+      stockFaible: v.stockFaible,
+    })),
   };
 }
 
 export async function fetchProducts(): Promise<MedusaProduct[]> {
   try {
-    const res = await fetch(
-      `${BACKEND}/store/products?fields=*variants,*variants.prices`,
-      {
-        headers: { "x-publishable-api-key": PUB_KEY },
-        next: { revalidate: 60 },
-      }
-    );
+    const res = await fetch("/api/catalog", { cache: "no-store" });
     if (!res.ok) return [];
-    const data = await res.json();
-    return (data.products || []).map(fixProductUrls);
+    const data = (await res.json()) as { products?: ApiProduct[] };
+    return (data.products ?? []).map(versProduit);
   } catch {
     return [];
   }
 }
 
 export async function fetchProductByHandle(handle: string): Promise<MedusaProduct | null> {
-  try {
-    const res = await fetch(
-      `${BACKEND}/store/products?handle=${handle}&fields=*variants,*variants.prices`,
-      {
-        headers: { "x-publishable-api-key": PUB_KEY },
-        next: { revalidate: 60 },
-      }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    const product = data.products?.[0];
-    return product ? fixProductUrls(product) : null;
-  } catch {
-    return null;
-  }
+  const tous = await fetchProducts();
+  return tous.find((p) => p.handle === handle) ?? null;
 }
 
-/** Extraire le prix XAF d'un variant Medusa */
+/** Prix en FCFA (XAF) d'un pack. */
 export function getVariantPrice(variant: MedusaVariant): number {
-  const price = variant.prices?.find(p => p.currency_code === "xaf");
+  const price = variant.prices?.find((p) => p.currency_code === "xaf");
   return price?.amount ?? 0;
 }

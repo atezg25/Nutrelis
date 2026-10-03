@@ -8,9 +8,8 @@ export const dynamic = "force-dynamic";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
-  const reference = searchParams.get("reference") || searchParams.get("trxref");
-  const statusUrl = searchParams.get("status");
-  const [statut, setStatut] = useState<"chargement" | "succès" | "échec">("chargement");
+  const reference = searchParams.get("commande");
+  const [statut, setStatut] = useState<"chargement" | "succès" | "échec" | "attente">("chargement");
   const [emailEnvoye, setEmailEnvoye] = useState(false);
   const { viderPanier } = useCart();
   const { t } = useLocale();
@@ -38,28 +37,29 @@ function SuccessContent() {
 
   useEffect(() => {
     if (!reference) { setStatut("échec"); return; }
+    let telephone = "";
+    try { telephone = JSON.parse(localStorage.getItem("nutrelis-customer") || "{}").telephone || ""; } catch {}
+    if (!telephone) { setStatut("attente"); return; }
 
-    // Si Notchpay a déjà envoyé status=complete dans l'URL, on l'accepte directement
-    if (statusUrl === "complete" || statusUrl === "success") {
-      setStatut("succès");
-      confirmerCommande(reference);
-      return;
-    }
-
-    // Sinon on vérifie via l'API
-    fetch(`/api/notchpay/verify?reference=${reference}`)
-      .then(r => r.json())
-      .then(data => {
-        const s = data.transaction?.status;
-        if (s === "complete" || s === "success" || s === "completed") {
-          setStatut("succès");
-          confirmerCommande(reference);
-        } else {
-          setStatut("échec");
-        }
-      })
-      .catch(() => setStatut("échec"));
-  }, [reference, statusUrl]);
+    // Fapshi ramène le client ici avant que le webhook n'arrive : on interroge notre serveur (qui interroge Fapshi)
+    // toutes les 4 s pendant ~1 min. Seule la réponse de Fapshi fait foi.
+    let essais = 0;
+    let arrete = false;
+    const verifier = async () => {
+      if (arrete) return;
+      essais += 1;
+      try {
+        const r = await fetch(`/api/orders/${encodeURIComponent(reference)}?tel=${encodeURIComponent(telephone)}`, { cache: "no-store" });
+        const d = await r.json();
+        if (d.paiement === "payee") { setStatut("succès"); confirmerCommande(reference); return; }
+        if (d.paiement === "echouee" || d.statut === "annulee") { setStatut("échec"); return; }
+      } catch { /* on réessaie */ }
+      if (essais >= 15) { setStatut("attente"); return; }
+      setTimeout(verifier, 4000);
+    };
+    void verifier();
+    return () => { arrete = true; };
+  }, [reference]);
 
   if (statut === "chargement") {
     return (
@@ -68,6 +68,18 @@ function SuccessContent() {
         <p style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: 18, fontWeight: 700 }}>
           {t("success.verifying")}
         </p>
+      </div>
+    );
+  }
+
+  if (statut === "attente") {
+    return (
+      <div style={{ textAlign: "center", maxWidth: 480, padding: "60px 40px" }}>
+        <div style={{ fontSize: 64, marginBottom: 24 }}>🕐</div>
+        <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.6rem", fontWeight: 900, marginBottom: 16 }}>{t("success.pending")}</h1>
+        <p style={{ color: "#555", fontSize: 15, marginBottom: 12, lineHeight: 1.8 }}>{t("success.pendingDesc")}</p>
+        {reference && <p style={{ color: "#555", fontSize: 14, marginBottom: 28 }}>{t("success.reference")} : <strong>{reference}</strong></p>}
+        <Link href="/contact" style={{ background: "#f0f0f0", color: "#333", padding: "14px 28px", borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: "none" }}>{t("success.contact")}</Link>
       </div>
     );
   }

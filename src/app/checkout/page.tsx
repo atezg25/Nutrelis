@@ -2,35 +2,19 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import HydrationGuard from "@/components/HydrationGuard";
-import BoutonGoogle from "@/components/BoutonGoogle";
 import { useLocale } from "@/context/LocaleContext";
 
 export default function Checkout() {
-  const { items, totalPrix, medusaCartId } = useCart();
-  const { customer } = useAuth();
+  const { items, totalPrix, viderPanier } = useCart();
   const { t } = useLocale();
   const [etape, setEtape] = useState<"formulaire" | "paiement" | "confirmation">("formulaire");
-  const [modePaiement, setModePaiement] = useState<"mobile_money" | "orange_money" | "carte" | null>(null);
+  const [modePaiement, setModePaiement] = useState<"mobile_money" | "livraison" | null>(null);
   const [form, setForm] = useState({
     nom: "", prenom: "", email: "", telephone: "",
     adresse: "", ville: "", quartier: "",
   });
-
-  // Pré-remplir le formulaire si connecté via Google
-  useEffect(() => {
-    if (customer) {
-      setForm(prev => ({
-        ...prev,
-        nom: prev.nom || customer.last_name || "",
-        prenom: prev.prenom || customer.first_name || "",
-        email: prev.email || customer.email || "",
-        telephone: prev.telephone || customer.phone || "",
-      }));
-    }
-  }, [customer]);
 
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
@@ -52,35 +36,38 @@ export default function Checkout() {
   };
 
   const handlePaiement = async () => {
-    if (!modePaiement || modePaiement === "carte") return;
+    if (!modePaiement) return;
     setChargement(true);
     setErreur("");
 
     try {
-      // Le panier Medusa est déjà synchronisé via CartContext
-      // On stocke l'ID pour la vérification post-paiement
-      if (medusaCartId) {
-        localStorage.setItem("nutrelis-medusa-cart", medusaCartId);
+      // Les lignes du panier : seuls les packs de la boutique (identifiant valide) peuvent être commandés.
+      const lignes = items
+        .filter(i => i.variantId)
+        .map(i => ({ variantId: i.variantId, qty: i.quantite }));
+      if (lignes.length === 0) {
+        setErreur(t("common.error"));
+        setChargement(false);
+        return;
       }
 
-      // 2. Initialiser le paiement Notchpay
-      const res = await fetch("/api/notchpay/init", {
+      const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: form.email,
-          telephone: form.telephone,
-          nom: form.nom,
-          prenom: form.prenom,
-          montant: totalPrix,
-          description: items.map(i => i.description).join(", "),
-          items,
-          adresse: form.adresse,
-          ville: form.ville,
-          quartier: form.quartier,
+          items: lignes,
+          mode: modePaiement === "livraison" ? "livraison" : "fapshi",
+          client: {
+            nom: form.nom,
+            prenom: form.prenom,
+            email: form.email,
+            telephone: form.telephone,
+            adresse: form.adresse,
+            ville: form.ville,
+            quartier: form.quartier,
+          },
         }),
       });
-
       const data = await res.json();
 
       if (!res.ok) {
@@ -89,28 +76,29 @@ export default function Checkout() {
         return;
       }
 
-      const authUrl = data.authorization_url || data.transaction?.authorization_url;
+      // Pour l'e-mail de confirmation et l'écran de suivi.
+      localStorage.setItem("nutrelis-customer", JSON.stringify({
+        numero: data.numero,
+        nom: form.nom,
+        prenom: form.prenom,
+        email: form.email,
+        telephone: form.telephone,
+        adresse: form.adresse,
+        ville: form.ville,
+        quartier: form.quartier,
+        items,
+        total: totalPrix,
+      }));
 
-      if (authUrl) {
-        // Sauvegarder les infos client pour l'email de confirmation
-        localStorage.setItem("nutrelis-customer", JSON.stringify({
-          nom: form.nom,
-          prenom: form.prenom,
-          email: form.email,
-          telephone: form.telephone,
-          adresse: form.adresse,
-          ville: form.ville,
-          quartier: form.quartier,
-          items,
-          total: totalPrix,
-        }));
-        // Ne pas couper le spinner — la redirection peut prendre quelques secondes
-        window.location.href = authUrl;
+      if (data.checkoutUrl) {
+        // Paiement en ligne : on part chez Fapshi (ne pas couper le spinner, la redirection peut prendre un instant).
+        window.location.href = data.checkoutUrl;
         return;
-      } else {
-        setErreur(data.error || data.message || t("common.error"));
-        setChargement(false);
       }
+      // Paiement à la livraison : la commande est enregistrée, c'est terminé.
+      viderPanier();
+      setChargement(false);
+      setEtape("confirmation");
     } catch {
       setErreur(t("common.error"));
       setChargement(false);
@@ -190,31 +178,7 @@ export default function Checkout() {
               {t("checkout.title")}
             </h2>
 
-            {/* Connexion rapide Google */}
-            {!customer && (
-              <div style={{ marginBottom: 28 }}>
-                <p style={{ color: "#888", fontSize: 13, marginBottom: 12, textAlign: "center" }}>
-                  {t("checkout.googleFill")}
-                </p>
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <BoutonGoogle />
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "24px 0 0" }}>
-                  <div style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
-                  <span style={{ color: "#aaa", fontSize: 13, fontWeight: 600 }}>{t("checkout.orManual")}</span>
-                  <div style={{ flex: 1, height: 1, background: "#e0e0e0" }} />
-                </div>
-              </div>
-            )}
 
-            {customer && (
-              <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 10, padding: "12px 16px", marginBottom: 24, display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 18 }}>✅</span>
-                <span style={{ fontSize: 14, color: "#333" }}>
-                  {t("checkout.googleConnected")} <strong>{customer.first_name} {customer.last_name}</strong>
-                </span>
-              </div>
-            )}
 
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 16 }}>
               {[
@@ -295,13 +259,12 @@ export default function Checkout() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
               {[
-                { id: "mobile_money", label: t("checkout.mtnMomo"), desc: t("checkout.mtnDesc"), emoji: "📱", color: "#ffcc00" },
-                { id: "orange_money", label: t("checkout.orangeMoney"), desc: t("checkout.orangeDesc"), emoji: "🟠", color: "#ff6600" },
-                { id: "carte", label: t("checkout.card"), desc: t("checkout.cardDesc"), emoji: "💳", color: "#1a1a2e", disabled: true },
+                { id: "mobile_money", label: t("checkout.payOnline"), desc: t("checkout.payOnlineDesc"), emoji: "📱", color: "#ffcc00", disabled: false },
+                { id: "livraison", label: t("checkout.payOnDelivery"), desc: t("checkout.payOnDeliveryDesc"), emoji: "🚚", color: "#1f7a3a", disabled: false },
               ].map(opt => (
                 <div
                   key={opt.id}
-                  onClick={() => !opt.disabled && setModePaiement(opt.id as any)}
+                  onClick={() => !opt.disabled && setModePaiement(opt.id as "mobile_money" | "livraison")}
                   style={{
                     display: "flex", alignItems: "center", gap: 14,
                     padding: isMobile ? "16px" : "20px", borderRadius: 14, cursor: opt.disabled ? "not-allowed" : "pointer",
@@ -330,26 +293,14 @@ export default function Checkout() {
               ))}
             </div>
 
-            {modePaiement && modePaiement !== "carte" && (
+            {modePaiement && (
               <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 12, padding: "20px", marginBottom: 24 }}>
                 <p style={{ fontSize: 14, color: "#333", lineHeight: 1.7, marginBottom: 8 }}>
-                  <strong>{t("checkout.paymentInstructions")}</strong>
+                  {modePaiement === "mobile_money" ? t("checkout.payOnlineInfo") : t("checkout.payOnDeliveryInfo")}
                 </p>
-                <ol style={{ paddingLeft: 20, fontSize: 14, color: "#555", lineHeight: 2 }}>
-                  {(modePaiement === "mobile_money" ? [
-                    t("checkout.mtnStep1"),
-                    t("checkout.mtnStep2"),
-                    t("checkout.mtnStep3"),
-                    `${t("checkout.amount")} : ${totalPrix.toLocaleString()} FCFA`,
-                    t("checkout.mtnStep5"),
-                  ] : [
-                    t("checkout.orangeStep1"),
-                    t("checkout.orangeStep2"),
-                    t("checkout.orangeStep3"),
-                    `${t("checkout.amount")} : ${totalPrix.toLocaleString()} FCFA`,
-                    t("checkout.orangeStep5"),
-                  ]).map((step, i) => <li key={i}>{step}</li>)}
-                </ol>
+                <p style={{ fontSize: 14, color: "#555", margin: 0 }}>
+                  <strong>{t("checkout.amount")} : {totalPrix.toLocaleString()} FCFA</strong>
+                </p>
               </div>
             )}
 
@@ -365,8 +316,8 @@ export default function Checkout() {
               </button>
               <button
                 onClick={handlePaiement}
-                disabled={!modePaiement || modePaiement === "carte" || chargement}
-                style={{ flex: 2, background: modePaiement && modePaiement !== "carte" ? "#7D0806" : "#ccc", color: "#fff", border: "none", padding: "16px", borderRadius: 12, fontSize: isMobile ? 13 : 15, fontWeight: 900, cursor: "pointer", fontFamily: "var(--font-sora), sans-serif" }}
+                disabled={!modePaiement || chargement}
+                style={{ flex: 2, background: modePaiement ? "#7D0806" : "#ccc", color: "#fff", border: "none", padding: "16px", borderRadius: 12, fontSize: isMobile ? 13 : 15, fontWeight: 900, cursor: "pointer", fontFamily: "var(--font-sora), sans-serif" }}
               >
                 {chargement ? (
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>

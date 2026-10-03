@@ -469,6 +469,12 @@ const en: Record<string, any> = {
     continuePayment: "Continue to payment →",
     paymentTitle: "Payment method",
     paymentDesc: "Choose your preferred payment method",
+    payOnline: "Mobile Money (MTN, Orange)",
+    payOnlineDesc: "Secure online payment via Fapshi",
+    payOnlineInfo: "You will be redirected to the secure Fapshi payment page, then confirm the request on your phone with your secret code.",
+    payOnDelivery: "Pay on delivery",
+    payOnDeliveryDesc: "You pay the courier in cash when you receive your order",
+    payOnDeliveryInfo: "No payment now: you pay the courier when your order arrives.",
     mtnMomo: "MTN Mobile Money",
     mtnDesc: "Pay via MTN MoMo",
     orangeMoney: "Orange Money",
@@ -498,6 +504,8 @@ const en: Record<string, any> = {
 
   // SUCCESS
   success: {
+    pending: "Payment being confirmed",
+    pendingDesc: "We have not received confirmation from your operator yet. If you approved the payment on your phone, your order will be confirmed within a few minutes. Contact us if needed.",
     title: "Payment confirmed!",
     desc: "Your order has been received and will be shipped via",
     in24h: "within 24 hours.",
