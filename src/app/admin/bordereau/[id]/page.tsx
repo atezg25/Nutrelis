@@ -25,6 +25,8 @@ export default function Bordereau({ params }: { params: Promise<{ id: string }> 
   if (!d) return <p style={{ padding: 30, fontFamily: "system-ui" }}>Chargement…</p>;
   const c = d.colis;
   const cod = Number(c.cod_fcfa ?? 0);
+  // Colis déjà livré : la somme a été remise au livreur. Un bordereau réimprimé ne doit PAS redemander de l'argent.
+  const encaisse = cod > 0 && c.cod_collected === true;
   const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
 
   return (
@@ -60,8 +62,10 @@ export default function Bordereau({ params }: { params: Promise<{ id: string }> 
           <div style={{ fontSize: 11, letterSpacing: 1.5, fontWeight: 700 }}>CONTENU</div>
           <div style={{ fontSize: 14, marginTop: 4 }}>{d.items.map((i, k) => <div key={k}>{i.qty} × {i.name}</div>)}</div>
         </div>
-        <div style={{ border: "3px solid #000", padding: 12, textAlign: "center", background: cod > 0 ? "#000" : "#fff", color: cod > 0 ? "#fff" : "#000" }}>
-          {cod > 0 ? (
+        <div style={{ border: "3px solid #000", padding: 12, textAlign: "center", background: cod > 0 && !encaisse ? "#000" : "#fff", color: cod > 0 && !encaisse ? "#fff" : "#000" }}>
+          {encaisse ? (
+            <><div style={{ fontSize: 22, fontWeight: 900 }}>DÉJÀ ENCAISSÉ</div><div style={{ fontSize: 14 }}>{fcfa(cod)} remis à la livraison : ne rien encaisser</div></>
+          ) : cod > 0 ? (
             <><div style={{ fontSize: 13, letterSpacing: 2, fontWeight: 700 }}>À ENCAISSER À LA REMISE</div><div style={{ fontSize: 34, fontWeight: 900 }}>{fcfa(cod)}</div></>
           ) : (
             <><div style={{ fontSize: 22, fontWeight: 900 }}>PAYÉ</div><div style={{ fontSize: 14 }}>Ne rien encaisser auprès du destinataire</div></>
