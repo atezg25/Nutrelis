@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connecter, jetonSession, journaliser, NOM_COOKIE_ADMIN } from "@/lib/admin-auth";
+import { connecter, jetonSession, journaliser, NOM_COOKIE_ADMIN, type ResultatConnexion } from "@/lib/admin-auth";
 import { corps, erreur, texte } from "@/lib/http";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   const b = await corps(req);
   const email = texte(b.email, 200);
   const mdp = typeof b.password === "string" ? b.password.slice(0, 200) : "";
-  const r = email && mdp ? await connecter(email, mdp) : ({ ok: false, raison: "IDENTIFIANTS" } as const);
+  const r: ResultatConnexion = email && mdp ? await connecter(email, mdp) : { ok: false, raison: "IDENTIFIANTS" };
   if (!r.ok) {
     essais.set(ip, e && maintenant - e.debut < 600_000 ? { n: e.n + 1, debut: e.debut } : { n: 1, debut: maintenant });
     await journaliser("connexion_refusee", `${email ?? "?"} (${ip})`, { id: null, name: email ?? "inconnu" });
