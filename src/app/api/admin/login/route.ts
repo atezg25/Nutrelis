@@ -17,7 +17,8 @@ export async function POST(req: Request) {
   const email = texte(b.email, 200);
   const mdp = typeof b.password === "string" ? b.password.slice(0, 200) : "";
   const r: ResultatConnexion = email && mdp ? await connecter(email, mdp) : { ok: false, raison: "IDENTIFIANTS" };
-  if (!r.ok) {
+  // `"admin" in r` plutôt que `r.ok` : le projet n'est pas en mode strict, TypeScript ne distingue pas les deux cas par un booléen.
+  if (!("admin" in r)) {
     essais.set(ip, e && maintenant - e.debut < 600_000 ? { n: e.n + 1, debut: e.debut } : { n: 1, debut: maintenant });
     await journaliser("connexion_refusee", `${email ?? "?"} (${ip})`, { id: null, name: email ?? "inconnu" });
     if (r.raison === "VERROUILLE") return erreur("Compte verrouillé 15 minutes après trop d'échecs.", 423, "VERROUILLE");
