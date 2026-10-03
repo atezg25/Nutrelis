@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { appliquerPaiement } from "@/lib/orders";
 import { fapshiConfigure, verifierPaiement } from "@/lib/fapshi";
 import { corps, reponse } from "@/lib/http";
@@ -10,6 +11,14 @@ export const dynamic = "force-dynamic";
  * Toujours 200 : Fapshi n'a pas à réessayer en boucle ; la réconciliation rattrape tout ce qui manque.
  */
 export async function POST(req: Request) {
+  // Secret partagé avec Fapshi (en-tête `x-wh-secret`), s'il est configuré : sans lui, le message est ignoré.
+  const attendu = process.env.FAPSHI_WEBHOOK_SECRET;
+  if (attendu) {
+    const recu = req.headers.get("x-wh-secret") ?? "";
+    const a = Buffer.from(recu);
+    const b = Buffer.from(attendu);
+    if (a.length !== b.length || !timingSafeEqual(a, b)) return reponse({ ok: false }, 401);
+  }
   try {
     const b = await corps(req);
     const transId = typeof b.transId === "string" ? b.transId : null;
