@@ -111,6 +111,8 @@ const fr: Record<string, any> = {
     discover: "Découvrir →",
     comingSoon: "BIENTÔT DISPONIBLE",
     comingSoonBtn: "Bientôt disponible",
+    gelName: "Gel exfoliant à l'orange",
+    gelDesc: "Un gommage doux pour une peau nette et lumineuse.",
     collagenName: "Collagène Marin",
     collagenDesc: "Fermeté et élasticité de la peau.",
     omega3Name: "Complexe Oméga-3",
