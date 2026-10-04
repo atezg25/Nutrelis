@@ -237,6 +237,26 @@ FROM variant v LEFT JOIN stock_movement m ON m.variant_id = v.id
 GROUP BY v.id;
 
 -- Produit de départ (les 3 packs d'Astaxanthine du site d'origine, prix de la base du 11/05/2026).
+-- Abonnement : la ligne (et la commande) sont marquées pour que le prix soit celui d'abonné et que la boutique relance.
+ALTER TABLE order_item ADD COLUMN IF NOT EXISTS subscription BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE customer_order ADD COLUMN IF NOT EXISTS subscription BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE INDEX IF NOT EXISTS customer_order_phone_idx ON customer_order (phone);
+-- Abonnés qui ont résilié (par téléphone) : on ne les relance plus.
+CREATE TABLE IF NOT EXISTS subscription_stop (
+  phone      TEXT PRIMARY KEY,
+  stopped_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+-- Abonnés qui ont résilié (par téléphone) : on ne les relance plus.
+CREATE TABLE IF NOT EXISTS subscription_stop (
+  phone      TEXT PRIMARY KEY,
+  stopped_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+-- Abonnés qui ont résilié (par téléphone) : on ne les relance plus.
+CREATE TABLE IF NOT EXISTS subscription_stop (
+  phone      TEXT PRIMARY KEY,
+  stopped_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 INSERT INTO product (slug, name, subtitle, description, image_url, sort)
 VALUES ('astaxanthine-12mg', 'Astaxanthine 12mg', 'Antioxydant Premium NUTRELIS',
   'L''antioxydant le plus puissant au monde. 6000× plus efficace que la Vitamine C. Formule cliniquement dosée à 12mg.',

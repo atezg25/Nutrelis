@@ -3,8 +3,9 @@ import { query, tx } from "./db";
 import { fapshiConfigure, verifierPaiement } from "./fapshi";
 import { notifierNouvelleCommande } from "./notifier";
 import { fraisPourVille } from "./livraison";
+import { prixAbonne } from "./abonnement";
 
-export type LigneDemandee = { variantId: string; qty: number };
+export type LigneDemandee = { variantId: string; qty: number; abonnement?: boolean };
 export type ClientCommande = {
   nom: string;
   telephone: string;
@@ -56,9 +57,19 @@ export async function creerCommande(p: {
   if (!nom || !tel || tel.length < 8) throw new ErreurCommande("CLIENT_INVALIDE", "Nom et téléphone valides requis.");
   const lignes = p.lignes.filter((l) => Number.isInteger(l.qty) && l.qty > 0 && l.qty <= 100);
   if (lignes.length === 0) throw new ErreurCommande("PANIER_VIDE", "Le panier est vide.");
-  // Une variante ne doit apparaître qu'une fois (on additionne sinon).
+  // Une même variante dans un même mode (unique / abonnement) ne doit apparaître qu'une fois (on additionne sinon).
+  // Le stock, lui, se contrôle sur le total de la variante, tous modes confondus.
+  const demandes = new Map<string, { variantId: string; abo: boolean; qty: number }>();
   const fusion = new Map<string, number>();
-  for (const l of lignes) fusion.set(l.variantId, (fusion.get(l.variantId) ?? 0) + l.qty);
+  for (const l of lignes) {
+    const abo = l.abonnement === true && !p.revendeurId; // pas d'abonnement sur une vente revendeur
+    const cle = `${l.variantId}|${abo ? 1 : 0}`;
+    const d = demandes.get(cle) ?? { variantId: l.variantId, abo, qty: 0 };
+    d.qty += l.qty;
+    demandes.set(cle, d);
+    fusion.set(l.variantId, (fusion.get(l.variantId) ?? 0) + l.qty);
+  }
+  const estAbonnement = [...demandes.values()].some((d) => d.abo);
 
   return tx(async (c) => {
     const ids = [...fusion.keys()];
@@ -77,17 +88,20 @@ export async function creerCommande(p: {
     }
 
     let sousTotal = 0;
-    const items: { v: VarianteLue; qty: number; unit: number }[] = [];
+    const items: { v: VarianteLue; qty: number; unit: number; abo: boolean }[] = [];
     for (const v of vs.rows) {
       if (!v.active || !v.pactive) throw new ErreurCommande("PRODUIT_INDISPONIBLE", `${v.pname} (${v.label}) n'est plus en vente.`);
-      const qty = fusion.get(v.id)!;
+      const qtyTotale = fusion.get(v.id)!;
       const dispo = await stockDe(c, v.id);
-      if (dispo < qty) {
+      if (dispo < qtyTotale) {
         throw new ErreurCommande("STOCK_INSUFFISANT", `Stock insuffisant pour ${v.pname} (${v.label}) : ${Math.max(dispo, 0)} disponible(s).`);
       }
-      const unit = p.revendeurId ? (v.reseller_price_fcfa ?? Math.round((v.price_fcfa * (100 - remise)) / 100)) : v.price_fcfa;
-      sousTotal += unit * qty;
-      items.push({ v, qty, unit });
+      for (const d of demandes.values()) {
+        if (d.variantId !== v.id) continue;
+        const unit = p.revendeurId ? (v.reseller_price_fcfa ?? Math.round((v.price_fcfa * (100 - remise)) / 100)) : d.abo ? prixAbonne(v.price_fcfa) : v.price_fcfa;
+        sousTotal += unit * d.qty;
+        items.push({ v, qty: d.qty, unit, abo: d.abo });
+      }
     }
     const livraison = p.revendeurId ? 0 : (await fraisPourVille(p.client.ville, p.client.quartier)).fraisFcfa;
     const total = sousTotal + livraison;
@@ -98,17 +112,17 @@ export async function creerCommande(p: {
     const payee = p.paiementRecu === true;
     const ord = await c.query<{ id: string }>(
       `INSERT INTO customer_order (number, channel, reseller_id, customer_name, phone, email, city, address, notes,
-                                   payment_status, payment_method, subtotal_fcfa, delivery_fcfa, total_fcfa)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
+                                   payment_status, payment_method, subtotal_fcfa, delivery_fcfa, total_fcfa, subscription)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id`,
       [
         numero, canal, p.revendeurId ?? null, nom, tel, p.client.email?.trim() || null, p.client.ville?.trim() || null,
         p.client.adresse?.trim() || null, p.client.notes?.trim() || null,
-        payee ? "payee" : p.mode === "livraison" ? "a_la_livraison" : "en_attente", p.mode, sousTotal, livraison, total,
+        payee ? "payee" : p.mode === "livraison" ? "a_la_livraison" : "en_attente", p.mode, sousTotal, livraison, total, estAbonnement,
       ],
     );
     const id = ord.rows[0]!.id;
     for (const it of items) {
-      await c.query("INSERT INTO order_item (order_id, variant_id, name, unit_fcfa, qty) VALUES ($1,$2,$3,$4,$5)", [id, it.v.id, `${it.v.pname} — ${it.v.label}`, it.unit, it.qty]);
+      await c.query("INSERT INTO order_item (order_id, variant_id, name, unit_fcfa, qty, subscription) VALUES ($1,$2,$3,$4,$5,$6)", [id, it.v.id, `${it.v.pname} — ${it.v.label}${it.abo ? " (abonnement)" : ""}`, it.unit, it.qty, it.abo]);
       await c.query("INSERT INTO stock_movement (variant_id, delta, reason, ref) VALUES ($1,$2,'vente',$3)", [it.v.id, -it.qty, numero]);
     }
     return { id, numero, total };

@@ -54,7 +54,7 @@ export default function Checkout() {
       // Les lignes du panier : seuls les packs de la boutique (identifiant valide) peuvent être commandés.
       const lignes = items
         .filter(i => i.variantId)
-        .map(i => ({ variantId: i.variantId, qty: i.quantite }));
+        .map(i => ({ variantId: i.variantId, qty: i.quantite, mode: i.mode }));
       if (lignes.length === 0) {
         setErreur(t("common.error"));
         setChargement(false);

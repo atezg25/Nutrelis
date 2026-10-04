@@ -8,6 +8,7 @@ import { useLocale } from "@/context/LocaleContext";
 import FloatingActions from "@/components/FloatingActions";
 import { fetchProductByHandle, getVariantPrice, type MedusaProduct } from "@/lib/medusa-products";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { prixAbonne } from "@/lib/abonnement";
 
 function Countdown() {
   const [time, setTime] = useState({ h: 5, m: 47, s: 59 });
@@ -185,7 +186,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
       perCycle: t("product.perCycle1"),
       prix: skuPriceMap["NUT-AX-1P"] || 15000,
       ancien: Math.round((skuPriceMap["NUT-AX-1P"] || 15000) * 1.25),
-      aboPrix: Math.round((skuPriceMap["NUT-AX-1P"] || 15000) * 0.95),
+      aboPrix: prixAbonne((skuPriceMap["NUT-AX-1P"] || 15000)),
       eco: null,
       popular: false,
       img: "/images/astaxanthine/P_01.png",
@@ -200,7 +201,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
       perCycle: t("product.perCycle2"),
       prix: skuPriceMap["NUT-AX-2P"] || 27000,
       ancien: Math.round((skuPriceMap["NUT-AX-2P"] || 27000) * 1.25),
-      aboPrix: Math.round((skuPriceMap["NUT-AX-2P"] || 27000) * 0.95),
+      aboPrix: prixAbonne((skuPriceMap["NUT-AX-2P"] || 27000)),
       eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 2 - (skuPriceMap["NUT-AX-2P"] || 27000)).toLocaleString("fr-FR") + " FCFA",
       popular: true,
       img: "/images/astaxanthine/P_02.png",
@@ -215,7 +216,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
       perCycle: t("product.perCycle3"),
       prix: skuPriceMap["NUT-AX-3P"] || 36000,
       ancien: Math.round((skuPriceMap["NUT-AX-3P"] || 36000) * 1.25),
-      aboPrix: Math.round((skuPriceMap["NUT-AX-3P"] || 36000) * 0.95),
+      aboPrix: prixAbonne((skuPriceMap["NUT-AX-3P"] || 36000)),
       eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 3 - (skuPriceMap["NUT-AX-3P"] || 36000)).toLocaleString("fr-FR") + " FCFA",
       popular: false,
       img: "/images/astaxanthine/P_03.png",
@@ -1098,7 +1099,7 @@ export default function Astaxanthine() {
   ];
 
   const currentPack = packs.find(p => p.id === selectedPack)!;
-  const currentPrice = mode === "abonnement" ? Math.round(currentPack.prix * 0.95) : currentPack.prix;
+  const currentPrice = mode === "abonnement" ? prixAbonne(currentPack.prix) : currentPack.prix;
   const originalPrice = mode === "abonnement" ? currentPack.prix : currentPack.original;
   const clientPhotos = [
     "/images/astaxanthine/Ast2.png",

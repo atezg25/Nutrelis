@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 // Un seul écran à onglets. Tout passe par /api/admin/* (cookie signé, mot de passe unique).
 // ============================================================
 type Ligne = Record<string, string | number | boolean | null>;
-type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "avis" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "utilisateurs" | "parametres" | "journal" | "compte";
+type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "avis" | "abonnements" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "utilisateurs" | "parametres" | "journal" | "compte";
 
 const VERT = "#1f7a3a";
 const fcfa = (n: unknown) => `${Number(n ?? 0).toLocaleString("fr-FR")} FCFA`;
@@ -318,7 +318,7 @@ function Commandes() {
         { titre: "N°", rendu: (l) => <strong>{String(l.number)}</strong> },
         { titre: "Date", rendu: (l) => date(l.created_at) },
         { titre: "Client", rendu: (l) => <>{String(l.customer_name)}<br /><span style={{ color: "#777", fontSize: 12 }}>{String(l.phone)}{l.city ? ` · ${String(l.city)}` : ""}</span></> },
-        { titre: "Commande", rendu: (l) => <span style={{ fontSize: 13 }}>{String(l.resume ?? "")}{l.reseller_name ? <><br /><em>{String(l.reseller_name)}</em></> : null}</span> },
+        { titre: "Commande", rendu: (l) => <span style={{ fontSize: 13 }}>{String(l.resume ?? "")}{l.subscription ? <> <Badge texte="Abonnement" couleur="#b45309" /></> : null}{l.reseller_name ? <><br /><em>{String(l.reseller_name)}</em></> : null}</span> },
         { titre: "Total", rendu: (l) => fcfa(l.total_fcfa) },
         { titre: "Statut", rendu: (l) => <Badge texte={LIB_STATUT[String(l.status)] ?? String(l.status)} couleur={COULEUR_STATUT[String(l.status)] ?? "#555"} /> },
         { titre: "Paiement", rendu: (l) => <Badge texte={LIB_PAIEMENT[String(l.payment_status)] ?? String(l.payment_status)} couleur={COULEUR_PAIEMENT[String(l.payment_status)] ?? "#555"} /> },
@@ -912,6 +912,51 @@ function Expeditions() {
   );
 }
 
+// ---------------------------------------------------------------- Abonnements
+function Abonnements() {
+  const [d, setD] = useState<{ abonnes: Ligne[]; relanceJours: number; remisePct: number } | null>(null);
+  const charger = useCallback(() => { void api<{ abonnes: Ligne[]; relanceJours: number; remisePct: number }>("subscriptions").then((r) => r.ok && setD(r.data)); }, []);
+  useEffect(charger, [charger]);
+  const jours = (iso: unknown) => Math.floor((Date.now() - new Date(String(iso)).getTime()) / 86_400_000);
+  async function basculer(phone: string, resilier: boolean) { await api("subscriptions", { method: "POST", body: { phone, resilier } }); charger(); }
+  const lien = (a: Ligne) => {
+    const num = String(a.phone).replace(/[^\d]/g, "");
+    const msg = `Bonjour ${String(a.nom)}, c'est NUTRELIS. Votre abonnement (-${d?.remisePct ?? 15} % à chaque livraison) : souhaitez-vous recevoir votre prochaine livraison ? Répondez OUI et nous préparons votre commande.`;
+    return `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+  };
+  const aRelancer = (d?.abonnes ?? []).filter((a) => !a.resilie && jours(a.derniere) >= (d?.relanceJours ?? 28));
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
+      <div style={{ ...carte, background: "#f4fbf6", fontSize: 13.5, color: "#2b312b" }}>
+        Un client en abonnement paie <strong>{d?.remisePct ?? 15} % de moins</strong> à chaque livraison (prix calculé par le serveur). Il n'y a pas de prélèvement automatique : <strong>vous le relancez chaque mois</strong> par WhatsApp, il confirme, vous créez la commande. Un abonné est à relancer {d?.relanceJours ?? 28} jours après sa dernière commande.
+      </div>
+      <div style={{ fontWeight: 700 }}>{aRelancer.length} abonné(s) à relancer · {(d?.abonnes ?? []).filter((a) => !a.resilie).length} actif(s)</div>
+      {(d?.abonnes ?? []).length === 0 && <div style={{ ...carte, color: "#777" }}>Aucun abonné pour l'instant.</div>}
+      {(d?.abonnes ?? []).map((a) => {
+        const j = jours(a.derniere);
+        const relance = !a.resilie && j >= (d?.relanceJours ?? 28);
+        return (
+          <div key={String(a.phone)} style={{ ...carte, opacity: a.resilie ? 0.55 : 1 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+              <div><strong>{String(a.nom)}</strong>{a.ville ? ` · ${String(a.ville)}` : ""}<br /><span style={{ color: "#777", fontSize: 12 }}>{String(a.phone)} · {String(a.produits ?? "")}</span></div>
+              <div style={{ textAlign: "right" }}>
+                {a.resilie ? <Badge texte="Résilié" couleur="#777" /> : relance ? <Badge texte="À relancer" couleur="#b45309" /> : <Badge texte="À jour" couleur={VERT} />}
+                <div style={{ color: "#777", fontSize: 12, marginTop: 4 }}>Dernière commande {String(a.derniere_commande)} · il y a {j} j · {String(a.nb_abonnements)} abonnement(s)</div>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+              {!a.resilie && <a href={lien(a)} target="_blank" rel="noreferrer" style={{ ...bouton, textDecoration: "none" }}>Relancer sur WhatsApp</a>}
+              {a.resilie
+                ? <button onClick={() => void basculer(String(a.phone), false)} style={boutonDiscret}>Rétablir</button>
+                : <button onClick={() => void basculer(String(a.phone), true)} style={{ ...boutonDiscret, color: "#b91c1c" }}>Résilier</button>}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- Avis clients (vérifiés)
 function Avis() {
   const [d, setD] = useState<{ avis: Ligne[]; compteurs: Ligne } | null>(null);
@@ -1153,6 +1198,7 @@ const MENU: { id: Onglet; titre: string; icone: string; proprietaire?: boolean; 
   { id: "expeditions", titre: "Expéditions", icone: "🚚" },
   { id: "paiements", titre: "Paiements", icone: "💳" },
   { id: "avis", titre: "Avis clients", icone: "⭐" },
+  { id: "abonnements", titre: "Abonnements", icone: "🔁" },
   { id: "clients", titre: "Clients", icone: "👥" },
   { id: "stock", titre: "Stock", icone: "📦" },
   { id: "produits", titre: "Produits", icone: "🌿" },
@@ -1229,6 +1275,7 @@ export default function Admin() {
       {onglet === "expeditions" && <Expeditions />}
       {onglet === "paiements" && <Paiements />}
       {onglet === "avis" && <Avis />}
+      {onglet === "abonnements" && <Abonnements />}
       {onglet === "clients" && <Clients />}
       {onglet === "stock" && <Stock />}
       {onglet === "produits" && <Produits />}

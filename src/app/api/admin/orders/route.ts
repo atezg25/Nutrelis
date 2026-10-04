@@ -22,7 +22,7 @@ export async function GET(req: Request) {
     if (q) { args.push(`%${q}%`); cond.push(`(o.number ILIKE $${args.length} OR o.customer_name ILIKE $${args.length} OR o.phone ILIKE $${args.length})`); }
     const rows = await query(
       `SELECT o.id, o.number, o.channel, o.customer_name, o.phone, o.city, o.status, o.payment_status, o.payment_method,
-              o.total_fcfa, o.created_at, r.name AS reseller_name,
+              o.total_fcfa, o.created_at, o.subscription, r.name AS reseller_name,
               (SELECT string_agg(i.qty || ' × ' || i.name, ', ') FROM order_item i WHERE i.order_id=o.id) AS resume
          FROM customer_order o LEFT JOIN reseller r ON r.id=o.reseller_id
         ${cond.length ? "WHERE " + cond.join(" AND ") : ""} ORDER BY o.created_at DESC LIMIT 200`,

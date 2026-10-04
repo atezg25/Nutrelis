@@ -8,8 +8,9 @@ import { useLocale } from "@/context/LocaleContext";
 import FloatingActions from "@/components/FloatingActions";
 import { fetchProductByHandle, getVariantPrice, type MedusaProduct } from "@/lib/medusa-products";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { prixAbonne } from "@/lib/abonnement";
 
-function Navbar() {
+function Navbar({ avis }: { avis: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
@@ -46,10 +47,10 @@ function Navbar() {
         {!isSmall && (
           <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
             {[
-              { label: t("nav.products"), href: "/#produits" },
-              { label: t("nav.science"), href: "/science" },
-              { label: t("nav.reviews"), href: "/avis-clients" },
-              { label: t("nav.faq"), href: "/faq" },
+              { label: t("gel.navProduct"), href: "#commander" },
+              { label: t("gel.navRoutine"), href: "#routine" },
+              ...(avis ? [{ label: t("gel.navReviews"), href: "#avis" }] : []),
+              { label: t("gel.navFaq"), href: "#faq" },
             ].map((item) => (
               <a key={item.href} href={item.href} style={{
                 color: "var(--gel-text2)",
@@ -164,10 +165,10 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
       label,
       capsules: t("gel.capsules" + qte),
       cure: `${t("gel.perGelPre")} ${Math.round(prix / qte).toLocaleString("fr-FR")} FCFA ${t("gel.perGelPost")}`,
-      perCycle: "",
+      perCycle: t("gel.perDelivery"),
       prix,
       ancien: ancien > prix ? ancien : prix,
-      aboPrix: prix,
+      aboPrix: prixAbonne(prix),
       eco: ancien > prix ? (ancien - prix).toLocaleString("fr-FR") + " FCFA" : null,
       popular,
       img,
@@ -196,7 +197,7 @@ useEffect(() => {
     <div>
       <div style={{
         display: "grid",
-        gridTemplateColumns: "1fr",
+        gridTemplateColumns: "1fr 1fr",
         background: "#fdeedd",
         borderRadius: 12,
         padding: 5,
@@ -205,6 +206,7 @@ useEffect(() => {
       }}>
         {[
           { id: "unique", label: t("gel.oneTimePurchase") },
+          { id: "abonnement", label: "⭐ " + t("gel.subscription") },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -353,12 +355,12 @@ useEffect(() => {
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
               <div style={{ color: "var(--gel-accent)", fontSize: isMobilePS ? 15 : 22, fontWeight: 900, lineHeight: 1 }}>
-                {(mode === "abonnement" ? pack.aboPrix : pack.prix).toLocaleString()}
+                {(mode === "abonnement" ? pack.aboPrix : pack.prix).toLocaleString("fr-FR")}
                 <span style={{ fontSize: 12 }}> FCFA</span>
               </div>
               {pack.ancien > pack.prix && (
                 <div style={{ color: "#aaa", fontSize: 12, textDecoration: "line-through" }}>
-                  {pack.ancien.toLocaleString()} F
+                  {pack.ancien.toLocaleString("fr-FR")} F
                 </div>
               )}
               {mode === "abonnement" && (
@@ -697,12 +699,8 @@ function ProductGallery() {
   const { t } = useLocale();
   const images = [
     "/images/gel/img_transparent.png",
-    "/images/gel/img1A.png",
-    "/images/gel/NUT2.png",
-    "/images/gel/img4A.png",
-    "/images/gel/img5A.png",
-    "/images/gel/NUT3.png",
-    "/images/gel/NUT4.png",
+    "/images/gel/Medecin.png",
+    "/images/gel/BadgesA.png",
   ];
 
   const scGallery = useScreenSize();
@@ -752,8 +750,8 @@ function ProductGallery() {
       {/* Thumbnails en dessous */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(7, 1fr)",
-        gap: isSmallGallery ? 4 : 8,
+        gridTemplateColumns: `repeat(${images.length}, minmax(0, 96px))`,
+        gap: isSmallGallery ? 8 : 12,
       }}>
         {images.map((img, i) => (
           <div
@@ -939,7 +937,7 @@ function StatsSection() {
             lineHeight: 1,
             marginBottom: scSt === "mobile" ? 4 : 8,
           }}>
-            {Math.round(stat.value * progress)}
+            {stat.value}
             <span style={{ fontSize: scSt === "mobile" ? "0.7rem" : "1.4rem" }}>{stat.suffix}</span>
           </div>
           <div style={{ fontWeight: 700, fontSize: scSt === "mobile" ? 11 : 15, marginBottom: scSt === "mobile" ? 2 : 4, color: "var(--gel-text)" }}>
@@ -1007,6 +1005,39 @@ function FaqItemWhite({ icon, q, a, open, onToggle }: { icon: string; q: string;
   );
 }
 
+function BarreAchatMobile({ prix, libelle }: { prix: number; libelle: string }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const cible = document.getElementById("commander");
+    const maj = () => {
+      const passeHero = window.scrollY > 520;
+      const r = cible?.getBoundingClientRect();
+      const surCommande = !!r && r.top < window.innerHeight * 0.85 && r.bottom > 0;
+      setVisible(passeHero && !surCommande);
+    };
+    window.addEventListener("scroll", maj, { passive: true });
+    maj();
+    return () => window.removeEventListener("scroll", maj);
+  }, []);
+  return (
+    <div style={{
+      position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 90,
+      transform: visible ? "translateY(0)" : "translateY(110%)", transition: "transform 0.25s ease",
+      background: "#fff", borderTop: "1px solid var(--gel-border)", boxShadow: "0 -6px 24px rgba(212,86,10,0.14)",
+      padding: "10px 84px calc(10px + env(safe-area-inset-bottom, 0px)) 16px",
+      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+    }}>
+      <div style={{ lineHeight: 1.2 }}>
+        <div style={{ fontSize: 11, color: "var(--gel-text2)" }}>{libelle}</div>
+        <div style={{ fontSize: 18, fontWeight: 900, color: "var(--gel-accent)", fontFamily: "var(--font-sora), sans-serif" }}>{prix.toLocaleString("fr-FR")} FCFA</div>
+      </div>
+      <a href="#commander" style={{ background: "var(--gel-accent)", color: "#fff", padding: "12px 20px", borderRadius: 50, fontWeight: 800, fontSize: 13, textDecoration: "none", whiteSpace: "nowrap", fontFamily: "var(--font-sora), sans-serif" }}>
+        {libelle ? "Commander" : "Commander"}
+      </a>
+    </div>
+  );
+}
+
 export default function GelExfoliantOrange() {
   const [prixAffiche, setPrixAffiche] = useState(18000);
   const [prixOriginal, setPrixOriginal] = useState(20000);
@@ -1051,7 +1082,7 @@ export default function GelExfoliantOrange() {
   const packs = [construire(1, "GEL-ORANGE-1", 1, 10000), construire(2, "GEL-ORANGE-2", 2, 18000), construire(3, "GEL-ORANGE-3", 3, 24000)];
 
   const currentPack = packs.find(p => p.id === selectedPack)!;
-  const currentPrice = mode === "abonnement" ? Math.round(currentPack.prix * 0.95) : currentPack.prix;
+  const currentPrice = mode === "abonnement" ? prixAbonne(currentPack.prix) : currentPack.prix;
   const originalPrice = mode === "abonnement" ? currentPack.prix : currentPack.original;
 
   return (
@@ -1074,220 +1105,134 @@ export default function GelExfoliantOrange() {
       </div>
 
       {/* NAVBAR */}
-      <Navbar />
+      <Navbar avis={avisVerifies.length > 0} />
 
       {/* HERO */}
       <section style={{
         background: "#fff",
         display: "grid",
-        gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr",
-        minHeight: isSmall ? "auto" : 540,
+        gridTemplateColumns: isSmall ? "1fr" : "1.05fr 1fr",
+        minHeight: isSmall ? "auto" : 620,
         overflow: "hidden",
       }}>
-        {/* Côté gauche — Image */}
+        {/* Côté gauche : le produit, grand, sur un halo orange */}
         <div style={{
           position: "relative",
-          background: "radial-gradient(ellipse at 50% 50%, #fbd2a8 0%, #ffe6cf 40%, #fff4e8 100%)",
+          background: "radial-gradient(ellipse at 50% 58%, #fbd2a8 0%, #ffe6cf 48%, #fff4e8 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: isMobile ? "32px 16px" : "40px 20px",
+          padding: isMobile ? "36px 16px 44px" : "56px 24px",
           overflow: "hidden",
-          minHeight: isSmall ? 280 : undefined,
+          minHeight: isSmall ? 360 : undefined,
         }}>
-          {!isMobile && <div style={{
-            position: "absolute",
-            width: 420,
-            height: 420,
-            borderRadius: "50%",
-            border: "1px solid rgba(212,86,10,0.06)",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%,-50%)",
-            pointerEvents: "none",
-          }} />}
-          {!isMobile && <div style={{
-            position: "absolute",
-            width: 560,
-            height: 560,
-            borderRadius: "50%",
-            border: "1px solid rgba(212,86,10,0.03)",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%,-50%)",
-            pointerEvents: "none",
-          }} />}
-          <div style={{
-            position: "absolute",
-            top: isMobile ? 12 : 40, right: isMobile ? 16 : 52, zIndex: 40,
-            width: isMobile ? 72 : 100, height: isMobile ? 72 : 100, borderRadius: "50%",
-            background: "#fff",
-            border: "3px solid var(--gel-accent)",
-            display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center",
-            boxShadow: "0 4px 16px rgba(212,86,10,0.2)",
-          }}>
-            <span style={{ color: "var(--gel-accent)", fontSize: isMobile ? 20 : 28, fontWeight: 900, lineHeight: 1 }}>90</span>
-            <span style={{ color: "var(--gel-accent)", fontSize: isMobile ? 8 : 11, fontWeight: 800, letterSpacing: 0.5 }}>{t("common.days")}</span>
-            {!isMobile && <span style={{ color: "#888", fontSize: 7, textAlign: "center", padding: "0 6px", lineHeight: 1.3 }}>
-              {t("common.satisfiedOrRefunded").split("\n").map((line: string, i: number) => <span key={i}>{i > 0 && <br />}{line}</span>)}
-            </span>}
-          </div>
-          <div style={{
-            position: "absolute",
-            top: isMobile ? 12 : 40, left: isMobile ? 16 : 60, zIndex: 3,
-            width: isMobile ? 64 : 90, height: isMobile ? 64 : 90, borderRadius: "50%",
-            background: "#fff",
-            border: "3px solid #1db954",
-            display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-          }}>
-            <span style={{ fontSize: isMobile ? 14 : 20 }}>🍊</span>
-            <span style={{ color: "#1a7a3c", fontSize: isMobile ? 7 : 9, fontWeight: 800, textAlign: "center", lineHeight: 1.3, padding: "0 6px" }}>
-              {t("gel.heroSeal").split("\n").map((line: string, i: number) => <span key={i}>{i > 0 && <br />}{line}</span>)}
-            </span>
-          </div>
+          <div style={{ position: "absolute", width: isMobile ? 280 : 470, height: isMobile ? 280 : 470, borderRadius: "50%", background: "rgba(244,168,94,0.30)", top: "52%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", width: isMobile ? 360 : 600, height: isMobile ? 360 : 600, borderRadius: "50%", border: "1px solid rgba(212,86,10,0.14)", top: "52%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />
           <img
             src="/images/gel/img_transparent.png"
             alt="NUTRELIS Gel exfoliant à l’orange"
             style={{
-              width: isMobile ? "55%" : "58%",
-              maxWidth: 320,
-              height: "auto",
+              height: isMobile ? 310 : 500,
+              width: "auto",
+              maxWidth: "78%",
               objectFit: "contain",
               position: "relative",
               zIndex: 2,
-              filter: "drop-shadow(0 24px 48px rgba(212,86,10,0.2))",
-              mixBlendMode: "normal",
+              filter: "drop-shadow(0 28px 36px rgba(184,69,8,0.30))",
             }}
           />
           <div style={{
-            position: "absolute",
-            bottom: isMobile ? 20 : 64,
-            left: isMobile ? 16 : 52,
-            zIndex: 3,
-            background: "var(--gel-accent)",
-            color: "#fff",
-            fontWeight: 900,
-            fontSize: isMobile ? 13 : 17,
-            padding: isMobile ? "5px 10px" : "8px 16px",
-            borderRadius: 50,
-            boxShadow: "0 4px 16px rgba(212,86,10,0.4)",
+            position: "absolute", top: isMobile ? 14 : 36, right: isMobile ? 14 : 44, zIndex: 3,
+            width: isMobile ? 70 : 96, height: isMobile ? 70 : 96, borderRadius: "50%",
+            background: "#fff", border: "3px solid var(--gel-accent)",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            boxShadow: "0 6px 20px rgba(212,86,10,0.22)",
           }}>
-            {t("gel.badgeUpTo")}
+            <span style={{ color: "var(--gel-accent)", fontSize: isMobile ? 22 : 30, fontWeight: 900, lineHeight: 1 }}>90</span>
+            <span style={{ color: "var(--gel-accent)", fontSize: isMobile ? 9 : 11, fontWeight: 800, letterSpacing: 0.5 }}>{t("common.days")}</span>
           </div>
           <div style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 5,
-            background: "linear-gradient(90deg, transparent, var(--gel-accent) 30%, var(--gel-accent) 70%, transparent)",
-          }} />
+            position: "absolute", bottom: isMobile ? 16 : 36, left: isMobile ? 16 : 44, zIndex: 3,
+            background: "#fff", color: "var(--gel-accent)", fontWeight: 800,
+            fontSize: isMobile ? 12 : 14, padding: isMobile ? "7px 12px" : "9px 18px", borderRadius: 50,
+            boxShadow: "0 6px 20px rgba(212,86,10,0.18)", border: "1px solid var(--gel-border)",
+          }}>
+            {t("gel.badgeUpTo")} · packs
+          </div>
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 5, background: "linear-gradient(90deg, transparent, var(--gel-accent) 30%, var(--gel-accent) 70%, transparent)" }} />
         </div>
 
-        {/* Côté droit — Texte */}
+        {/* Côté droit : promesse, prix, action */}
         <div style={{
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          padding: isMobile ? "28px 16px" : sc === "tablet" ? "32px 28px" : "40px 48px 40px 40px",
+          padding: isMobile ? "28px 16px 36px" : sc === "tablet" ? "36px 28px" : "48px 56px 48px 48px",
           background: "#fff",
-          borderRadius: 24,
         }}>
           <div style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 24,
-            background: "#f9f9f9",
-            borderRadius: 50,
-            padding: "8px 18px",
-            width: "fit-content",
-            border: "1px solid #eee",
+            display: "inline-flex", alignItems: "center", gap: 8, marginBottom: isMobile ? 16 : 22,
+            background: "var(--gel-bg)", borderRadius: 50, padding: "7px 16px", width: "fit-content",
+            border: "1px solid var(--gel-border)",
           }}>
-            <span style={{ color: "#333", fontSize: 13, fontWeight: 600 }}>🍊 {t("gel.heroPill")}</span>
+            <span style={{ color: "var(--gel-accent)", fontSize: 13, fontWeight: 700 }}>🍊 {t("gel.heroPill")}</span>
           </div>
 
           <h1 style={{
-            fontSize: isMobile ? "1.6rem" : isSmall ? "2.2rem" : "clamp(2.4rem, 3.5vw, 2.9rem)",
-            fontWeight: 800,
-            lineHeight: 1.15,
-            marginBottom: 18,
-            fontFamily: "var(--font-sora), sans-serif",
-            color: "#0d0d0d",
-            letterSpacing: -0.5,
+            fontSize: isMobile ? "1.85rem" : isSmall ? "2.3rem" : "clamp(2.2rem, 3.2vw, 2.9rem)",
+            fontWeight: 800, lineHeight: 1.12, marginBottom: 18,
+            fontFamily: "var(--font-sora), sans-serif", color: "var(--gel-text)", letterSpacing: -0.5,
           }}>
             {t("gel.heroTitle")}{" "}
             <span style={{ color: "var(--gel-accent)" }}>{t("gel.heroHighlight")}</span>{" "}
             {t("gel.heroTitleEnd")}
           </h1>
 
-          <p style={{
-            color: "#666",
-            fontSize: 15,
-            lineHeight: 1.75,
-            marginBottom: 28,
-            maxWidth: 460,
-          }}>
+          <p style={{ color: "var(--gel-text2)", fontSize: isMobile ? 15 : 16, lineHeight: 1.7, marginBottom: 24, maxWidth: 480 }}>
             {t("gel.heroDesc")}{" "}
-            <strong style={{ color: "#0d0d0d" }}>{t("gel.heroStrong")}</strong>{t("gel.heroDescEnd")}
+            <strong style={{ color: "var(--gel-text)" }}>{t("gel.heroStrong")}</strong>{t("gel.heroDescEnd")}
           </p>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
-            {[
-              t("gel.point1"),
-              t("gel.point2"),
-              t("gel.point3"),
-            ].map((point, i) => (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 26 }}>
+            {[t("gel.point1"), t("gel.point2"), t("gel.point3")].map((point, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: "50%",
-                  background: "#ffe9d6",
-                  border: "1.5px solid var(--gel-accent)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}>
+                <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#ffe9d6", border: "1.5px solid var(--gel-accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <span style={{ color: "var(--gel-accent)", fontSize: 11, fontWeight: 900 }}>✓</span>
                 </div>
-                <span style={{ color: "#444", fontSize: 14, fontWeight: 500 }}>{point}</span>
+                <span style={{ color: "var(--gel-text)", fontSize: 14.5, fontWeight: 500 }}>{point}</span>
               </div>
             ))}
           </div>
 
+          {/* Les trois packs et leur prix, visibles sans défiler */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: isMobile ? 8 : 10, marginBottom: 20, maxWidth: 480 }}>
+            {packs.map((pk, i) => (
+              <a key={pk.id} href="#commander" style={{
+                textDecoration: "none", textAlign: "center",
+                border: `1.5px solid ${i === 2 ? "var(--gel-accent)" : "var(--gel-border)"}`,
+                background: i === 2 ? "#ffe9d6" : "#fff",
+                borderRadius: 14, padding: isMobile ? "10px 4px" : "12px 8px", color: "var(--gel-text)",
+              }}>
+                <div style={{ fontSize: isMobile ? 11 : 12, color: "var(--gel-text2)", fontWeight: 600 }}>{pk.id === 1 ? "1 gel" : `${pk.id} gels`}</div>
+                <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: "var(--gel-accent)", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>{pk.prix.toLocaleString("fr-FR")} F</div>
+                {pk.id > 1 && <div style={{ fontSize: 10.5, color: "var(--gel-text2)" }}>{Math.round(pk.prix / pk.id).toLocaleString("fr-FR")} F / gel</div>}
+              </a>
+            ))}
+          </div>
+
           <a href="#commander" style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "var(--gel-accent)",
-            color: "#fff",
-            padding: isSmall ? "16px" : "19px 52px",
-            borderRadius: 50,
-            fontSize: isMobile ? 13 : 15,
-            fontWeight: 800,
-            textDecoration: "none",
-            boxShadow: "0 8px 28px rgba(212,86,10,0.35)",
-            letterSpacing: 0.5,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: "var(--gel-accent)", color: "#fff",
+            padding: isSmall ? "17px" : "19px 52px", borderRadius: 50,
+            fontSize: isMobile ? 14 : 15, fontWeight: 800, textDecoration: "none",
+            boxShadow: "0 10px 28px rgba(212,86,10,0.35)", letterSpacing: 0.5,
             width: isSmall ? "100%" : "fit-content",
-            fontFamily: "var(--font-sora), sans-serif",
-            whiteSpace: "nowrap",
+            fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap",
           }}>
             {isMobile ? t("gel.ctaOrderShort") : t("gel.ctaOrder")}
           </a>
 
-          <div style={{
-            display: "flex",
-            gap: 20,
-            marginTop: 16,
-            fontSize: 12,
-            color: "#999",
-            flexWrap: "wrap",
-          }}>
+          <div style={{ display: "flex", gap: 18, marginTop: 16, fontSize: 12, color: "var(--gel-text2)", flexWrap: "wrap" }}>
             <span>{t("common.securePaymentIcon")}</span>
             <span>{t("common.deliveryIcon")}</span>
             <span>{t("common.guarantee90Refunded")}</span>
@@ -1454,7 +1399,7 @@ export default function GelExfoliantOrange() {
 
       {/* AVIS CLIENTS : n'apparaît que s'il existe des avis vérifiés */}
       {avisVerifies.length > 0 && (
-      <section style={{ padding: `${isMobile ? "28px" : py} ${px}`, background: "var(--gel-bg)" }}>
+      <section id="avis" style={{ padding: `${isMobile ? "28px" : py} ${px}`, background: "var(--gel-bg)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 20 : 56 }}>
             <p style={{ color: "var(--gel-gold)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
@@ -1613,7 +1558,7 @@ export default function GelExfoliantOrange() {
               <span style={{ color: "var(--gel-accent)" }}>{t("gel.trueStoriesHighlight")}</span>
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : sc === "tablet" ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: isMobile ? 10 : 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : (contenu?.videos?.length ?? 0) === 4 || sc === "tablet" ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: isMobile ? 10 : 20, maxWidth: (contenu?.videos?.length ?? 0) === 4 && !isMobile ? 900 : undefined, margin: "0 auto" }}>
             {(contenu?.videos ?? []).map((v) => ({ name: v.titre || "", file: v.url })).map((v, i) => (
               <div key={i} data-video-card style={{
                 borderRadius: isMobile ? 12 : 20,
@@ -1640,7 +1585,7 @@ export default function GelExfoliantOrange() {
                     preload="metadata"
                     style={{ width: "100%", display: "block", maxHeight: isMobile ? 200 : 400, objectFit: "cover", background: "#000" }}
                   >
-                    <source src={v.file} type="video/mp4" />
+                    <source src={v.file + "#t=0.6"} type="video/mp4" />
                   </video>
                 </div>
                 <div style={{ padding: isMobile ? "8px 10px" : "14px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -1903,7 +1848,7 @@ export default function GelExfoliantOrange() {
                   src="/images/gel/img_transparent.png"
                   alt="NUTRELIS"
                   style={{
-                    width: isMobile ? 30 : 45,
+                    width: isMobile ? 64 : 96,
                     height: "auto",
                     objectFit: "contain",
                     filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.2))",
@@ -2093,7 +2038,7 @@ export default function GelExfoliantOrange() {
       </section>
 
       {/* SECTION MÉDECIN — TIMELINE */}
-      <section style={{
+      <section id="routine" style={{
         background: "linear-gradient(135deg, #fff8f1 0%, #ffe9d6 50%, #fff8f1 100%)",
         padding: isMobile ? `28px ${px}` : `${py} ${px}`,
         overflow: "hidden",
@@ -2148,31 +2093,31 @@ export default function GelExfoliantOrange() {
             <div style={{ display: "flex", flexDirection: "column", gap: isMobile ? 8 : 12 }}>
               {[
                 {
-                  icon: "✨",
+                  icon: "🧴",
                   bg: "#D4560A",
                   titre: t("gel.timeline1Title"),
                   desc: t("gel.timeline1Desc"),
                 },
                 {
-                  icon: "🔥",
+                  icon: "🔄",
                   bg: "#F08A24",
                   titre: t("gel.timeline2Title"),
                   desc: t("gel.timeline2Desc"),
                 },
                 {
-                  icon: "💎",
+                  icon: "💧",
                   bg: "#B84508",
                   titre: t("gel.timeline3Title"),
                   desc: t("gel.timeline3Desc"),
                 },
                 {
-                  icon: "🛡️",
+                  icon: "📅",
                   bg: "#D4560A",
                   titre: t("gel.timeline4Title"),
                   desc: t("gel.timeline4Desc"),
                 },
                 {
-                  icon: "⚡",
+                  icon: "🧪",
                   bg: "#F08A24",
                   titre: t("gel.timeline5Title"),
                   desc: t("gel.timeline5Desc"),
@@ -2296,7 +2241,7 @@ export default function GelExfoliantOrange() {
       </section>
 
       {/* FAQ */}
-      <section style={{
+      <section id="faq" style={{
         background: "var(--gel-accent)",
         padding: isMobile ? `28px ${px}` : `${py} ${px}`,
       }}>
@@ -2383,7 +2328,6 @@ export default function GelExfoliantOrange() {
               ]},
               { title: t("gel.footerInfo"), links: [
                 { label: t("gel.footerAbout"), href: "/a-propos" },
-                { label: t("gel.footerScience"), href: "/science" },
                 { label: t("gel.footerBlog"), href: "/blog" },
                 { label: t("gel.footerContact"), href: "/contact" },
               ]},
@@ -2417,6 +2361,7 @@ export default function GelExfoliantOrange() {
         </div>
       </footer>
 
+      {isMobile && <BarreAchatMobile prix={prixAffiche} libelle={t("gel.stickyLabel")} />}
       <FloatingActions accent="#D4560A" />
     </HydrationGuard>
   );

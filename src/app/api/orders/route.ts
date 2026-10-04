@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       const variantId = typeof o.variantId === "string" && UUID.test(o.variantId) ? o.variantId : null;
       const qty = entier(o.qty ?? o.quantite, 1, 100);
       if (!variantId || !qty) return erreur("Panier invalide.", 400, "PANIER_INVALIDE");
-      lignes.push({ variantId, qty });
+      lignes.push({ variantId, qty, abonnement: o.mode === "abonnement" || o.abonnement === true });
     }
     const c = (b.client ?? {}) as Record<string, unknown>;
     const mode: ModePaiement = b.mode === "livraison" ? "livraison" : "fapshi";
