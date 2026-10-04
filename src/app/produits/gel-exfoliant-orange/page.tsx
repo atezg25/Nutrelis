@@ -1262,7 +1262,7 @@ export default function GelExfoliantOrange() {
             <div key={i} style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "flex-start",
+              justifyContent: isMobile ? "flex-start" : "center",
               gap: 14,
               padding: isMobile ? "14px 24px" : "22px 28px",
               borderRight: (!isMobile && i < 2) ? "1px solid rgba(255,255,255,0.2)" : "none",
