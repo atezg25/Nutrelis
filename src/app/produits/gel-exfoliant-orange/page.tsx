@@ -492,38 +492,38 @@ function RaisonsSection() {
   const scR = useScreenSize();
   const isMobileR = scR === "mobile";
   const isTabletR = scR === "tablet";
-  const colsR = isMobileR ? "repeat(2, 1fr)" : isTabletR ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
+  const colsR = isMobileR ? "1fr" : isTabletR ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
   const { t } = useLocale();
   const raisons = [
     {
       num: "01",
       title: t("gel.reason1Title"),
       text: t("gel.reason1Text"),
-      img: "/images/gel/Sld2.png",
+      img: "/images/gel/raison1.jpg",
     },
     {
       num: "02",
       title: t("gel.reason2Title"),
       text: t("gel.reason2Text"),
-      img: "/images/gel/Sld3.webp",
+      img: "/images/gel/raison2.jpg",
     },
     {
       num: "03",
       title: t("gel.reason3Title"),
       text: t("gel.reason3Text"),
-      img: "/images/gel/Sld4.webp",
+      img: "/images/gel/raison3.jpg",
     },
     {
       num: "04",
       title: t("gel.reason4Title"),
       text: t("gel.reason4Text"),
-      img: "/images/gel/Sld5.webp",
+      img: "/images/gel/raison4.jpg",
     },
     {
       num: "05",
       title: t("gel.reason5Title"),
       text: t("gel.reason5Text"),
-      img: "/images/gel/img_sla.png",
+      img: "/images/gel/raison5.jpg",
     },
   ];
 
@@ -552,8 +552,8 @@ function RaisonsSection() {
         >
           {!isOpen && (
             <>
-              <div style={{ height: isMobileR ? 130 : isTabletR ? 150 : 180, overflow: "hidden" }}>
-                <img src={r.img} alt={r.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ aspectRatio: "1 / 1", overflow: "hidden", background: "#ffb15c" }}>
+                <img src={r.img} alt={r.title} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               </div>
               <div style={{ padding: isMobileR ? "8px 8px 10px" : "16px 18px 20px", textAlign: "center" }}>
                 <div style={{
