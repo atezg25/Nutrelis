@@ -159,7 +159,7 @@ export default function Checkout() {
           <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: isMobile ? 22 : 34, width: "auto" }} />
         </Link>
         {!isMobile && (
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div className="etapes-commande" style={{ display: "flex", gap: 8, alignItems: "center" }}>
             {[t("checkout.title"), t("checkout.paymentTitle")].map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{

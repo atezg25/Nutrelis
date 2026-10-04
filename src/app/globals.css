@@ -61,6 +61,8 @@ html:not(.hydrated) body {
 }
 /* Sécurité : aucune page ne peut être décalée latéralement sur téléphone/tablette */
 body { max-width: 100%; overflow-x: clip; }
+/* Les étapes de la commande ne tiennent pas sous 560 px : on les masque en CSS (avant même l'hydratation, sinon la page s'élargit). */
+@media (max-width: 560px) { .etapes-commande { display: none !important; } }
 
 html.hydrated body {
   visibility: visible;
