@@ -693,15 +693,20 @@ function ProductFaqItem({ icon, q, a, open, onToggle }: { icon: string; q: strin
     </div>
   );
 }
+// largeur / hauteur de chaque visuel (galerie-1 … galerie-15)
+const RATIOS_GALERIE = [0.563, 0.563, 0.563, 0.563, 0.563, 0.563, 0.667, 1, 1, 0.667, 0.938, 0.963, 0.8, 1, 1];
+
 function ProductGallery() {
   const [main, setMain] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { t } = useLocale();
   // 1re image : le tube détouré ; ensuite les visuels fournis (galerie-N.jpg + vignette galerie-N-t.jpg)
   const images = [
-    { src: "/images/gel/img_transparent.png", thumb: "/images/gel/img_transparent.png", detoure: true },
-    ...Array.from({ length: 15 }, (_, k) => ({ src: `/images/gel/galerie-${k + 1}.jpg`, thumb: `/images/gel/galerie-${k + 1}-t.jpg`, detoure: false })),
+    { src: "/images/gel/hero.jpg", thumb: "/images/gel/hero-t.jpg", ratio: 1 },
+    ...RATIOS_GALERIE.map((ratio, k) => ({ src: `/images/gel/galerie-${k + 1}.jpg`, thumb: `/images/gel/galerie-${k + 1}-t.jpg`, ratio })),
   ];
+  // Le cadre épouse la forme de chaque image (entre 3:4 et carré) et l'image le COUVRE entièrement : aucune bande vide.
+  const ratioCadre = Math.min(1, Math.max(0.75, images[main].ratio));
   const aller = (d: number) => setMain((m) => (m + d + images.length) % images.length);
 
   const scGallery = useScreenSize();
@@ -715,10 +720,7 @@ function ProductGallery() {
         borderRadius: 20,
         overflow: "hidden",
         border: "1px solid var(--gel-border)",
-        aspectRatio: "1/1",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        aspectRatio: String(ratioCadre),
       }}>
         <div style={{
           position: "absolute", top: 16, right: 16, zIndex: 2,
@@ -736,19 +738,11 @@ function ProductGallery() {
         }}>
           {t("gel.soldToday")}
         </div>
-        {!images[main].detoure && (
-          <img src={images[main].src} alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(26px) saturate(1.1)", transform: "scale(1.15)", opacity: 0.85 }} />
-        )}
         <img
           key={images[main].src}
           src={images[main].src}
           alt={`NUTRELIS Gel exfoliant à l’orange, visuel ${main + 1} sur ${images.length}`}
-          style={{
-            position: "relative",
-            width: images[main].detoure ? "85%" : "100%", height: images[main].detoure ? "85%" : "100%",
-            objectFit: "contain",
-            filter: images[main].detoure ? "drop-shadow(0 8px 24px rgba(212,86,10,0.15))" : "none",
-          }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 30%", display: "block" }}
         />
         {(["‹", "›"] as const).map((fl, k) => (
           <button key={fl} type="button" aria-label={k === 0 ? "Visuel précédent" : "Visuel suivant"} onClick={() => aller(k === 0 ? -1 : 1)} style={{
@@ -780,7 +774,7 @@ function ProductGallery() {
               transition: "all 0.2s",
             }}
           >
-            <img src={img.thumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: img.detoure ? "contain" : "cover", padding: img.detoure ? 4 : 0 }} />
+            <img src={img.thumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
         ))}
       </div>
