@@ -1817,14 +1817,17 @@ export default function GelExfoliantOrange() {
               {t("gel.from2Months")}
             </div>
             <img
-              src="/images/gel/Rajeu-Photo-1.png"
-              alt="Transformation NUTRELIS"
+              src="/images/gel/3-etapes.webp"
+              alt="Le geste NUTRELIS en 3 étapes : appliquez, massez, essuyez ou rincez"
+              loading="lazy"
               style={{
-                maxWidth: isMobile ? 300 : 600,
+                maxWidth: isMobile ? 420 : 1040,
                 width: "100%",
+                height: "auto",
                 display: "block",
                 margin: "0 auto",
                 objectFit: "contain",
+                filter: "drop-shadow(0 18px 28px rgba(110,45,0,0.30))",
               }}
             />
           </div>
