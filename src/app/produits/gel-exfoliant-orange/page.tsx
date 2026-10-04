@@ -697,11 +697,12 @@ function ProductGallery() {
   const [main, setMain] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { t } = useLocale();
+  // 1re image : le tube détouré ; ensuite les visuels fournis (galerie-N.jpg + vignette galerie-N-t.jpg)
   const images = [
-    "/images/gel/img_transparent.png",
-    "/images/gel/Medecin.png",
-    "/images/gel/BadgesA.png",
+    { src: "/images/gel/img_transparent.png", thumb: "/images/gel/img_transparent.png", detoure: true },
+    ...Array.from({ length: 12 }, (_, k) => ({ src: `/images/gel/galerie-${k + 1}.jpg`, thumb: `/images/gel/galerie-${k + 1}-t.jpg`, detoure: false })),
   ];
+  const aller = (d: number) => setMain((m) => (m + d + images.length) % images.length);
 
   const scGallery = useScreenSize();
   const isSmallGallery = scGallery === "mobile" || scGallery === "tablet";
@@ -735,23 +736,34 @@ function ProductGallery() {
         }}>
           {t("gel.soldToday")}
         </div>
+        {!images[main].detoure && (
+          <img src={images[main].src} alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(26px) saturate(1.1)", transform: "scale(1.15)", opacity: 0.85 }} />
+        )}
         <img
-          src={images[main]}
-          alt="NUTRELIS Gel exfoliant à l’orange"
+          key={images[main].src}
+          src={images[main].src}
+          alt={`NUTRELIS Gel exfoliant à l’orange, visuel ${main + 1} sur ${images.length}`}
           style={{
-            width: "85%", height: "85%",
+            position: "relative",
+            width: images[main].detoure ? "85%" : "100%", height: images[main].detoure ? "85%" : "100%",
             objectFit: "contain",
-            transition: "all 0.3s",
-            filter: "drop-shadow(0 8px 24px rgba(212,86,10,0.15))",
+            filter: images[main].detoure ? "drop-shadow(0 8px 24px rgba(212,86,10,0.15))" : "none",
           }}
         />
+        {(["‹", "›"] as const).map((fl, k) => (
+          <button key={fl} type="button" aria-label={k === 0 ? "Visuel précédent" : "Visuel suivant"} onClick={() => aller(k === 0 ? -1 : 1)} style={{
+            position: "absolute", top: "50%", transform: "translateY(-50%)", [k === 0 ? "left" : "right"]: 10, zIndex: 3,
+            width: 38, height: 38, borderRadius: "50%", border: "1px solid var(--gel-border)", background: "rgba(255,255,255,0.92)",
+            color: "var(--gel-accent)", fontSize: 24, lineHeight: 1, cursor: "pointer", boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
+          }}>{fl}</button>
+        ))}
       </div>
 
       {/* Thumbnails en dessous */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: `repeat(${images.length}, minmax(0, 96px))`,
-        gap: isSmallGallery ? 8 : 12,
+        gridTemplateColumns: "repeat(auto-fill, minmax(64px, 1fr))",
+        gap: isSmallGallery ? 8 : 10,
       }}>
         {images.map((img, i) => (
           <div
@@ -768,7 +780,7 @@ function ProductGallery() {
               transition: "all 0.2s",
             }}
           >
-            <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", padding: 4 }} />
+            <img src={img.thumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: img.detoure ? "contain" : "cover", padding: img.detoure ? 4 : 0 }} />
           </div>
         ))}
       </div>
