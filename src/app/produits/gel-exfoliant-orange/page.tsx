@@ -1288,7 +1288,7 @@ export default function GelExfoliantOrange() {
 
      {/* SECTION PRODUIT CENTRÉ */}
       <section style={{ background: "#fff", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
-        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ maxWidth: isSmall ? 600 : 1040, margin: "0 auto", textAlign: "center" }}>
           <p style={{ color: "var(--gel-gold)", fontSize: isMobile ? 10 : 13, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 }}>
             🍊 {t("gel.heroPill")}
           </p>
@@ -1296,12 +1296,14 @@ export default function GelExfoliantOrange() {
             {t("gel.discoverTitle")}
           </h2>
 
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isMobile ? 16 : 28, alignItems: "stretch" }}>
           {/* Carte produit */}
           <div style={{
+            display: "flex", flexDirection: "column", justifyContent: "center",
             position: "relative",
             background: "var(--gel-bg2)",
             borderRadius: isMobile ? 16 : 24,
-            padding: isMobile ? "36px 16px 24px" : "48px 40px 40px",
+            padding: isMobile ? "36px 16px 24px" : "48px 28px 40px",
             border: "1px solid var(--gel-border)",
             boxShadow: "0 8px 40px rgba(212,86,10,0.1)",
             overflow: "hidden",
@@ -1342,7 +1344,7 @@ export default function GelExfoliantOrange() {
               src="/images/gel/img_transparent.png"
               alt="NUTRELIS Gel exfoliant à l’orange"
               style={{
-                width: isMobile ? "50%" : "55%", maxWidth: isMobile ? 180 : 280,
+                width: isMobile ? "50%" : "55%", maxWidth: isMobile ? 180 : 240,
                 height: "auto", objectFit: "contain",
                 filter: "drop-shadow(0 20px 40px rgba(212,86,10,0.2))",
                 margin: isMobile ? "0 auto 20px" : "0 auto 32px",
@@ -1362,12 +1364,12 @@ export default function GelExfoliantOrange() {
             </div>
 
             {/* Badges */}
-            <div style={{ display: "flex", justifyContent: "center", gap: isMobile ? 4 : 16, marginBottom: isMobile ? 20 : 28, flexWrap: isMobile ? "nowrap" : "wrap" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: isMobile ? 4 : 8, marginBottom: isMobile ? 20 : 28, flexWrap: isMobile ? "nowrap" : isSmall ? "wrap" : "nowrap" }}>
               {[t("gel.badgeA"), t("gel.badgeB"), t("gel.badgeC"), t("gel.badgeD")].map((b, i) => (
                 <span key={i} style={{
                   background: "#fff", border: "1px solid var(--gel-border)",
-                  borderRadius: 20, padding: isMobile ? "3px 6px" : "5px 14px",
-                  fontSize: isMobile ? 9 : 12, color: "var(--gel-text2)", fontWeight: 600,
+                  borderRadius: 20, padding: isMobile ? "3px 6px" : "4px 10px",
+                  fontSize: isMobile ? 9 : 11, color: "var(--gel-text2)", fontWeight: 600,
                   whiteSpace: "nowrap",
                 }}>
                   {b}
@@ -1393,6 +1395,23 @@ export default function GelExfoliantOrange() {
             <p style={{ color: "#aaa", fontSize: isMobile ? 11 : 12, marginTop: isMobile ? 12 : 16 }}>
               {t("common.securePaymentIcon")} &nbsp;|&nbsp; {t("gel.guarantee90Full")}
             </p>
+          </div>
+
+          {/* Photo : même cadre (rayon, bordure, hauteur) que la carte */}
+          <div style={{
+            position: "relative", overflow: "hidden",
+            borderRadius: isMobile ? 16 : 24,
+            border: "1px solid var(--gel-border)",
+            boxShadow: "0 8px 40px rgba(212,86,10,0.1)",
+            minHeight: isSmall ? (isMobile ? 380 : 480) : undefined,
+          }}>
+            <img
+              src="/images/gel/ambiance.jpg"
+              alt="Application du gel exfoliant NUTRELIS"
+              loading="lazy"
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 30%" }}
+            />
+          </div>
           </div>
         </div>
       </section>
