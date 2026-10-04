@@ -298,15 +298,19 @@ export default function Homepage() {
             {(produits ?? []).filter((p) => p.handle !== "astaxanthine-12mg").map((p) => {
               const prix = Math.min(...p.variants.map(getVariantPrice));
               const plusieurs = p.variants.length > 1;
-              const barre = p.variants.map((v) => Number((v.metadata as { originalPrice?: number } | null)?.originalPrice ?? 0)).filter((o) => o > 0);
-              const remise = barre.length ? Math.round(100 * (1 - prix / Math.max(...barre))) : 0;
+              // Remise = la meilleure économie réelle d'un pack (prix du pack vs prix barré de CE pack), pas prix mini vs barré maxi.
+              const remise = Math.max(0, ...p.variants.map((v) => {
+                const o = Number((v.metadata as { originalPrice?: number } | null)?.originalPrice ?? 0);
+                const pv = getVariantPrice(v);
+                return o > 0 && pv > 0 ? Math.round(100 * (1 - pv / o)) : 0;
+              }));
               const dispo = p.variants.some((v) => v.inStock !== false);
               return (
                 <div key={p.id} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(29,185,84,0.3)", borderRadius: isMobile ? 16 : 24, overflow: "hidden" }}>
-                  <div style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(29,185,84,0.12) 0%, rgba(6,15,8,0.8) 100%)", padding: isMobile ? "24px 20px" : "32px", textAlign: "center", position: "relative", minHeight: isMobile ? 150 : 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(29,185,84,0.12) 0%, rgba(6,15,8,0.8) 100%)", padding: isMobile ? "24px 20px" : "32px", textAlign: "center", position: "relative" }}>
                     {remise > 0 && <div style={{ position: "absolute", top: 12, right: 12, background: "var(--accent)", color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 10px", borderRadius: 20 }}>−{remise}%</div>}
                     {p.thumbnail
-                      ? <img src={p.thumbnail} alt={p.title} loading="lazy" style={{ width: isMobile ? "45%" : "55%", maxWidth: isMobile ? 130 : 160, height: "auto", maxHeight: 180, objectFit: "contain" }} />
+                      ? <img src={p.thumbnail} alt={p.title} loading="lazy" style={{ height: isMobile ? 250 : 340, width: "auto", maxWidth: "80%", objectFit: "contain", margin: "12px auto 0", display: "block" }} />
                       : <span style={{ fontSize: isMobile ? 48 : 64, opacity: 0.5 }}>🌿</span>}
                   </div>
                   <div style={{ padding: isMobile ? "16px" : "28px" }}>
