@@ -700,7 +700,7 @@ function ProductGallery() {
   // 1re image : le tube détouré ; ensuite les visuels fournis (galerie-N.jpg + vignette galerie-N-t.jpg)
   const images = [
     { src: "/images/gel/img_transparent.png", thumb: "/images/gel/img_transparent.png", detoure: true },
-    ...Array.from({ length: 12 }, (_, k) => ({ src: `/images/gel/galerie-${k + 1}.jpg`, thumb: `/images/gel/galerie-${k + 1}-t.jpg`, detoure: false })),
+    ...Array.from({ length: 15 }, (_, k) => ({ src: `/images/gel/galerie-${k + 1}.jpg`, thumb: `/images/gel/galerie-${k + 1}-t.jpg`, detoure: false })),
   ];
   const aller = (d: number) => setMain((m) => (m + d + images.length) % images.length);
 
