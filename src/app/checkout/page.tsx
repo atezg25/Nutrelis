@@ -179,7 +179,7 @@ export default function Checkout() {
         </Link>
       </nav>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: `32px ${px}`, display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 380px", gap: isSmall ? 24 : 40, alignItems: "start" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: `32px ${px}`, display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) 380px", gap: isSmall ? 24 : 40, alignItems: "start" }}>
 
         {/* FORMULAIRE COORDONNÉES */}
         {etape === "formulaire" && (
@@ -190,7 +190,7 @@ export default function Checkout() {
 
 
 
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: 16, marginBottom: 16 }}>
               {[
                 { key: "prenom", label: t("checkout.firstName"), placeholder: t("auth.firstNamePlaceholder") },
                 { key: "nom", label: t("checkout.lastName"), placeholder: t("auth.lastNamePlaceholder") },
@@ -228,7 +228,7 @@ export default function Checkout() {
                 </div>
               ))}
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 16 }}>
                 {[
                   { key: "ville", label: t("checkout.city"), placeholder: "Douala" },
                   { key: "quartier", label: t("checkout.district"), placeholder: "Akwa, Bonanjo..." },

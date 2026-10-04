@@ -1370,7 +1370,7 @@ export default function GelExfoliantOrange() {
             </div>
 
             {/* Badges */}
-            <div style={{ display: "flex", justifyContent: "center", gap: isMobile ? 4 : 8, marginBottom: isMobile ? 20 : 28, flexWrap: isMobile ? "nowrap" : isSmall ? "wrap" : "nowrap" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: isMobile ? 4 : 8, marginBottom: isMobile ? 20 : 28, flexWrap: isSmall ? "wrap" : "nowrap" }}>
               {[t("gel.badgeA"), t("gel.badgeB"), t("gel.badgeC"), t("gel.badgeD")].map((b, i) => (
                 <span key={i} style={{
                   background: "#fff", border: "1px solid var(--gel-border)",

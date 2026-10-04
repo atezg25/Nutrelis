@@ -59,6 +59,9 @@ html {
 html:not(.hydrated) body {
   visibility: hidden;
 }
+/* Sécurité : aucune page ne peut être décalée latéralement sur téléphone/tablette */
+body { max-width: 100%; overflow-x: clip; }
+
 html.hydrated body {
   visibility: visible;
 }
