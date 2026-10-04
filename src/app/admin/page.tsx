@@ -914,34 +914,36 @@ function Expeditions() {
 
 // ---------------------------------------------------------------- Abonnements
 function Abonnements() {
-  const [d, setD] = useState<{ abonnes: Ligne[]; relanceJours: number; remisePct: number } | null>(null);
-  const charger = useCallback(() => { void api<{ abonnes: Ligne[]; relanceJours: number; remisePct: number }>("subscriptions").then((r) => r.ok && setD(r.data)); }, []);
+  const [d, setD] = useState<{ abonnes: Ligne[]; joursParUnite: number; avanceJours: number; remisePct: number } | null>(null);
+  const charger = useCallback(() => { void api<{ abonnes: Ligne[]; joursParUnite: number; avanceJours: number; remisePct: number }>("subscriptions").then((r) => r.ok && setD(r.data)); }, []);
   useEffect(charger, [charger]);
-  const jours = (iso: unknown) => Math.floor((Date.now() - new Date(String(iso)).getTime()) / 86_400_000);
+  // jours restants avant la fin du pack (négatif = pack terminé)
+  const restant = (iso: unknown) => Math.ceil((new Date(String(iso)).getTime() - Date.now()) / 86_400_000);
+  const aRelancerA = (a: Ligne) => !a.resilie && restant(a.fin_pack) <= (d?.avanceJours ?? 7);
   async function basculer(phone: string, resilier: boolean) { await api("subscriptions", { method: "POST", body: { phone, resilier } }); charger(); }
   const lien = (a: Ligne) => {
     const num = String(a.phone).replace(/[^\d]/g, "");
     const msg = `Bonjour ${String(a.nom)}, c'est NUTRELIS. Votre abonnement (-${d?.remisePct ?? 15} % à chaque livraison) : souhaitez-vous recevoir votre prochaine livraison ? Répondez OUI et nous préparons votre commande.`;
     return `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
   };
-  const aRelancer = (d?.abonnes ?? []).filter((a) => !a.resilie && jours(a.derniere) >= (d?.relanceJours ?? 28));
+  const aRelancer = (d?.abonnes ?? []).filter(aRelancerA);
   return (
     <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
       <div style={{ ...carte, background: "#f4fbf6", fontSize: 13.5, color: "#2b312b" }}>
-        Un client en abonnement paie <strong>{d?.remisePct ?? 15} % de moins</strong> à chaque livraison (prix calculé par le serveur). Il n'y a pas de prélèvement automatique : <strong>vous le relancez chaque mois</strong> par WhatsApp, il confirme, vous créez la commande. Un abonné est à relancer {d?.relanceJours ?? 28} jours après sa dernière commande.
+        Un client en abonnement paie <strong>{d?.remisePct ?? 15} % de moins</strong> à chaque livraison (prix calculé par le serveur). Pas de prélèvement automatique : <strong>vous le relancez à la fin de son pack</strong> par WhatsApp, il confirme, vous créez la commande. Un produit dure <strong>{d?.joursParUnite ?? 60} jours</strong> (réglable dans Paramètres) : le pack de 1 dure {d?.joursParUnite ?? 60} j, le pack de 2 {(d?.joursParUnite ?? 60) * 2} j, le pack de 3 {(d?.joursParUnite ?? 60) * 3} j. L'abonné est à relancer {d?.avanceJours ?? 7} jours avant la fin.
       </div>
       <div style={{ fontWeight: 700 }}>{aRelancer.length} abonné(s) à relancer · {(d?.abonnes ?? []).filter((a) => !a.resilie).length} actif(s)</div>
       {(d?.abonnes ?? []).length === 0 && <div style={{ ...carte, color: "#777" }}>Aucun abonné pour l'instant.</div>}
       {(d?.abonnes ?? []).map((a) => {
-        const j = jours(a.derniere);
-        const relance = !a.resilie && j >= (d?.relanceJours ?? 28);
+        const j = restant(a.fin_pack);
+        const relance = aRelancerA(a);
         return (
           <div key={String(a.phone)} style={{ ...carte, opacity: a.resilie ? 0.55 : 1 }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
               <div><strong>{String(a.nom)}</strong>{a.ville ? ` · ${String(a.ville)}` : ""}<br /><span style={{ color: "#777", fontSize: 12 }}>{String(a.phone)} · {String(a.produits ?? "")}</span></div>
               <div style={{ textAlign: "right" }}>
                 {a.resilie ? <Badge texte="Résilié" couleur="#777" /> : relance ? <Badge texte="À relancer" couleur="#b45309" /> : <Badge texte="À jour" couleur={VERT} />}
-                <div style={{ color: "#777", fontSize: 12, marginTop: 4 }}>Dernière commande {String(a.derniere_commande)} · il y a {j} j · {String(a.nb_abonnements)} abonnement(s)</div>
+                <div style={{ color: "#777", fontSize: 12, marginTop: 4 }}>Dernière commande {String(a.derniere_commande)} · {String(a.unites)} produit(s) · fin du pack le {new Date(String(a.fin_pack)).toLocaleDateString("fr-FR")} ({j >= 0 ? `dans ${j} j` : `terminé depuis ${-j} j`}) · {String(a.nb_abonnements)} abonnement(s)</div>
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>

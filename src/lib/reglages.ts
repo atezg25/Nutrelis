@@ -4,11 +4,12 @@ import { query } from "./db";
  * Réglages modifiables depuis la console (table `setting`). Chaque réglage a une valeur de repli (variable d'environnement
  * ou valeur par défaut) : la boutique fonctionne même si la table est vide.
  */
-export type CleReglage = "frais_livraison_fcfa" | "alerte_email" | "alerte_whatsapp" | "boutique_nom" | "boutique_telephone" | "boutique_adresse";
+export type CleReglage = "frais_livraison_fcfa" | "alerte_email" | "alerte_whatsapp" | "abonnement_jours_par_unite" | "boutique_nom" | "boutique_telephone" | "boutique_adresse";
 
 export const REGLAGES: Record<CleReglage, { titre: string; aide: string; defaut: () => string; type: "entier" | "email" | "telephone" | "texte" }> = {
   frais_livraison_fcfa: { titre: "Frais de livraison par défaut (FCFA)", aide: "Pour une ville qui n'a pas son propre tarif (onglet Expéditions > Tarifs par ville). 0 = livraison offerte.", defaut: () => String(Number(process.env.DELIVERY_FEE_FCFA ?? 0) || 0), type: "entier" },
   alerte_email: { titre: "E-mail qui reçoit les alertes de commande", aide: "Une alerte par commande à la livraison, et par paiement en ligne confirmé.", defaut: () => process.env.STORE_EMAIL ?? "", type: "email" },
+  abonnement_jours_par_unite: { titre: "Durée d'utilisation d'un produit, pour les abonnements (jours)", aide: "Un gel (ou un pot) dure ce nombre de jours : le pack de 2 dure le double, le pack de 3 le triple. La console propose de relancer l'abonné 7 jours avant la fin. Estimation : 60 jours (≈ 2 mois) à 2-3 utilisations par semaine.", defaut: () => "60", type: "entier" },
   boutique_nom: { titre: "Nom de la boutique (bordereau de colis)", aide: "Expéditeur imprimé sur chaque bordereau.", defaut: () => "NUTRELIS", type: "texte" },
   boutique_telephone: { titre: "Téléphone de la boutique (bordereau de colis)", aide: "Numéro que le transporteur et le destinataire peuvent appeler.", defaut: () => process.env.WHATSAPP_STORE_PHONE ?? "", type: "telephone" },
   boutique_adresse: { titre: "Adresse de la boutique (bordereau de colis)", aide: "Adresse de départ des colis, par exemple ville et quartier.", defaut: () => "", type: "texte" },

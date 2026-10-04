@@ -241,6 +241,10 @@ GROUP BY v.id;
 ALTER TABLE order_item ADD COLUMN IF NOT EXISTS subscription BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE customer_order ADD COLUMN IF NOT EXISTS subscription BOOLEAN NOT NULL DEFAULT FALSE;
 CREATE INDEX IF NOT EXISTS customer_order_phone_idx ON customer_order (phone);
+-- Nombre de produits d'un pack (1, 2 ou 3) : sert à calculer la durée du pack pour la relance d'abonnement.
+ALTER TABLE variant ADD COLUMN IF NOT EXISTS units INTEGER NOT NULL DEFAULT 1 CHECK (units >= 1);
+UPDATE variant SET units = 2 WHERE sku IN ('NUT-AX-2P', 'GEL-ORANGE-2') AND units = 1;
+UPDATE variant SET units = 3 WHERE sku IN ('NUT-AX-3P', 'GEL-ORANGE-3') AND units = 1;
 -- Abonnés qui ont résilié (par téléphone) : on ne les relance plus.
 CREATE TABLE IF NOT EXISTS subscription_stop (
   phone      TEXT PRIMARY KEY,
