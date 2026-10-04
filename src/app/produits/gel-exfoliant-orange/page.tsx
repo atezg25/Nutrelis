@@ -1115,51 +1115,51 @@ export default function GelExfoliantOrange() {
         minHeight: isSmall ? "auto" : 620,
         overflow: "hidden",
       }}>
-        {/* Côté gauche : le produit, grand, sur un halo orange */}
+        {/* Côté gauche : la photo produit, dans un cadre arrondi aux bords nets */}
         <div style={{
-          position: "relative",
-          background: "radial-gradient(ellipse at 50% 58%, #fbd2a8 0%, #ffe6cf 48%, #fff4e8 100%)",
+          background: "var(--gel-bg)",
+          padding: isMobile ? "16px 16px 4px" : sc === "tablet" ? "24px 28px 8px" : "40px 24px 40px 40px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: isMobile ? "36px 16px 44px" : "56px 24px",
-          overflow: "hidden",
-          minHeight: isSmall ? 360 : undefined,
         }}>
-          <div style={{ position: "absolute", width: isMobile ? 280 : 470, height: isMobile ? 280 : 470, borderRadius: "50%", background: "rgba(244,168,94,0.30)", top: "52%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", width: isMobile ? 360 : 600, height: isMobile ? 360 : 600, borderRadius: "50%", border: "1px solid rgba(212,86,10,0.14)", top: "52%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />
-          <img
-            src="/images/gel/img_transparent.png"
-            alt="NUTRELIS Gel exfoliant à l’orange"
-            style={{
-              height: isMobile ? 310 : 500,
-              width: "auto",
-              maxWidth: "78%",
-              objectFit: "contain",
-              position: "relative",
-              zIndex: 2,
-              filter: "drop-shadow(0 28px 36px rgba(184,69,8,0.30))",
-            }}
-          />
           <div style={{
-            position: "absolute", top: isMobile ? 14 : 36, right: isMobile ? 14 : 44, zIndex: 3,
-            width: isMobile ? 70 : 96, height: isMobile ? 70 : 96, borderRadius: "50%",
-            background: "#fff", border: "3px solid var(--gel-accent)",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 6px 20px rgba(212,86,10,0.22)",
+            position: "relative",
+            width: "100%",
+            maxWidth: isSmall ? 560 : 640,
+            aspectRatio: "1 / 1",
+            borderRadius: isMobile ? 20 : 28,
+            overflow: "hidden",
+            background: "#e8710a",
+            boxShadow: "0 18px 48px rgba(184,69,8,0.28), 0 0 0 1px rgba(212,86,10,0.18)",
           }}>
-            <span style={{ color: "var(--gel-accent)", fontSize: isMobile ? 22 : 30, fontWeight: 900, lineHeight: 1 }}>90</span>
-            <span style={{ color: "var(--gel-accent)", fontSize: isMobile ? 9 : 11, fontWeight: 800, letterSpacing: 0.5 }}>{t("common.days")}</span>
+            <img
+              src="/images/gel/hero.jpg"
+              alt="NUTRELIS Gel exfoliant à l’orange"
+              fetchPriority="high"
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+            {/* léger voile haut/bas : lisibilité des pastilles sans toucher au produit */}
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(120,40,0,0.18) 0%, rgba(120,40,0,0) 28%, rgba(120,40,0,0) 72%, rgba(120,40,0,0.22) 100%)", pointerEvents: "none" }} />
+            <div style={{
+              position: "absolute", top: isMobile ? 12 : 20, right: isMobile ? 12 : 20, zIndex: 3,
+              width: isMobile ? 64 : 88, height: isMobile ? 64 : 88, borderRadius: "50%",
+              background: "#fff", border: "3px solid var(--gel-accent)",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.22)",
+            }}>
+              <span style={{ color: "var(--gel-accent)", fontSize: isMobile ? 20 : 28, fontWeight: 900, lineHeight: 1 }}>90</span>
+              <span style={{ color: "var(--gel-accent)", fontSize: isMobile ? 8 : 10, fontWeight: 800, letterSpacing: 0.5 }}>{t("common.days")}</span>
+            </div>
+            <div style={{
+              position: "absolute", bottom: isMobile ? 12 : 20, left: isMobile ? 12 : 20, zIndex: 3,
+              background: "rgba(255,255,255,0.96)", color: "var(--gel-accent)", fontWeight: 800,
+              fontSize: isMobile ? 11 : 13, padding: isMobile ? "6px 12px" : "8px 16px", borderRadius: 50,
+              boxShadow: "0 6px 18px rgba(0,0,0,0.2)",
+            }}>
+              {t("gel.badgeUpTo")} · packs
+            </div>
           </div>
-          <div style={{
-            position: "absolute", bottom: isMobile ? 16 : 36, left: isMobile ? 16 : 44, zIndex: 3,
-            background: "#fff", color: "var(--gel-accent)", fontWeight: 800,
-            fontSize: isMobile ? 12 : 14, padding: isMobile ? "7px 12px" : "9px 18px", borderRadius: 50,
-            boxShadow: "0 6px 20px rgba(212,86,10,0.18)", border: "1px solid var(--gel-border)",
-          }}>
-            {t("gel.badgeUpTo")} · packs
-          </div>
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 5, background: "linear-gradient(90deg, transparent, var(--gel-accent) 30%, var(--gel-accent) 70%, transparent)" }} />
         </div>
 
         {/* Côté droit : promesse, prix, action */}
