@@ -693,8 +693,8 @@ function ProductFaqItem({ icon, q, a, open, onToggle }: { icon: string; q: strin
     </div>
   );
 }
-// largeur / hauteur de chaque visuel (galerie-1 … galerie-15)
-const RATIOS_GALERIE = [0.563, 0.563, 0.563, 0.563, 0.563, 0.563, 0.667, 1, 1, 0.667, 0.938, 0.963, 0.8, 1, 1];
+// largeur / hauteur de chaque visuel (galerie2-1 … galerie2-15)
+const RATIOS_GALERIE = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.938, 0.962, 1.0, 1.0, 1.0];
 
 function ProductGallery() {
   const [main, setMain] = useState(0);
@@ -703,7 +703,7 @@ function ProductGallery() {
   // 1re image : le tube détouré ; ensuite les visuels fournis (galerie-N.jpg + vignette galerie-N-t.jpg)
   const images = [
     { src: "/images/gel/hero.jpg", thumb: "/images/gel/hero-t.jpg", ratio: 1 },
-    ...RATIOS_GALERIE.map((ratio, k) => ({ src: `/images/gel/galerie-${k + 1}.jpg`, thumb: `/images/gel/galerie-${k + 1}-t.jpg`, ratio })),
+    ...RATIOS_GALERIE.map((ratio, k) => ({ src: `/images/gel/galerie2-${k + 1}.jpg`, thumb: `/images/gel/galerie2-${k + 1}-t.jpg`, ratio })),
   ];
   // Le cadre épouse la forme de chaque image (entre 3:4 et carré) et l'image le COUVRE entièrement : aucune bande vide.
   const ratioCadre = Math.min(1, Math.max(0.75, images[main].ratio));
