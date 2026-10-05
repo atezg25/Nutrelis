@@ -80,6 +80,7 @@ function CarrouselProduits({ produits, bannieres, secondes }: { produits: Medusa
   const { locale } = useLocale();
   const ecran = useScreenSize();
   const isMobile = ecran === "mobile";
+  const isTablet = ecran === "tablet";
   const diapos = produits.filter((p) => bannieres[p.id] || p.thumbnail);
   const n = diapos.length;
   const [i, setI] = useState(0);
@@ -94,7 +95,7 @@ function CarrouselProduits({ produits, bannieres, secondes }: { produits: Medusa
     return () => clearInterval(id);
   }, [n, secondes, pause]);
 
-  if (n === 0) return <div style={{ width: "100%", aspectRatio: "16 / 9" }} />;
+  if (n === 0) return <div style={{ width: "100%", aspectRatio: isMobile ? "4 / 3" : "2 / 1" }} />;
   const aller = (d: number) => setI((k) => (k + d + n) % n);
   const fr = locale === "fr";
   const fleche = (cote: "left" | "right", d: number, symbole: string, nom: string) => (
@@ -112,7 +113,7 @@ function CarrouselProduits({ produits, bannieres, secondes }: { produits: Medusa
       onPointerDown={(e) => { depart.current = e.clientX; }}
       onPointerUp={(e) => { if (depart.current !== null) { const dx = e.clientX - depart.current; if (Math.abs(dx) > 40) aller(dx < 0 ? 1 : -1); depart.current = null; } }}
       style={{
-        position: "relative", width: "100%", aspectRatio: "16 / 9", borderRadius: isMobile ? 18 : 26, overflow: "hidden", touchAction: "pan-y",
+        position: "relative", width: "100%", aspectRatio: isMobile ? "4 / 3" : isTablet ? "16 / 10" : "2 / 1", maxHeight: isMobile ? undefined : "76vh", borderRadius: isMobile ? 18 : 28, overflow: "hidden", touchAction: "pan-y",
         background: "radial-gradient(ellipse at 50% 60%, #12331a 0%, #060f08 100%)",
         boxShadow: "0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(29,185,84,0.25)",
       }}
@@ -127,16 +128,16 @@ function CarrouselProduits({ produits, bannieres, secondes }: { produits: Medusa
             {banniere
               ? <img src={banniere} alt={p.title} draggable={false} loading={k === 0 ? "eager" : "lazy"} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
               : <img src={p.thumbnail as string} alt={p.title} draggable={false} style={{ position: "absolute", left: "50%", top: "46%", transform: "translate(-50%, -50%)", height: "72%", width: "auto", maxWidth: "70%", objectFit: "contain", filter: "drop-shadow(0 18px 36px rgba(29,185,84,0.25))" }} />}
-            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: isMobile ? "28px 14px 14px" : "52px 24px 22px", background: "linear-gradient(0deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0) 100%)", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: isMobile ? "28px 14px 22px" : "72px 36px 34px", background: "linear-gradient(0deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0) 100%)", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isMobile ? 15 : 20, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{p.title}</div>
+                <div style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isMobile ? 16 : 26, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{p.title}</div>
                 {Number.isFinite(prix) && (
-                  <div style={{ color: "#fff", opacity: 0.9, fontWeight: 600, fontSize: isMobile ? 12 : 14, marginTop: 2 }}>
+                  <div style={{ color: "#fff", opacity: 0.9, fontWeight: 600, fontSize: isMobile ? 12 : 16, marginTop: 2 }}>
                     {p.variants.length > 1 ? (fr ? "À partir de " : "From ") : ""}{prix.toLocaleString("fr-FR")} FCFA
                   </div>
                 )}
               </div>
-              <span style={{ background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: isMobile ? 12 : 14, padding: isMobile ? "8px 14px" : "11px 22px", borderRadius: 50, whiteSpace: "nowrap", fontFamily: "var(--font-sora), sans-serif" }}>{fr ? "Découvrir" : "Discover"}</span>
+              <span style={{ background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: isMobile ? 12 : 14, padding: isMobile ? "8px 14px" : "14px 30px", borderRadius: 50, whiteSpace: "nowrap", fontFamily: "var(--font-sora), sans-serif" }}>{fr ? "Découvrir" : "Discover"}</span>
             </div>
           </Link>
         );
@@ -211,8 +212,8 @@ export default function Homepage() {
         <div style={{ maxWidth: 1280, margin: "0 auto", width: "100%" }}>
           <div style={{
             display: "grid",
-            gridTemplateColumns: isDesktop ? "minmax(0, 1.15fr) minmax(0, 1fr)" : "minmax(0, 1fr)",
-            gap: isMobile ? 32 : isTablet ? 48 : 80,
+            gridTemplateColumns: "minmax(0, 1fr)",
+            gap: isMobile ? 28 : isTablet ? 36 : 44,
             alignItems: "center",
           }}>
             {/* Tous les produits de la boutique, côte à côte */}
@@ -222,7 +223,7 @@ export default function Homepage() {
             </div>
 
             {/* Texte */}
-            <div style={{ textAlign: isMobile ? "center" : "left" }}>
+            <div style={{ textAlign: "center", maxWidth: 900, margin: "0 auto" }}>
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 background: "rgba(29,185,84,0.1)", border: "1px solid rgba(29,185,84,0.3)",
@@ -244,12 +245,12 @@ export default function Homepage() {
 
               <p style={{
                 color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 14 : isTablet ? 16 : 18, lineHeight: 1.8,
-                maxWidth: isMobile ? "100%" : 520, margin: isMobile ? "0 auto 28px" : "0 0 28px 0",
+                maxWidth: 680, margin: "0 auto 28px",
               }}>
                 {boutique.description || t("home.shopDesc")}
               </p>
 
-              <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 32, justifyContent: isMobile ? "center" : "flex-start", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 32, justifyContent: "center", flexWrap: "wrap" }}>
                 <Link href="#produits" style={{
                   background: "var(--accent)", color: "#fff",
                   padding: isMobile ? "14px 24px" : "18px 40px", borderRadius: 12,
@@ -260,13 +261,13 @@ export default function Homepage() {
                 </Link>
               </div>
 
-              <div style={{ display: "flex", gap: isMobile ? 20 : 40, justifyContent: isMobile ? "center" : "flex-start", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: isMobile ? 20 : 48, justifyContent: "center", flexWrap: "wrap" }}>
                 {[
                   { val: String((produits ?? []).length || ""), label: t("home.statProducts") },
                   { val: "24 h", label: t("home.statShip") },
                   { val: "90 j", label: t("home.statWarranty") },
                 ].filter((s) => s.val !== "").map((stat, i) => (
-                  <div key={i} style={{ textAlign: isMobile ? "center" : "left" }}>
+                  <div key={i} style={{ textAlign: "center" }}>
                     <div style={{ color: "var(--accent)", fontSize: isMobile ? 17 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>{stat.val}</div>
                     <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>{stat.label}</div>
                   </div>
