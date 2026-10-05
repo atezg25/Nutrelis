@@ -153,6 +153,7 @@ function PackSelector({ packs: packsBase, onPackChange }: { packs: PackVue[]; on
     ...p,
     capsules: p.label,
     img: IMG,
+    imgPanier: `/images/gel/P_0${Math.min(Math.max(p.units, 1), 3)}.png`,
     cure: p.description ?? `${t("gel.perGelPre")} ${Math.round(p.prix / p.units).toLocaleString("fr-FR")} FCFA ${t("gel.perGelPost")} · ${t("gel.cureDe")} ${p.mois} ${t("gel.mois")}`,
     perCycle: `/ ${p.mois} ${t("gel.mois")}`,
   }));
@@ -366,7 +367,7 @@ function PackSelector({ packs: packsBase, onPackChange }: { packs: PackVue[]; on
             description: pack.capsules,
             prix: mode === "abonnement" ? pack.aboPrix : pack.prix,
             prixOriginal: pack.ancien,
-            image: pack.img,
+            image: pack.imgPanier,
             mode: mode as "unique" | "abonnement",
           });
           if (!ok) { setStockError(true); setTimeout(() => setStockError(false), 4000); return; }
@@ -405,7 +406,7 @@ function PackSelector({ packs: packsBase, onPackChange }: { packs: PackVue[]; on
             description: pack.capsules,
             prix: mode === "abonnement" ? pack.aboPrix : pack.prix,
             prixOriginal: pack.ancien,
-            image: pack.img,
+            image: pack.imgPanier,
             mode: mode as "unique" | "abonnement",
           });
           if (!ok) { setStockError(true); setTimeout(() => setStockError(false), 4000); return; }

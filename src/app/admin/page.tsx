@@ -416,8 +416,7 @@ const CLES_EN = ["accroche", "avantages", "raisons", "etapes", "description", "i
 const texteEn = (c: ContenuEn) => {
   const t = enTexte(c);
   return { ...Object.fromEntries(CLES_EN.map((k) => [k, t[k]])) as Record<(typeof CLES_EN)[number], string>, name: c.name ?? "", subtitle: c.subtitle ?? "", descriptionCourte: c.descriptionCourte ?? "",
-    variants: Object.entries(c.variants ?? {}).map(([sku, v]) => `${sku} | ${v.label ?? ""} | ${v.description ?? ""}`).join("
-") };
+    variants: Object.entries(c.variants ?? {}).map(([sku, v]) => `${sku} | ${v.label ?? ""} | ${v.description ?? ""}`).join("\n") };
 };
 const contenuEn = (e: ReturnType<typeof texteEn>): ContenuEn => {
   const paires = (v: string, n: number) => lignes(v).map((l) => { const p = l.split("|").map((x) => x.trim()); return [...p.slice(0, n - 1), p.slice(n - 1).join(" | ")]; });
