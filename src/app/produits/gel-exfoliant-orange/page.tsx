@@ -173,7 +173,7 @@ function PackSelector({ packs: packsBase, onPackChange }: { packs: PackVue[]; on
     <div>
       <div style={{
         display: "grid",
-        gridTemplateColumns: abonnement.actif ? "1fr 1fr" : "1fr",
+        gridTemplateColumns: abonnement.actif ? "minmax(0, 1fr) minmax(0, 1fr)" : "minmax(0, 1fr)",
         background: "#fdeedd",
         borderRadius: 12,
         padding: 5,
@@ -206,7 +206,9 @@ function PackSelector({ packs: packsBase, onPackChange }: { packs: PackVue[]; on
               cursor: "pointer",
               transition: "all 0.2s",
               fontFamily: "var(--font-sora), sans-serif",
-              whiteSpace: "nowrap",
+              whiteSpace: "normal",
+              lineHeight: 1.25,
+              overflowWrap: "anywhere",
             }}
           >
             {tab.label}
