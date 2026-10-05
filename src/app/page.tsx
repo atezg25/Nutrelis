@@ -144,10 +144,10 @@ function CarrouselProduits({ produits, bannieres, secondes }: { produits: Medusa
       {n > 1 && fleche("left", -1, "‹", fr ? "Produit précédent" : "Previous product")}
       {n > 1 && fleche("right", 1, "›", fr ? "Produit suivant" : "Next product")}
       {n > 1 && (
-        <div style={{ position: "absolute", left: 0, right: 0, top: 12, display: "flex", justifyContent: "center", gap: 8, zIndex: 3 }}>
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: isMobile ? 8 : 12, display: "flex", justifyContent: "center", gap: 8, zIndex: 3, pointerEvents: "none" }}>
           {diapos.map((p, k) => (
             <button key={p.id} type="button" aria-label={p.title} aria-current={k === i} onClick={() => setI(k)}
-              style={{ width: k === i ? 24 : 9, height: 9, borderRadius: 9, border: "none", cursor: "pointer", background: k === i ? "#fff" : "rgba(255,255,255,0.45)", transition: "all 0.25s", padding: 0 }} />
+              style={{ width: k === i ? 24 : 9, height: 9, borderRadius: 9, border: "none", cursor: "pointer", pointerEvents: "auto", background: k === i ? "#fff" : "rgba(255,255,255,0.55)", transition: "all 0.25s", padding: 0, boxShadow: "0 1px 4px rgba(0,0,0,0.5)" }} />
           ))}
         </div>
       )}
