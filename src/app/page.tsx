@@ -71,21 +71,20 @@ function Navbar() {
 }
 
 /**
- * Carrousel des produits de la boutique : une image par produit, tirée de la console (photo principale du produit).
- * Un produit ajouté dans la console y apparaît tout seul. Défilement automatique (durée réglable dans Paramètres, 0 = arrêté),
- * mis en pause au survol et au clavier, arrêté si le visiteur a demandé moins d'animations ; flèches, points et balayage au doigt.
+ * Carrousel de la boutique : une bannière par produit. L'image est celle saisie dans la console (fiche du produit, « image du
+ * carrousel ») ; sans image, la photo principale du produit est montrée sur un fond neutre. Un produit ajouté dans la console y
+ * apparaît tout seul. Défilement automatique (durée réglable dans Paramètres, 0 = arrêté), en pause au survol et au clavier,
+ * arrêté si le visiteur a demandé moins d'animations ; flèches, points et balayage au doigt.
  */
-function CarrouselProduits({ produits, secondes }: { produits: MedusaProduct[]; secondes: number }) {
+function CarrouselProduits({ produits, bannieres, secondes }: { produits: MedusaProduct[]; bannieres: Record<string, string>; secondes: number }) {
   const { locale } = useLocale();
   const ecran = useScreenSize();
   const isMobile = ecran === "mobile";
-  const isTablet = ecran === "tablet";
-  const diapos = produits.filter((p) => p.thumbnail);
+  const diapos = produits.filter((p) => bannieres[p.id] || p.thumbnail);
   const n = diapos.length;
   const [i, setI] = useState(0);
   const [pause, setPause] = useState(false);
   const depart = useRef<number | null>(null);
-  const hauteurImage = isMobile ? 210 : isTablet ? 270 : 330;
 
   useEffect(() => { if (i >= n) setI(0); }, [n, i]);
   useEffect(() => {
@@ -95,13 +94,13 @@ function CarrouselProduits({ produits, secondes }: { produits: MedusaProduct[]; 
     return () => clearInterval(id);
   }, [n, secondes, pause]);
 
-  if (n === 0) return <div style={{ minHeight: hauteurImage + 90 }} />;
+  if (n === 0) return <div style={{ width: "100%", aspectRatio: "16 / 9" }} />;
   const aller = (d: number) => setI((k) => (k + d + n) % n);
   const fr = locale === "fr";
   const fleche = (cote: "left" | "right", d: number, symbole: string, nom: string) => (
     <button type="button" aria-label={nom} onClick={() => aller(d)} style={{
-      position: "absolute", top: hauteurImage / 2 - 20, [cote]: isMobile ? -4 : 0, zIndex: 3, width: 40, height: 40, borderRadius: "50%",
-      border: "1px solid rgba(29,185,84,0.35)", background: "rgba(6,15,8,0.75)", color: "#fff", fontSize: 22, lineHeight: 1, cursor: "pointer",
+      position: "absolute", top: "50%", transform: "translateY(-50%)", [cote]: 10, zIndex: 3, width: isMobile ? 34 : 42, height: isMobile ? 34 : 42, borderRadius: "50%",
+      border: "1px solid rgba(255,255,255,0.35)", background: "rgba(6,15,8,0.55)", color: "#fff", fontSize: 22, lineHeight: 1, cursor: "pointer", backdropFilter: "blur(4px)",
     }}>{symbole}</button>
   );
 
@@ -112,26 +111,32 @@ function CarrouselProduits({ produits, secondes }: { produits: MedusaProduct[]; 
       onFocus={() => setPause(true)} onBlur={() => setPause(false)}
       onPointerDown={(e) => { depart.current = e.clientX; }}
       onPointerUp={(e) => { if (depart.current !== null) { const dx = e.clientX - depart.current; if (Math.abs(dx) > 40) aller(dx < 0 ? 1 : -1); depart.current = null; } }}
-      style={{ position: "relative", width: "100%", maxWidth: 520, height: hauteurImage + 96, touchAction: "pan-y" }}
+      style={{
+        position: "relative", width: "100%", aspectRatio: "16 / 9", borderRadius: isMobile ? 18 : 26, overflow: "hidden", touchAction: "pan-y",
+        background: "radial-gradient(ellipse at 50% 60%, #12331a 0%, #060f08 100%)",
+        boxShadow: "0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(29,185,84,0.25)",
+      }}
     >
       {diapos.map((p, k) => {
         const prix = Math.min(...p.variants.map(getVariantPrice).filter((x) => x > 0));
+        const banniere = bannieres[p.id];
         return (
           <Link key={p.id} href={`/produits/${p.handle}`} aria-hidden={k !== i} tabIndex={k === i ? 0 : -1}
             aria-label={`${p.title}${Number.isFinite(prix) ? ` — ${prix.toLocaleString("fr-FR")} FCFA` : ""}`}
-            style={{
-              position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", textDecoration: "none", color: "#fff",
-              opacity: k === i ? 1 : 0, transition: "opacity 0.6s ease", pointerEvents: k === i ? "auto" : "none",
-            }}>
-            <img src={p.thumbnail as string} alt={p.title} draggable={false}
-              style={{ height: hauteurImage, width: "auto", maxWidth: "78%", objectFit: "contain", filter: "drop-shadow(0 20px 40px rgba(29,185,84,0.22))" }} />
-            <div style={{ textAlign: "center", marginTop: 10 }}>
-              <div style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isMobile ? 15 : 18 }}>{p.title}</div>
-              {Number.isFinite(prix) && (
-                <div style={{ color: "var(--accent)", fontWeight: 700, fontSize: isMobile ? 13 : 15, marginTop: 2 }}>
-                  {p.variants.length > 1 ? (fr ? "À partir de " : "From ") : ""}{prix.toLocaleString("fr-FR")} FCFA
-                </div>
-              )}
+            style={{ position: "absolute", inset: 0, display: "block", textDecoration: "none", color: "#fff", opacity: k === i ? 1 : 0, transition: "opacity 0.7s ease", pointerEvents: k === i ? "auto" : "none" }}>
+            {banniere
+              ? <img src={banniere} alt={p.title} draggable={false} loading={k === 0 ? "eager" : "lazy"} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+              : <img src={p.thumbnail as string} alt={p.title} draggable={false} style={{ position: "absolute", left: "50%", top: "46%", transform: "translate(-50%, -50%)", height: "72%", width: "auto", maxWidth: "70%", objectFit: "contain", filter: "drop-shadow(0 18px 36px rgba(29,185,84,0.25))" }} />}
+            <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: isMobile ? "28px 14px 14px" : "52px 24px 22px", background: "linear-gradient(0deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0) 100%)", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isMobile ? 15 : 20, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{p.title}</div>
+                {Number.isFinite(prix) && (
+                  <div style={{ color: "#fff", opacity: 0.9, fontWeight: 600, fontSize: isMobile ? 12 : 14, marginTop: 2 }}>
+                    {p.variants.length > 1 ? (fr ? "À partir de " : "From ") : ""}{prix.toLocaleString("fr-FR")} FCFA
+                  </div>
+                )}
+              </div>
+              <span style={{ background: "var(--accent)", color: "#fff", fontWeight: 800, fontSize: isMobile ? 12 : 14, padding: isMobile ? "8px 14px" : "11px 22px", borderRadius: 50, whiteSpace: "nowrap", fontFamily: "var(--font-sora), sans-serif" }}>{fr ? "Découvrir" : "Discover"}</span>
             </div>
           </Link>
         );
@@ -139,10 +144,10 @@ function CarrouselProduits({ produits, secondes }: { produits: MedusaProduct[]; 
       {n > 1 && fleche("left", -1, "‹", fr ? "Produit précédent" : "Previous product")}
       {n > 1 && fleche("right", 1, "›", fr ? "Produit suivant" : "Next product")}
       {n > 1 && (
-        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, display: "flex", justifyContent: "center", gap: 8 }}>
+        <div style={{ position: "absolute", left: 0, right: 0, top: 12, display: "flex", justifyContent: "center", gap: 8, zIndex: 3 }}>
           {diapos.map((p, k) => (
             <button key={p.id} type="button" aria-label={p.title} aria-current={k === i} onClick={() => setI(k)}
-              style={{ width: k === i ? 22 : 9, height: 9, borderRadius: 9, border: "none", cursor: "pointer", background: k === i ? "var(--accent)" : "rgba(255,255,255,0.3)", transition: "all 0.25s", padding: 0 }} />
+              style={{ width: k === i ? 24 : 9, height: 9, borderRadius: 9, border: "none", cursor: "pointer", background: k === i ? "#fff" : "rgba(255,255,255,0.45)", transition: "all 0.25s", padding: 0 }} />
           ))}
         </div>
       )}
@@ -160,6 +165,7 @@ export default function Homepage() {
   // Catalogue : tous les produits actifs de la boutique (null tant qu'il n'est pas chargé).
   const [produits, setProduits] = useState<MedusaProduct[] | null>(null);
   // Avis vérifiés (achat livré, validés dans la console), tous produits confondus.
+  const [bannieres, setBannieres] = useState<Record<string, string>>({});
   const [avisBoutique, setAvisBoutique] = useState<{ rating: number; body: string; display_name: string; city: string | null; produit: string }[]>([]);
 
   useEffect(() => {
@@ -170,6 +176,7 @@ export default function Homepage() {
         const tous: { rating: number; body: string; display_name: string; city: string | null; produit: string }[] = [];
         for (const p of d?.products ?? []) for (const a of p.avisVerifies ?? []) tous.push({ ...a, produit: p.name });
         setAvisBoutique(tous.slice(0, 6));
+        setBannieres(Object.fromEntries((d?.products ?? []).filter((p: { content?: { banniere?: string } }) => p.content?.banniere).map((p: { id: string; content: { banniere: string } }) => [p.id, p.content.banniere])));
       })
       .catch(() => undefined);
   }, []);
@@ -204,24 +211,14 @@ export default function Homepage() {
         <div style={{ maxWidth: 1280, margin: "0 auto", width: "100%" }}>
           <div style={{
             display: "grid",
-            gridTemplateColumns: isDesktop ? "minmax(0, 1fr) minmax(0, 1fr)" : "minmax(0, 1fr)",
+            gridTemplateColumns: isDesktop ? "minmax(0, 1.15fr) minmax(0, 1fr)" : "minmax(0, 1fr)",
             gap: isMobile ? 32 : isTablet ? 48 : 80,
             alignItems: "center",
           }}>
             {/* Tous les produits de la boutique, côte à côte */}
-            <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", minHeight: isMobile ? 300 : 440 }}>
+            <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center" }}>
               <div style={{ position: "absolute", inset: "6%", background: "radial-gradient(circle, rgba(29,185,84,0.15) 0%, transparent 70%)", borderRadius: "50%" }} />
-              <div style={{
-                position: "absolute", top: "4%", right: isMobile ? "2%" : "5%", zIndex: 2,
-                width: isMobile ? 62 : isTablet ? 76 : 90, height: isMobile ? 62 : isTablet ? 76 : 90,
-                borderRadius: "50%", background: "#fff", border: "3px solid var(--accent)",
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 4px 16px rgba(29,185,84,0.25)",
-              }}>
-                <span style={{ color: "var(--accent)", fontSize: isMobile ? 16 : 22, fontWeight: 900, lineHeight: 1 }}>90</span>
-                <span style={{ color: "var(--accent)", fontSize: isMobile ? 6 : 8, fontWeight: 800 }}>{t("common.days")}</span>
-              </div>
-              <CarrouselProduits produits={produits ?? []} secondes={boutique.carrousel} />
+              <CarrouselProduits produits={produits ?? []} bannieres={bannieres} secondes={boutique.carrousel} />
             </div>
 
             {/* Texte */}

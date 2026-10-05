@@ -15,6 +15,8 @@ export type ContenuProduit = {
   avis?: { nom: string; ville?: string; note: number; texte: string }[];
   garantieJours?: number;
   images?: string[];
+  /** Image large (16:9 conseillé) du carrousel de la page d'accueil. */
+  banniere?: string;
   /** Routine / mode d'emploi en étapes numérotées. */
   etapes?: { titre: string; texte: string }[];
   /** Chiffres clés. ⚠️ Affichés SEULEMENT avec une source (étude, test documenté) : sans source, ils sont écartés. */
@@ -110,6 +112,7 @@ export function nettoyerContenu(brut: unknown): ContenuProduit {
   }));
   set("resultats", liste(o.resultats, 8, (x) => (typeof x === "string" && IMAGE.test(x) ? x : null)));
   if (typeof o.garantieJours === "number" && Number.isInteger(o.garantieJours) && o.garantieJours >= 0 && o.garantieJours <= 365) c.garantieJours = o.garantieJours;
-  set("images", liste(o.images, 10, (x) => (typeof x === "string" && IMAGE.test(x) ? x : null)));
+  set("banniere", typeof o.banniere === "string" && IMAGE.test(o.banniere) ? o.banniere : undefined);
+  set("images", liste(o.images, 30, (x) => (typeof x === "string" && IMAGE.test(x) ? x : null)));
   return c;
 }

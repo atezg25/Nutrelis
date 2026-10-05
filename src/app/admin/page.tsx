@@ -406,7 +406,7 @@ function Stock() {
 type Contenu = {
   accroche?: string; miseEnAvant?: string; avantages?: string[]; raisons?: { titre: string; texte: string; image?: string }[];
   description?: string; ingredients?: string; utilisation?: string; precautions?: string; faq?: { q: string; a: string }[];
-  avis?: { nom: string; ville?: string; note: number; texte: string }[]; garantieJours?: number; images?: string[];
+  avis?: { nom: string; ville?: string; note: number; texte: string }[]; garantieJours?: number; images?: string[]; banniere?: string;
   etapes?: { titre: string; texte: string }[]; chiffres?: { valeur: string; libelle: string }[]; sourceChiffres?: string;
   comparatif?: { critere: string; nous: string; autres: string }[]; resultats?: string[]; videos?: { url: string; titre?: string }[];
 };
@@ -417,7 +417,7 @@ const enTexte = (c: Contenu) => ({
   description: c.description ?? "", ingredients: c.ingredients ?? "", utilisation: c.utilisation ?? "", precautions: c.precautions ?? "",
   faq: (c.faq ?? []).map((f) => `${f.q} | ${f.a}`).join("\n"),
   avis: (c.avis ?? []).map((a) => `${a.nom} | ${a.ville ?? ""} | ${a.note} | ${a.texte}`).join("\n"),
-  garantieJours: String(c.garantieJours ?? 90), images: c.images ?? [],
+  garantieJours: String(c.garantieJours ?? 90), images: c.images ?? [], banniere: c.banniere ?? "",
   etapes: (c.etapes ?? []).map((e) => `${e.titre} | ${e.texte}`).join("\n"),
   chiffres: (c.chiffres ?? []).map((x) => `${x.valeur} | ${x.libelle}`).join("\n"), sourceChiffres: c.sourceChiffres ?? "",
   comparatif: (c.comparatif ?? []).map((r) => `${r.critere} | ${r.nous} | ${r.autres}`).join("\n"), resultats: c.resultats ?? [],
@@ -450,6 +450,14 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
     if (!res.ok || !d.url) { setMsg(d.error ?? "Envoi impossible."); return; }
     setF((x) => ({ ...x, [cle]: [...x[cle], d.url!] }));
   }
+  async function envoyerBanniere(fichier: File | undefined) {
+    if (!fichier) return;
+    setMsg("");
+    const res = await fetch("/api/admin/media", { method: "POST", headers: { "Content-Type": fichier.type }, body: fichier });
+    const d = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+    if (!res.ok || !d.url) { setMsg(d.error ?? "Envoi impossible."); return; }
+    setF((x) => ({ ...x, banniere: d.url! }));
+  }
   function deplacer(i: number, sens: -1 | 1) {
     const j = i + sens;
     if (j < 0 || j >= f.images.length) return;
@@ -465,7 +473,7 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
       description: f.description, ingredients: f.ingredients, utilisation: f.utilisation, precautions: f.precautions,
       faq: lignes(f.faq).map((l) => { const [q, ...r] = l.split("|"); return { q: (q ?? "").trim(), a: r.join("|").trim() }; }),
       avis: lignes(f.avis).map((l) => { const [n, v, note, ...r] = l.split("|"); return { nom: (n ?? "").trim(), ville: (v ?? "").trim(), note: Number(note) || 5, texte: r.join("|").trim() }; }),
-      garantieJours: Number(f.garantieJours) || 0, images: f.images,
+      garantieJours: Number(f.garantieJours) || 0, images: f.images, banniere: f.banniere || undefined,
       etapes: lignes(f.etapes).map((l) => { const [titre, ...r] = l.split("|"); return { titre: (titre ?? "").trim(), texte: r.join("|").trim() }; }),
       chiffres: lignes(f.chiffres).map((l) => { const [valeur, ...r] = l.split("|"); return { valeur: (valeur ?? "").trim(), libelle: r.join("|").trim() }; }), sourceChiffres: f.sourceChiffres,
       comparatif: lignes(f.comparatif).map((l) => { const [critere, nous, ...r] = l.split("|"); return { critere: (critere ?? "").trim(), nous: (nous ?? "").trim(), autres: r.join("|").trim() }; }),
@@ -524,6 +532,14 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
             </div>
           ))}
           <label style={{ ...boutonDiscret, display: "inline-block" }}>+ Ajouter une photo<input type="file" accept="image/png,image/jpeg,image/webp" style={{ display: "none" }} onChange={(e) => { void envoyerImage(e.target.files?.[0]); e.target.value = ""; }} /></label>
+        </div>
+      </div>
+      <div>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Image du carrousel de l'accueil <span style={{ fontWeight: 400, color: "#777" }}>— image large (16:9 conseillé, PNG, JPEG ou WebP, 3 Mo maximum). Sans image, le carrousel montre la photo principale du produit.</span></div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          {f.banniere && <img src={f.banniere} alt="" style={{ width: 200, aspectRatio: "16 / 9", objectFit: "cover", borderRadius: 10, border: "1px solid #e4e7e2" }} />}
+          <label style={{ ...boutonDiscret, display: "inline-block" }}>{f.banniere ? "Remplacer l'image" : "+ Ajouter l'image du carrousel"}<input type="file" accept="image/png,image/jpeg,image/webp" style={{ display: "none" }} onChange={(e) => { void envoyerBanniere(e.target.files?.[0]); e.target.value = ""; }} /></label>
+          {f.banniere && <button onClick={() => setF({ ...f, banniere: "" })} style={{ ...boutonDiscret, color: "#b91c1c" }}>Retirer</button>}
         </div>
       </div>
       <div>
