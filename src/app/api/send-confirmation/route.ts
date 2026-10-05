@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createRateLimiter, getClientIp } from "@/lib/rate-limit";
+import { lireAbonnement } from "@/lib/abonnement-serveur";
 
 const emailLimiter = createRateLimiter({ maxRequests: 5, windowMs: 60_000 });
 
@@ -38,12 +39,13 @@ export async function POST(req: NextRequest) {
     const clientEmail = email || null;
     const destinataires = clientEmail ? [clientEmail, storeEmail] : [storeEmail];
 
+    const pctAbo = (await lireAbonnement()).pct;
     const lignesItems = (items as CartItem[] || []).map((item) => `
       <tr>
         <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">
           <div style="font-weight: 700; color: #1a0505; font-size: 14px;">${escapeHtml(item.nom)}</div>
           <div style="color: #888; font-size: 12px; margin-top: 2px;">${escapeHtml(item.description)}</div>
-          ${item.mode === "abonnement" ? '<div style="color: #7D0806; font-size: 11px; font-weight: 700; margin-top: 4px;">⭐ Abonnement mensuel −15%</div>' : ""}
+          ${item.mode === "abonnement" ? `<div style="color: #7D0806; font-size: 11px; font-weight: 700; margin-top: 4px;">⭐ Abonnement −${pctAbo}%</div>` : ""}
         </td>
         <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; text-align: center; color: #555; font-size: 14px;">
           ${item.quantite}

@@ -1,6 +1,6 @@
 "use client";
 import NavbarCart from "@/components/NavbarCart";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import { useLocale } from "@/context/LocaleContext";
@@ -70,12 +70,92 @@ function Navbar() {
   );
 }
 
+/**
+ * Carrousel des produits de la boutique : une image par produit, tirée de la console (photo principale du produit).
+ * Un produit ajouté dans la console y apparaît tout seul. Défilement automatique (durée réglable dans Paramètres, 0 = arrêté),
+ * mis en pause au survol et au clavier, arrêté si le visiteur a demandé moins d'animations ; flèches, points et balayage au doigt.
+ */
+function CarrouselProduits({ produits, secondes }: { produits: MedusaProduct[]; secondes: number }) {
+  const { locale } = useLocale();
+  const ecran = useScreenSize();
+  const isMobile = ecran === "mobile";
+  const isTablet = ecran === "tablet";
+  const diapos = produits.filter((p) => p.thumbnail);
+  const n = diapos.length;
+  const [i, setI] = useState(0);
+  const [pause, setPause] = useState(false);
+  const depart = useRef<number | null>(null);
+  const hauteurImage = isMobile ? 210 : isTablet ? 270 : 330;
+
+  useEffect(() => { if (i >= n) setI(0); }, [n, i]);
+  useEffect(() => {
+    if (n < 2 || secondes <= 0 || pause) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = setInterval(() => setI((k) => (k + 1) % n), secondes * 1000);
+    return () => clearInterval(id);
+  }, [n, secondes, pause]);
+
+  if (n === 0) return <div style={{ minHeight: hauteurImage + 90 }} />;
+  const aller = (d: number) => setI((k) => (k + d + n) % n);
+  const fr = locale === "fr";
+  const fleche = (cote: "left" | "right", d: number, symbole: string, nom: string) => (
+    <button type="button" aria-label={nom} onClick={() => aller(d)} style={{
+      position: "absolute", top: hauteurImage / 2 - 20, [cote]: isMobile ? -4 : 0, zIndex: 3, width: 40, height: 40, borderRadius: "50%",
+      border: "1px solid rgba(29,185,84,0.35)", background: "rgba(6,15,8,0.75)", color: "#fff", fontSize: 22, lineHeight: 1, cursor: "pointer",
+    }}>{symbole}</button>
+  );
+
+  return (
+    <div
+      role="region" aria-roledescription="carrousel" aria-label={fr ? "Nos produits" : "Our products"}
+      onMouseEnter={() => setPause(true)} onMouseLeave={() => setPause(false)}
+      onFocus={() => setPause(true)} onBlur={() => setPause(false)}
+      onPointerDown={(e) => { depart.current = e.clientX; }}
+      onPointerUp={(e) => { if (depart.current !== null) { const dx = e.clientX - depart.current; if (Math.abs(dx) > 40) aller(dx < 0 ? 1 : -1); depart.current = null; } }}
+      style={{ position: "relative", width: "100%", maxWidth: 520, height: hauteurImage + 96, touchAction: "pan-y" }}
+    >
+      {diapos.map((p, k) => {
+        const prix = Math.min(...p.variants.map(getVariantPrice).filter((x) => x > 0));
+        return (
+          <Link key={p.id} href={`/produits/${p.handle}`} aria-hidden={k !== i} tabIndex={k === i ? 0 : -1}
+            aria-label={`${p.title}${Number.isFinite(prix) ? ` — ${prix.toLocaleString("fr-FR")} FCFA` : ""}`}
+            style={{
+              position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", textDecoration: "none", color: "#fff",
+              opacity: k === i ? 1 : 0, transition: "opacity 0.6s ease", pointerEvents: k === i ? "auto" : "none",
+            }}>
+            <img src={p.thumbnail as string} alt={p.title} draggable={false}
+              style={{ height: hauteurImage, width: "auto", maxWidth: "78%", objectFit: "contain", filter: "drop-shadow(0 20px 40px rgba(29,185,84,0.22))" }} />
+            <div style={{ textAlign: "center", marginTop: 10 }}>
+              <div style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: isMobile ? 15 : 18 }}>{p.title}</div>
+              {Number.isFinite(prix) && (
+                <div style={{ color: "var(--accent)", fontWeight: 700, fontSize: isMobile ? 13 : 15, marginTop: 2 }}>
+                  {p.variants.length > 1 ? (fr ? "À partir de " : "From ") : ""}{prix.toLocaleString("fr-FR")} FCFA
+                </div>
+              )}
+            </div>
+          </Link>
+        );
+      })}
+      {n > 1 && fleche("left", -1, "‹", fr ? "Produit précédent" : "Previous product")}
+      {n > 1 && fleche("right", 1, "›", fr ? "Produit suivant" : "Next product")}
+      {n > 1 && (
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, display: "flex", justifyContent: "center", gap: 8 }}>
+          {diapos.map((p, k) => (
+            <button key={p.id} type="button" aria-label={p.title} aria-current={k === i} onClick={() => setI(k)}
+              style={{ width: k === i ? 22 : 9, height: 9, borderRadius: 9, border: "none", cursor: "pointer", background: k === i ? "var(--accent)" : "rgba(255,255,255,0.3)", transition: "all 0.25s", padding: 0 }} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Homepage() {
   const screen = useScreenSize();
   const isMobile = screen === "mobile";
   const isTablet = screen === "tablet";
   const isDesktop = screen === "desktop";
-  const { t, locale } = useLocale();
+  const { t, locale, boutique } = useLocale();
   const fr = locale === "fr";
   // Catalogue : tous les produits actifs de la boutique (null tant qu'il n'est pas chargé).
   const [produits, setProduits] = useState<MedusaProduct[] | null>(null);
@@ -129,7 +209,7 @@ export default function Homepage() {
             alignItems: "center",
           }}>
             {/* Tous les produits de la boutique, côte à côte */}
-            <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "flex-end", minHeight: isMobile ? 220 : 340 }}>
+            <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", minHeight: isMobile ? 300 : 440 }}>
               <div style={{ position: "absolute", inset: "6%", background: "radial-gradient(circle, rgba(29,185,84,0.15) 0%, transparent 70%)", borderRadius: "50%" }} />
               <div style={{
                 position: "absolute", top: "4%", right: isMobile ? "2%" : "5%", zIndex: 2,
@@ -141,14 +221,7 @@ export default function Homepage() {
                 <span style={{ color: "var(--accent)", fontSize: isMobile ? 16 : 22, fontWeight: 900, lineHeight: 1 }}>90</span>
                 <span style={{ color: "var(--accent)", fontSize: isMobile ? 6 : 8, fontWeight: 800 }}>{t("common.days")}</span>
               </div>
-              {(produits ?? []).filter((p) => p.thumbnail).slice(0, 3).map((p, i) => (
-                <img key={p.id} src={p.thumbnail as string} alt={p.title}
-                  style={{
-                    height: isMobile ? 190 : isTablet ? 260 : 320, width: "auto", maxWidth: "46%", objectFit: "contain",
-                    position: "relative", zIndex: 1, marginLeft: i === 0 ? 0 : isMobile ? -18 : -28,
-                    filter: "drop-shadow(0 20px 40px rgba(29,185,84,0.2))",
-                  }} />
-              ))}
+              <CarrouselProduits produits={produits ?? []} secondes={boutique.carrousel} />
             </div>
 
             {/* Texte */}
@@ -168,15 +241,15 @@ export default function Homepage() {
                 fontSize: isMobile ? "1.6rem" : isTablet ? "2.2rem" : "clamp(2.4rem, 4vw, 3.8rem)",
                 fontWeight: 900, lineHeight: 1.15, marginBottom: 18, letterSpacing: -0.5,
               }}>
-                {t("home.shopTitle1")}{" "}
-                <span style={{ color: "var(--accent)" }}>{t("home.shopTitleHighlight")}</span>
+                {boutique.titre ? boutique.titre : <>{t("home.shopTitle1")}{" "}
+                <span style={{ color: "var(--accent)" }}>{t("home.shopTitleHighlight")}</span></>}
               </h1>
 
               <p style={{
                 color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 14 : isTablet ? 16 : 18, lineHeight: 1.8,
                 maxWidth: isMobile ? "100%" : 520, margin: isMobile ? "0 auto 28px" : "0 0 28px 0",
               }}>
-                {t("home.shopDesc")}
+                {boutique.description || t("home.shopDesc")}
               </p>
 
               <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 32, justifyContent: isMobile ? "center" : "flex-start", flexWrap: "wrap" }}>

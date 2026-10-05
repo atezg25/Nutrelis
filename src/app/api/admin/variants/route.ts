@@ -17,8 +17,8 @@ export async function POST(req: Request) {
     if (!productId || !sku || !label || prix === null) return erreur("Produit, code, libellé et prix requis.", 400);
     const revendeur = b.prixRevendeur == null ? null : entier(b.prixRevendeur, 0);
     const [v] = await query<{ id: string }>(
-      "INSERT INTO variant (product_id, sku, label, price_fcfa, reseller_price_fcfa, description, popular, sort) VALUES ($1,$2,$3,$4,$5,$6,$7,(SELECT COALESCE(MAX(sort),0)+1 FROM variant WHERE product_id=$1)) RETURNING id",
-      [productId, sku, label, prix, revendeur, texte(b.description, 300), b.populaire === true],
+      "INSERT INTO variant (product_id, sku, label, price_fcfa, reseller_price_fcfa, description, popular, units, sort) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,(SELECT COALESCE(MAX(sort),0)+1 FROM variant WHERE product_id=$1)) RETURNING id",
+      [productId, sku, label, prix, revendeur, texte(b.description, 300), b.populaire === true, entier(b.unites ?? 1, 1, 50) ?? 1],
     );
     await journaliser("pack_cree", `${sku} — ${label} — ${prix} FCFA`);
     return reponse({ id: v!.id }, 201);

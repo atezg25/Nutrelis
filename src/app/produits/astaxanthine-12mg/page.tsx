@@ -38,7 +38,7 @@ function Navbar() {
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
   const isSmall = sc === "mobile" || sc === "tablet";
-  const { t } = useLocale();
+  const { t, abonnement } = useLocale();
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", fn);
@@ -166,7 +166,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
   const { ajouterArticle } = useCart();
   const scPS = useScreenSize();
   const isMobilePS = scPS === "mobile";
-  const { t } = useLocale();
+  const { t, abonnement } = useLocale();
 
   // Mapping SKU → variant Medusa pour récupérer les prix dynamiques
   const skuPriceMap: Record<string, number> = {};
@@ -185,7 +185,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
       perCycle: t("product.perCycle1"),
       prix: skuPriceMap["NUT-AX-1P"] || 15000,
       ancien: Math.round((skuPriceMap["NUT-AX-1P"] || 15000) * 1.25),
-      aboPrix: prixAbonne((skuPriceMap["NUT-AX-1P"] || 15000)),
+      aboPrix: prixAbonne((skuPriceMap["NUT-AX-1P"] || 15000), abonnement.pct),
       eco: null,
       popular: false,
       img: "/images/astaxanthine/P_01.png",
@@ -200,7 +200,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
       perCycle: t("product.perCycle2"),
       prix: skuPriceMap["NUT-AX-2P"] || 27000,
       ancien: Math.round((skuPriceMap["NUT-AX-2P"] || 27000) * 1.25),
-      aboPrix: prixAbonne((skuPriceMap["NUT-AX-2P"] || 27000)),
+      aboPrix: prixAbonne((skuPriceMap["NUT-AX-2P"] || 27000), abonnement.pct),
       eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 2 - (skuPriceMap["NUT-AX-2P"] || 27000)).toLocaleString("fr-FR") + " FCFA",
       popular: true,
       img: "/images/astaxanthine/P_02.png",
@@ -215,7 +215,7 @@ function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: n
       perCycle: t("product.perCycle3"),
       prix: skuPriceMap["NUT-AX-3P"] || 36000,
       ancien: Math.round((skuPriceMap["NUT-AX-3P"] || 36000) * 1.25),
-      aboPrix: prixAbonne((skuPriceMap["NUT-AX-3P"] || 36000)),
+      aboPrix: prixAbonne((skuPriceMap["NUT-AX-3P"] || 36000), abonnement.pct),
       eco: ((skuPriceMap["NUT-AX-1P"] || 15000) * 3 - (skuPriceMap["NUT-AX-3P"] || 36000)).toLocaleString("fr-FR") + " FCFA",
       popular: false,
       img: "/images/astaxanthine/P_03.png",
@@ -239,7 +239,7 @@ useEffect(() => {
     <div>
       <div style={{
         display: "grid",
-        gridTemplateColumns: "1fr 1fr",
+        gridTemplateColumns: abonnement.actif ? "1fr 1fr" : "1fr",
         background: "#f5ebe8",
         borderRadius: 12,
         padding: 5,
@@ -248,7 +248,7 @@ useEffect(() => {
       }}>
         {[
           { id: "unique", label: t("product.oneTimePurchase") },
-          { id: "abonnement", label: "⭐ " + t("product.subscription") },
+          ...(abonnement.actif ? [{ id: "abonnement", label: "⭐ " + t("product.subscription") }] : []),
         ].map((tab) => (
           <button
             key={tab.id}
@@ -531,7 +531,7 @@ function RaisonsSection() {
   const isMobileR = scR === "mobile";
   const isTabletR = scR === "tablet";
   const colsR = isMobileR ? "repeat(2, 1fr)" : isTabletR ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
-  const { t } = useLocale();
+  const { t, abonnement } = useLocale();
   const raisons = [
     {
       num: "01",
@@ -734,7 +734,7 @@ function ProductFaqItem({ icon, q, a, open, onToggle }: { icon: string; q: strin
 function ProductGallery() {
   const [main, setMain] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const { t } = useLocale();
+  const { t, abonnement } = useLocale();
   const images = [
     "/images/astaxanthine/img_transparent.png",
     "/images/astaxanthine/img1A.png",
@@ -942,7 +942,7 @@ function StatsSection() {
   const [progress, setProgress] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const scSt = useScreenSize();
-  const { t } = useLocale();
+  const { t, abonnement } = useLocale();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -1072,7 +1072,7 @@ export default function Astaxanthine() {
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
   const isSmall = sc === "mobile" || sc === "tablet";
-  const { t } = useLocale();
+  const { t, abonnement } = useLocale();
   const px = isMobile ? "16px" : sc === "tablet" ? "28px" : "60px";
   const py = isMobile ? "48px" : sc === "tablet" ? "64px" : "96px";
 
@@ -1098,7 +1098,7 @@ export default function Astaxanthine() {
   ];
 
   const currentPack = packs.find(p => p.id === selectedPack)!;
-  const currentPrice = mode === "abonnement" ? prixAbonne(currentPack.prix) : currentPack.prix;
+  const currentPrice = mode === "abonnement" ? prixAbonne(currentPack.prix, abonnement.pct) : currentPack.prix;
   const originalPrice = mode === "abonnement" ? currentPack.prix : currentPack.original;
   const clientPhotos = [
     "/images/astaxanthine/Ast2.png",

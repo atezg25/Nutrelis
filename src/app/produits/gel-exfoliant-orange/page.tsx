@@ -1,14 +1,14 @@
 "use client";
 import { useCart } from "@/context/CartContext";
 import NavbarCart from "@/components/NavbarCart";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import HydrationGuard from "@/components/HydrationGuard";
 import { useLocale } from "@/context/LocaleContext";
 import FloatingActions from "@/components/FloatingActions";
-import { fetchProductByHandle, getVariantPrice, type MedusaProduct } from "@/lib/medusa-products";
 import { sanitizeHtml } from "@/lib/sanitize";
-import { prixAbonne } from "@/lib/abonnement";
+import { construirePacks, type PackVue } from "@/lib/packs";
+import type { ContenuProduit } from "@/lib/contenu";
 
 function Navbar({ avis }: { avis: boolean }) {
   const [scrolled, setScrolled] = useState(false);
@@ -136,60 +136,35 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-function PackSelector({ onPackChange, medusaProduct }: { onPackChange?: (prix: number, original: number, mode: string) => void; medusaProduct?: MedusaProduct | null }) {
+function PackSelector({ packs: packsBase, onPackChange }: { packs: PackVue[]; onPackChange?: (prix: number, original: number, mode: string) => void }) {
   const [mode, setMode] = useState("unique");
-  const [selected, setSelected] = useState(2);
+  // Pack présélectionné : celui marqué « populaire » dans la console, sinon le 2e, sinon le 1er.
+  const [selected, setSelected] = useState<number>(() => (packsBase.find((p) => p.popular) ?? packsBase[1] ?? packsBase[0]).id);
   const [toast, setToast] = useState(false);
   const [stockError, setStockError] = useState(false);
   const { ajouterArticle } = useCart();
   const scPS = useScreenSize();
   const isMobilePS = scPS === "mobile";
-  const { t } = useLocale();
+  const { t, abonnement } = useLocale();
+  const IMG = "/images/gel/P_01.png";
 
-  // Mapping SKU → variant Medusa pour récupérer les prix dynamiques
-  const skuPriceMap: Record<string, number> = {};
-  if (medusaProduct?.variants) {
-    for (const v of medusaProduct.variants) {
-      if (v.sku) skuPriceMap[v.sku] = getVariantPrice(v);
-    }
-  }
+  // Textes d'affichage d'un pack : la description saisie dans la console, sinon un texte calculé (prix par gel, durée).
+  const packs = packsBase.map((p) => ({
+    ...p,
+    capsules: p.label,
+    img: IMG,
+    cure: p.description ?? `${t("gel.perGelPre")} ${Math.round(p.prix / p.units).toLocaleString("fr-FR")} FCFA ${t("gel.perGelPost")} · ${t("gel.cureDe")} ${p.mois} ${t("gel.mois")}`,
+    perCycle: `/ ${p.mois} ${t("gel.mois")}`,
+  }));
 
-  // Prix : ceux du catalogue (console). « Ancien prix » = le prix du même nombre de gels achetés à l'unité (calcul exact, pas un faux rabais).
-  const unite = skuPriceMap["GEL-ORANGE-1"] || 10000;
-  const variantes = medusaProduct?.variants ?? [];
-  const construire = (id: number, sku: string, qte: number, label: string, defaut: number, popular: boolean, img: string) => {
-    const prix = skuPriceMap[sku] || defaut;
-    const ancien = unite * qte;
-    return {
-      id,
-      label,
-      capsules: t("gel.capsules" + qte),
-      cure: `${t("gel.perGelPre")} ${Math.round(prix / qte).toLocaleString("fr-FR")} FCFA ${t("gel.perGelPost")} · ${t("gel.cureDe")} ${qte * 2} ${t("gel.mois")}`,
-      perCycle: t("gel.perCycle" + qte),
-      prix,
-      ancien: ancien > prix ? ancien : prix,
-      aboPrix: prixAbonne(prix),
-      eco: ancien > prix ? (ancien - prix).toLocaleString("fr-FR") + " FCFA" : null,
-      popular,
-      img,
-      variantId: variantes.find(v => v.sku === sku)?.id || "",
-      sku,
-    };
-  };
-  const packs = [
-    construire(1, "GEL-ORANGE-1", 1, t("gel.packDiscovery"), 10000, false, "/images/gel/P_01.png"),
-    construire(2, "GEL-ORANGE-2", 2, t("gel.packResults"), 18000, false, "/images/gel/P_02.png"),
-    construire(3, "GEL-ORANGE-3", 3, t("gel.packTransformation"), 24000, true, "/images/gel/P_03.png"),
-  ];
-
-useEffect(() => {
-    const pack = packs.find(p => p.id === selected)!;
-    if (onPackChange) onPackChange(
+  useEffect(() => {
+    const pack = packs.find(p => p.id === selected) ?? packs[0];
+    if (onPackChange && pack) onPackChange(
       mode === "abonnement" ? pack.aboPrix : pack.prix,
       mode === "abonnement" ? pack.prix : pack.ancien,
       mode
     );
-  }, [selected, mode]);
+  }, [selected, mode, packsBase]);
 
   const current = packs.find((p) => p.id === selected)!;
 
@@ -197,7 +172,7 @@ useEffect(() => {
     <div>
       <div style={{
         display: "grid",
-        gridTemplateColumns: "1fr 1fr",
+        gridTemplateColumns: abonnement.actif ? "1fr 1fr" : "1fr",
         background: "#fdeedd",
         borderRadius: 12,
         padding: 5,
@@ -206,13 +181,13 @@ useEffect(() => {
       }}>
         {[
           { id: "unique", label: t("gel.oneTimePurchase") },
-          { id: "abonnement", label: "⭐ " + t("gel.subscription") },
+          ...(abonnement.actif ? [{ id: "abonnement", label: "⭐ " + t("gel.subscription") }] : []),
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => {
   setMode(tab.id);
-  const pack = packs.find(p => p.id === selected)!;
+  const pack = packs.find(p => p.id === selected) ?? packs[0];
   if (onPackChange) onPackChange(
     tab.id === "abonnement" ? pack.aboPrix : pack.prix,
     tab.id === "abonnement" ? pack.prix : pack.ancien,
@@ -325,9 +300,9 @@ useEffect(() => {
                 }} />
               )}
             </div>
-            {/* Autant de tubes que de gels dans le pack (1, 2 ou 3), légèrement superposés */}
+            {/* Autant de tubes que d'unités dans le pack (réglé dans la console, 4 au plus), légèrement superposés */}
             <div aria-hidden="true" style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", width: isMobilePS ? 62 : 92, height: isMobilePS ? 44 : 62, flexShrink: 0 }}>
-              {Array.from({ length: pack.id }, (_, k) => (
+              {Array.from({ length: Math.min(pack.units, 4) }, (_, k) => (
                 <img
                   key={k}
                   src={pack.img}
@@ -381,7 +356,7 @@ useEffect(() => {
 
       <button
         onClick={async () => {
-          const pack = packs.find(p => p.id === selected)!;
+          const pack = packs.find(p => p.id === selected) ?? packs[0];
           setStockError(false);
           if (!pack.variantId) return;
           const ok = await ajouterArticle({
@@ -420,7 +395,7 @@ useEffect(() => {
 
       <button
         onClick={async () => {
-          const pack = packs.find(p => p.id === selected)!;
+          const pack = packs.find(p => p.id === selected) ?? packs[0];
           setStockError(false);
           if (!pack.variantId) return;
           const ok = await ajouterArticle({
@@ -699,20 +674,19 @@ function ProductFaqItem({ icon, q, a, open, onToggle }: { icon: string; q: strin
     </div>
   );
 }
-// largeur / hauteur de chaque visuel (galerie3-1 … galerie3-16)
-const RATIOS_GALERIE = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.938, 0.962, 1.0, 1.0, 1.0, 1.0];
+// Images d'origine de la galerie, utilisées tant que la fiche du produit (console) n'en définit pas.
+const IMAGES_GALERIE_DEFAUT = ["/images/gel/hero.jpg", ...Array.from({ length: 16 }, (_, k) => `/images/gel/galerie3-${k + 1}.jpg`)];
+/** Vignette : on utilise la version réduite quand elle existe (images du site), sinon l'image elle-même. */
+const vignetteDe = (src: string) => (/^\/images\/gel\/(hero|galerie3-\d+)\.jpg$/.test(src) ? src.replace(/\.jpg$/, "-t.jpg") : src);
 
-function ProductGallery() {
+function ProductGallery({ sources }: { sources?: string[] }) {
   const [main, setMain] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const { t } = useLocale();
-  // 1re image : le tube détouré ; ensuite les visuels fournis (galerie-N.jpg + vignette galerie-N-t.jpg)
-  const images = [
-    { src: "/images/gel/hero.jpg", thumb: "/images/gel/hero-t.jpg", ratio: 1 },
-    ...RATIOS_GALERIE.map((ratio, k) => ({ src: `/images/gel/galerie3-${k + 1}.jpg`, thumb: `/images/gel/galerie3-${k + 1}-t.jpg`, ratio })),
-  ];
-  // Le cadre épouse la forme de chaque image (entre 3:4 et carré) et l'image le COUVRE entièrement : aucune bande vide.
-  const ratioCadre = Math.min(1, Math.max(0.75, images[main].ratio));
+  const images = (sources && sources.length > 0 ? sources : IMAGES_GALERIE_DEFAUT).map((src) => ({ src, thumb: vignetteDe(src) }));
+  // Forme réelle de chaque image, mesurée au chargement : le cadre l'épouse (entre 3:4 et carré) et elle le couvre entièrement.
+  const [ratios, setRatios] = useState<Record<string, number>>({});
+  const ratioCadre = Math.min(1, Math.max(0.75, ratios[images[main]?.src ?? ""] ?? 1));
   const aller = (d: number) => setMain((m) => (m + d + images.length) % images.length);
 
   const scGallery = useScreenSize();
@@ -747,6 +721,7 @@ function ProductGallery() {
         <img
           key={images[main].src}
           src={images[main].src}
+          onLoad={(e) => { const el = e.currentTarget; if (el.naturalWidth > 0) setRatios((r) => ({ ...r, [images[main].src]: el.naturalWidth / el.naturalHeight })); }}
           alt={`NUTRELIS Gel exfoliant à l’orange, visuel ${main + 1} sur ${images.length}`}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 30%", display: "block" }}
         />
@@ -1051,51 +1026,42 @@ function BarreAchatMobile({ prix, libelle }: { prix: number; libelle: string }) 
 }
 
 export default function GelExfoliantOrange() {
-  const [prixAffiche, setPrixAffiche] = useState(18000);
-  const [prixOriginal, setPrixOriginal] = useState(20000);
-  const [selectedPack, setSelectedPack] = useState(2);
-  const [mode, setMode] = useState<"unique" | "abonnement">("unique");
-  const [medusaProduct, setMedusaProduct] = useState<MedusaProduct | null>(null);
-  const [contenu, setContenu] = useState<{ videos?: { url: string; titre?: string }[] } | null>(null);
+  const [prixAffiche, setPrixAffiche] = useState(0);
+  const [prixOriginal, setPrixOriginal] = useState(0);
+  const [produitApi, setProduitApi] = useState<{ variants: import("@/lib/packs").VariantApi[]; content?: ContenuProduit; avisVerifies?: unknown[] } | null>(null);
+  const contenu: ContenuProduit | null = produitApi?.content ?? null;
   const [avisVerifies, setAvisVerifies] = useState<{ rating: number; body: string; display_name: string; city: string | null; created_at: string }[]>([]);
   const [openFaqBottom, setOpenFaqBottom] = useState<number | null>(null);
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
   const isSmall = sc === "mobile" || sc === "tablet";
-  const { t } = useLocale();
+  const { t, abonnement } = useLocale();
   const px = isMobile ? "16px" : sc === "tablet" ? "28px" : "60px";
   const py = isMobile ? "48px" : sc === "tablet" ? "64px" : "96px";
 
-  // Charger les données produit depuis Medusa
+  // Tout vient de la console : packs, prix, stock, photos, vidéos, avis, textes de la fiche.
   useEffect(() => {
-    fetchProductByHandle("gel-exfoliant-orange").then(p => {
-      if (p) setMedusaProduct(p);
-    });
-    // Vidéos et avis vérifiés viennent de la console (jamais écrits en dur dans la page).
     fetch("/api/catalog", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(d => {
       const p = d?.products?.find((x: { slug: string }) => x.slug === "gel-exfoliant-orange");
-      if (p) { setContenu(p.content ?? null); setAvisVerifies(p.avisVerifies ?? []); }
+      if (p) { setProduitApi(p); setAvisVerifies(p.avisVerifies ?? []); }
     }).catch(() => undefined);
   }, []);
 
-  // Prix dynamiques depuis Medusa (fallback hardcodé)
-  const skuPriceMap: Record<string, number> = {};
-  if (medusaProduct?.variants) {
-    for (const v of medusaProduct.variants) {
-      if (v.sku) skuPriceMap[v.sku] = getVariantPrice(v);
-    }
-  }
+  const packs = useMemo(
+    () => construirePacks(produitApi?.variants ?? [], { pct: abonnement.pct, joursParUnite: abonnement.jours }),
+    [produitApi, abonnement.pct, abonnement.jours],
+  );
 
-  const unite = skuPriceMap["GEL-ORANGE-1"] || 10000;
-  const construire = (id: number, sku: string, qte: number, defaut: number) => {
-    const prix = skuPriceMap[sku] || defaut;
-    return { id, prix, original: Math.max(prix, unite * qte) };
-  };
-  const packs = [construire(1, "GEL-ORANGE-1", 1, 10000), construire(2, "GEL-ORANGE-2", 2, 18000), construire(3, "GEL-ORANGE-3", 3, 24000)];
-
-  const currentPack = packs.find(p => p.id === selectedPack)!;
-  const currentPrice = mode === "abonnement" ? prixAbonne(currentPack.prix) : currentPack.prix;
-  const originalPrice = mode === "abonnement" ? currentPack.prix : currentPack.original;
+  // Textes de la fiche saisis dans la console (sinon les textes d'origine de la page)
+  const pointsHero: string[] = contenu?.avantages && contenu.avantages.length > 0 ? contenu.avantages.slice(0, 3) : [t("gel.point1"), t("gel.point2"), t("gel.point3")];
+  const faqsBas: { icon: string; q: string; a: string }[] = contenu?.faq && contenu.faq.length > 0
+    ? contenu.faq.map((f) => ({ icon: "💬", q: f.q, a: f.a }))
+    : [
+        { icon: "🌿", q: t("gel.faq1Q"), a: t("gel.faq1A") }, { icon: "👁️", q: t("gel.faq2Q"), a: t("gel.faq2A") },
+        { icon: "✨", q: t("gel.faq3Q"), a: t("gel.faq3A") }, { icon: "🌸", q: t("gel.faq4Q"), a: t("gel.faq4A") },
+        { icon: "☀️", q: t("gel.faq5Q"), a: t("gel.faq5A") }, { icon: "💊", q: t("gel.faq6Q"), a: t("gel.faq6A") },
+        { icon: "🔬", q: t("gel.faq7Q"), a: t("gel.faq7A") }, { icon: "📦", q: t("gel.faq8Q"), a: t("gel.faq8A") },
+      ];
 
   return (
     <HydrationGuard bg="var(--gel-bg)" style={{ color: "var(--gel-text)", overflowX: "hidden" }}>
@@ -1146,7 +1112,7 @@ export default function GelExfoliantOrange() {
             boxShadow: "0 18px 48px rgba(184,69,8,0.28), 0 0 0 1px rgba(212,86,10,0.18)",
           }}>
             <img
-              src="/images/gel/hero.jpg"
+              src={contenu?.images?.[0] ?? "/images/gel/hero.jpg"}
               alt="NUTRELIS Gel exfoliant à l’orange"
               fetchPriority="high"
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
@@ -1201,12 +1167,12 @@ export default function GelExfoliantOrange() {
           </h1>
 
           <p style={{ color: "var(--gel-text2)", fontSize: isMobile ? 15 : 16, lineHeight: 1.7, marginBottom: 24, maxWidth: 480 }}>
-            {t("gel.heroDesc")}{" "}
-            <strong style={{ color: "var(--gel-text)" }}>{t("gel.heroStrong")}</strong>{t("gel.heroDescEnd")}
+            {contenu?.accroche ? contenu.accroche : <>{t("gel.heroDesc")}{" "}
+            <strong style={{ color: "var(--gel-text)" }}>{t("gel.heroStrong")}</strong>{t("gel.heroDescEnd")}</>}
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 26 }}>
-            {[t("gel.point1"), t("gel.point2"), t("gel.point3")].map((point, i) => (
+            {pointsHero.map((point, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#ffe9d6", border: "1.5px solid var(--gel-accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <span style={{ color: "var(--gel-accent)", fontSize: 11, fontWeight: 900 }}>✓</span>
@@ -1217,17 +1183,17 @@ export default function GelExfoliantOrange() {
           </div>
 
           {/* Les trois packs et leur prix, visibles sans défiler */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: isMobile ? 8 : 10, marginBottom: 20, maxWidth: 480 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.max(1, Math.min(packs.length, 4))}, minmax(0, 1fr))`, gap: isMobile ? 8 : 10, marginBottom: 20, maxWidth: 480 }}>
             {packs.map((pk, i) => (
               <a key={pk.id} href="#commander" style={{
                 textDecoration: "none", textAlign: "center",
-                border: `1.5px solid ${i === 2 ? "var(--gel-accent)" : "var(--gel-border)"}`,
-                background: i === 2 ? "#ffe9d6" : "#fff",
+                border: `1.5px solid ${pk.popular ? "var(--gel-accent)" : "var(--gel-border)"}`,
+                background: pk.popular ? "#ffe9d6" : "#fff",
                 borderRadius: 14, padding: isMobile ? "10px 4px" : "12px 8px", color: "var(--gel-text)",
               }}>
-                <div style={{ fontSize: isMobile ? 11 : 12, color: "var(--gel-text2)", fontWeight: 600 }}>{pk.id === 1 ? "1 gel" : `${pk.id} gels`}</div>
+                <div style={{ fontSize: isMobile ? 11 : 12, color: "var(--gel-text2)", fontWeight: 600 }}>{pk.units === 1 ? "1 gel" : `${pk.units} gels`}</div>
                 <div style={{ fontSize: isMobile ? 14 : 17, fontWeight: 900, color: "var(--gel-accent)", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>{pk.prix.toLocaleString("fr-FR")} F</div>
-                {pk.id > 1 && <div style={{ fontSize: 10.5, color: "var(--gel-text2)" }}>{Math.round(pk.prix / pk.id).toLocaleString("fr-FR")} F / gel</div>}
+                {pk.units > 1 && <div style={{ fontSize: 10.5, color: "var(--gel-text2)" }}>{Math.round(pk.prix / pk.units).toLocaleString("fr-FR")} F / gel</div>}
               </a>
             ))}
           </div>
@@ -1370,7 +1336,7 @@ export default function GelExfoliantOrange() {
               </p>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: isMobile ? 8 : 12, flexWrap: "wrap" }}>
                 <span style={{ color: "var(--gel-accent)", fontSize: isMobile ? 24 : 36, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>
-                  {packs[0].prix.toLocaleString("fr-FR")} FCFA
+                  {(packs[0]?.prix ?? 0).toLocaleString("fr-FR")} FCFA
                 </span>
               </div>
             </div>
@@ -2005,7 +1971,7 @@ export default function GelExfoliantOrange() {
 
             {/* Gauche — Galerie images (2e sur mobile) */}
             <div style={{ order: isSmall ? 2 : 1 }}>
-              <ProductGallery />
+              <ProductGallery sources={contenu?.images} />
             </div>
 
             {/* Droite — Sélecteur de pack (1er sur mobile) */}
@@ -2043,10 +2009,10 @@ export default function GelExfoliantOrange() {
               </div>
 
               {/* Pack Selector */}
-             <PackSelector medusaProduct={medusaProduct} onPackChange={(prix, original) => {
+             {packs.length > 0 && <PackSelector packs={packs} onPackChange={(prix, original) => {
                 setPrixAffiche(prix);
                 setPrixOriginal(original);
-              }} />
+              }} />}
 
               {/* Bénéfices liste */}
               <div style={{ marginTop: 24, padding: "16px 20px", background: "var(--gel-bg2)", borderRadius: 12, border: "1px solid var(--gel-border)" }}>
@@ -2292,48 +2258,7 @@ export default function GelExfoliantOrange() {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isMobile ? 8 : 16 }}>
-            {[
-              {
-                icon: "🌿",
-                q: t("gel.faq1Q"),
-                a: t("gel.faq1A"),
-              },
-              {
-                icon: "👁️",
-                q: t("gel.faq2Q"),
-                a: t("gel.faq2A"),
-              },
-              {
-                icon: "✨",
-                q: t("gel.faq3Q"),
-                a: t("gel.faq3A"),
-              },
-              {
-                icon: "🌸",
-                q: t("gel.faq4Q"),
-                a: t("gel.faq4A"),
-              },
-              {
-                icon: "☀️",
-                q: t("gel.faq5Q"),
-                a: t("gel.faq5A"),
-              },
-              {
-                icon: "💊",
-                q: t("gel.faq6Q"),
-                a: t("gel.faq6A"),
-              },
-              {
-                icon: "🔬",
-                q: t("gel.faq7Q"),
-                a: t("gel.faq7A"),
-              },
-              {
-                icon: "📦",
-                q: t("gel.faq8Q"),
-                a: t("gel.faq8A"),
-              },
-            ].map((faq, i) => (
+            {faqsBas.map((faq, i) => (
               <FaqItemWhite key={i} icon={faq.icon} q={faq.q} a={faq.a} open={openFaqBottom === i} onToggle={() => setOpenFaqBottom(openFaqBottom === i ? null : i)} />
             ))}
           </div>
@@ -2395,7 +2320,7 @@ export default function GelExfoliantOrange() {
         </div>
       </footer>
 
-      {isMobile && <BarreAchatMobile prix={prixAffiche} libelle={t("gel.stickyLabel")} />}
+      {isMobile && prixAffiche > 0 && <BarreAchatMobile prix={prixAffiche} libelle={t("gel.stickyLabel")} />}
       <FloatingActions accent="#D4560A" />
     </HydrationGuard>
   );

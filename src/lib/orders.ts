@@ -4,6 +4,7 @@ import { fapshiConfigure, verifierPaiement } from "./fapshi";
 import { notifierNouvelleCommande } from "./notifier";
 import { fraisPourVille } from "./livraison";
 import { prixAbonne } from "./abonnement";
+import { lireAbonnement } from "./abonnement-serveur";
 
 export type LigneDemandee = { variantId: string; qty: number; abonnement?: boolean };
 export type ClientCommande = {
@@ -59,10 +60,11 @@ export async function creerCommande(p: {
   if (lignes.length === 0) throw new ErreurCommande("PANIER_VIDE", "Le panier est vide.");
   // Une même variante dans un même mode (unique / abonnement) ne doit apparaître qu'une fois (on additionne sinon).
   // Le stock, lui, se contrôle sur le total de la variante, tous modes confondus.
+  const reglageAbo = await lireAbonnement();
   const demandes = new Map<string, { variantId: string; abo: boolean; qty: number }>();
   const fusion = new Map<string, number>();
   for (const l of lignes) {
-    const abo = l.abonnement === true && !p.revendeurId; // pas d'abonnement sur une vente revendeur
+    const abo = l.abonnement === true && reglageAbo.actif && !p.revendeurId; // ni sur une vente revendeur, ni si l'abonnement est désactivé dans la console
     const cle = `${l.variantId}|${abo ? 1 : 0}`;
     const d = demandes.get(cle) ?? { variantId: l.variantId, abo, qty: 0 };
     d.qty += l.qty;
@@ -98,7 +100,7 @@ export async function creerCommande(p: {
       }
       for (const d of demandes.values()) {
         if (d.variantId !== v.id) continue;
-        const unit = p.revendeurId ? (v.reseller_price_fcfa ?? Math.round((v.price_fcfa * (100 - remise)) / 100)) : d.abo ? prixAbonne(v.price_fcfa) : v.price_fcfa;
+        const unit = p.revendeurId ? (v.reseller_price_fcfa ?? Math.round((v.price_fcfa * (100 - remise)) / 100)) : d.abo ? prixAbonne(v.price_fcfa, reglageAbo.pct) : v.price_fcfa;
         sousTotal += unit * d.qty;
         items.push({ v, qty: d.qty, unit, abo: d.abo });
       }

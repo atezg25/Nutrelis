@@ -357,7 +357,7 @@ export default function Checkout() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.nom}</div>
                 <div style={{ color: "#888", fontSize: 12 }}>{item.description}</div>
-                {item.mode === "abonnement" && <div style={{ color: "var(--accent)", fontSize: 11, fontWeight: 700, marginTop: 4 }}>⭐ Abonnement −15%</div>}
+                {item.mode === "abonnement" && <div style={{ color: "var(--accent)", fontSize: 11, fontWeight: 700, marginTop: 4 }}>⭐ {t("product.subscription")}</div>}
               </div>
               <div style={{ fontWeight: 800, fontSize: 14, color: "#7D0806", flexShrink: 0 }}>
                 {(item.prix * item.quantite).toLocaleString()} F

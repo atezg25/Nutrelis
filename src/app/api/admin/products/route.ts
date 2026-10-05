@@ -12,7 +12,7 @@ export async function GET() {
       `SELECT p.id, p.slug, p.name, p.subtitle, p.description, p.image_url, p.active, p.sort, p.content FROM product p ORDER BY p.sort, p.name`,
     );
     const variantes = await query(
-      `SELECT v.id, v.product_id, v.sku, v.label, v.price_fcfa, v.original_price_fcfa, v.reseller_price_fcfa, v.low_stock_alert, v.active, v.sort, v.description, v.popular, s.stock
+      `SELECT v.id, v.product_id, v.sku, v.label, v.price_fcfa, v.original_price_fcfa, v.reseller_price_fcfa, v.low_stock_alert, v.active, v.sort, v.description, v.popular, v.units, s.stock
          FROM variant v JOIN variant_stock s ON s.variant_id=v.id ORDER BY v.sort, v.price_fcfa`,
     );
     return reponse({ produits, variantes });

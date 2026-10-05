@@ -589,7 +589,7 @@ function Produits() {
             {fiche === id && <FicheProduit key={id} produit={p} fermer={() => setFiche(null)} enregistre={charger} />}
             <div style={{ marginTop: 10, overflowX: "auto" }}>
               <table style={{ width: "100%", fontSize: 14, borderCollapse: "collapse" }}>
-                <thead><tr style={{ textAlign: "left", color: "#666", fontSize: 12 }}><th>Pack</th><th>Prix public</th><th>Prix barré</th><th>Prix revendeur</th><th>Description du pack</th><th>Stock</th><th></th></tr></thead>
+                <thead><tr style={{ textAlign: "left", color: "#666", fontSize: 12 }}><th>Pack</th><th>Prix public</th><th>Prix barré</th><th>Prix revendeur</th><th>Description du pack</th><th title="Combien de produits contient ce pack : sert à la durée du pack (abonnement) et au nombre de tubes affichés">Unités</th><th>Stock</th><th></th></tr></thead>
                 <tbody>
                   {d.variantes.filter((v) => v.product_id === p.id).map((v) => (
                     <tr key={String(v.id)} style={{ opacity: v.active ? 1 : 0.5 }}>
@@ -598,6 +598,7 @@ function Produits() {
                       <td><input defaultValue={v.original_price_fcfa == null ? "" : String(v.original_price_fcfa)} placeholder="aucun" onBlur={(e) => void maj(`variants/${String(v.id)}`, { prixBarre: e.target.value === "" ? null : Number(e.target.value) })} style={{ ...champ, width: 100 }} /></td>
                       <td><input defaultValue={v.reseller_price_fcfa == null ? "" : String(v.reseller_price_fcfa)} placeholder="auto" onBlur={(e) => void maj(`variants/${String(v.id)}`, { prixRevendeur: e.target.value === "" ? null : Number(e.target.value) })} style={{ ...champ, width: 100 }} /></td>
                       <td><input defaultValue={String(v.description ?? "")} placeholder="ex. Cure de 2 mois" onBlur={(e) => void maj(`variants/${String(v.id)}`, { description: e.target.value })} style={{ ...champ, width: 170 }} /></td>
+                      <td><input type="number" min={1} max={50} defaultValue={String(v.units ?? 1)} onBlur={(e) => Number(e.target.value) !== Number(v.units ?? 1) && void maj(`variants/${String(v.id)}`, { unites: Number(e.target.value) })} style={{ ...champ, width: 64 }} /></td>
                       <td><strong>{String(v.stock)}</strong></td>
                       <td style={{ whiteSpace: "nowrap" }}><button onClick={() => void maj(`variants/${String(v.id)}`, { populaire: !v.popular })} style={{ ...boutonDiscret, ...(v.popular ? { background: VERT, color: "#fff", borderColor: VERT } : {}) }}>{v.popular ? "★ Populaire" : "☆ Populaire"}</button> <button onClick={() => void maj(`variants/${String(v.id)}`, { active: !v.active })} style={boutonDiscret}>{v.active ? "Désactiver" : "Activer"}</button></td>
                     </tr>

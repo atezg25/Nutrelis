@@ -1,8 +1,8 @@
 import { query } from "@/lib/db";
 import { corps, erreur, refuserSiNonAdmin, reponse, reponseErreur, texte } from "@/lib/http";
 import { journaliser } from "@/lib/admin-auth";
-import { AVANCE_RELANCE_JOURS, REMISE_ABONNEMENT_PCT } from "@/lib/abonnement";
-import { lireReglage } from "@/lib/reglages";
+import { AVANCE_RELANCE_JOURS } from "@/lib/abonnement";
+import { lireAbonnement } from "@/lib/abonnement-serveur";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,8 @@ export async function GET() {
   const refus = await refuserSiNonAdmin();
   if (refus) return refus;
   try {
-    const jours = Math.max(1, Number(await lireReglage("abonnement_jours_par_unite")) || 60);
+    const ab = await lireAbonnement();
+    const jours = ab.jours;
     const abonnes = await query(
       `WITH abo AS (
          SELECT phone, max(customer_name) AS nom, max(city) AS ville, count(*)::int AS nb_abonnements,
@@ -38,7 +39,7 @@ export async function GET() {
         ORDER BY resilie ASC, fin_pack ASC`,
       [jours],
     );
-    return reponse({ abonnes, joursParUnite: jours, avanceJours: AVANCE_RELANCE_JOURS, remisePct: REMISE_ABONNEMENT_PCT });
+    return reponse({ abonnes, joursParUnite: jours, avanceJours: AVANCE_RELANCE_JOURS, remisePct: ab.pct, actif: ab.actif });
   } catch (err) {
     return reponseErreur(err);
   }
