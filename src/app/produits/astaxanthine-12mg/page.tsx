@@ -1136,7 +1136,7 @@ export default function Astaxanthine() {
       <section style={{
         background: "#fff",
         display: "grid",
-        gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr",
+        gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)",
         minHeight: isSmall ? "auto" : 540,
         overflow: "hidden",
       }}>
@@ -1870,7 +1870,7 @@ export default function Astaxanthine() {
           {/* Deux colonnes */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr",
+            gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)",
             gap: isMobile ? 10 : 20,
             marginBottom: isMobile ? 20 : 48,
           }}>
@@ -1996,7 +1996,7 @@ export default function Astaxanthine() {
         background: "linear-gradient(135deg, #7D0806 0%, #a01010 40%, #d4817e 80%, #f5e8e5 100%)",
         padding: isMobile ? `28px ${px}` : `${py} ${px}`,
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? (isMobile ? 20 : 40) : 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isSmall ? (isMobile ? 20 : 40) : 80, alignItems: "center" }}>
 
           {/* Gauche — comparaison */}
           <div>
@@ -2128,7 +2128,7 @@ export default function Astaxanthine() {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 24 : 60, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isSmall ? 24 : 60, alignItems: "start" }}>
 
             {/* Gauche — Galerie images (2e sur mobile) */}
             <div style={{ order: isSmall ? 2 : 1 }}>
@@ -2205,7 +2205,7 @@ export default function Astaxanthine() {
         padding: isMobile ? `28px ${px}` : `${py} ${px}`,
         overflow: "hidden",
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 20 : 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isSmall ? 20 : 80, alignItems: "center" }}>
 
           {/* Image médecin */}
           <div style={{ position: "relative" }}>
@@ -2345,7 +2345,7 @@ export default function Astaxanthine() {
         background: "#fff",
         padding: isMobile ? `28px ${px}` : `${py} ${px}`,
       }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 20 : 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isSmall ? 20 : 80, alignItems: "center" }}>
 
           {/* Gauche — contenu */}
           <div style={{ textAlign: "center" }}>
@@ -2419,7 +2419,7 @@ export default function Astaxanthine() {
             </h2>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isMobile ? 8 : 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isMobile ? 8 : 16 }}>
             {[
               {
                 icon: "🌿",

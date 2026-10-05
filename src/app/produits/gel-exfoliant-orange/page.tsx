@@ -1308,7 +1308,7 @@ export default function GelExfoliantOrange() {
             {t("gel.discoverTitle")}
           </h2>
 
-          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isMobile ? 16 : 28, alignItems: "stretch" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isMobile ? 16 : 28, alignItems: "stretch" }}>
           {/* Carte produit */}
           <div style={{
             display: "flex", flexDirection: "column", justifyContent: "center",
@@ -1740,7 +1740,7 @@ export default function GelExfoliantOrange() {
           {/* Deux colonnes */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr",
+            gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)",
             gap: isMobile ? 10 : 20,
             marginBottom: isMobile ? 20 : 48,
           }}>
@@ -1869,7 +1869,7 @@ export default function GelExfoliantOrange() {
         background: "linear-gradient(135deg, #D4560A 0%, #E06A12 40%, #F4A85E 80%, #ffedda 100%)",
         padding: isMobile ? `28px ${px}` : `${py} ${px}`,
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? (isMobile ? 20 : 40) : 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isSmall ? (isMobile ? 20 : 40) : 80, alignItems: "center" }}>
 
           {/* Gauche — comparaison */}
           <div>
@@ -2001,7 +2001,7 @@ export default function GelExfoliantOrange() {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 24 : 60, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isSmall ? 24 : 60, alignItems: "start" }}>
 
             {/* Gauche — Galerie images (2e sur mobile) */}
             <div style={{ order: isSmall ? 2 : 1 }}>
@@ -2077,7 +2077,7 @@ export default function GelExfoliantOrange() {
         padding: isMobile ? `28px ${px}` : `${py} ${px}`,
         overflow: "hidden",
       }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 20 : 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isSmall ? 20 : 80, alignItems: "center" }}>
 
           {/* Image médecin */}
           <div style={{ position: "relative" }}>
@@ -2217,7 +2217,7 @@ export default function GelExfoliantOrange() {
         background: "#fff",
         padding: isMobile ? `28px ${px}` : `${py} ${px}`,
       }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isSmall ? 20 : 80, alignItems: "center" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isSmall ? 20 : 80, alignItems: "center" }}>
 
           {/* Gauche — contenu */}
           <div style={{ textAlign: "center" }}>
@@ -2291,7 +2291,7 @@ export default function GelExfoliantOrange() {
             </h2>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", gap: isMobile ? 8 : 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isSmall ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)", gap: isMobile ? 8 : 16 }}>
             {[
               {
                 icon: "🌿",
