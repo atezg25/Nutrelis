@@ -363,7 +363,7 @@ function PackSelector({ packs: packsBase, onPackChange }: { packs: PackVue[]; on
           const ok = await ajouterArticle({
             id: `gel-pack-${pack.id}-${mode}`,
             variantId: pack.variantId,
-            nom: `NUTRELIS Gel exfoliant à l’orange`,
+            nom: `NUTRELIS ${t("gel.nomProduit")}`,
             description: pack.capsules,
             prix: mode === "abonnement" ? pack.aboPrix : pack.prix,
             prixOriginal: pack.ancien,
@@ -402,7 +402,7 @@ function PackSelector({ packs: packsBase, onPackChange }: { packs: PackVue[]; on
           const ok = await ajouterArticle({
             id: `gel-pack-${pack.id}-${mode}`,
             variantId: pack.variantId,
-            nom: `NUTRELIS Gel exfoliant à l’orange`,
+            nom: `NUTRELIS ${t("gel.nomProduit")}`,
             description: pack.capsules,
             prix: mode === "abonnement" ? pack.aboPrix : pack.prix,
             prixOriginal: pack.ancien,
@@ -723,7 +723,7 @@ function ProductGallery({ sources }: { sources?: string[] }) {
           key={images[main].src}
           src={images[main].src}
           onLoad={(e) => { const el = e.currentTarget; if (el.naturalWidth > 0) setRatios((r) => ({ ...r, [images[main].src]: el.naturalWidth / el.naturalHeight })); }}
-          alt={`NUTRELIS Gel exfoliant à l’orange, visuel ${main + 1} sur ${images.length}`}
+          alt={`NUTRELIS ${t("gel.nomProduit")} ${main + 1}/${images.length}`}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 30%", display: "block" }}
         />
         {(["‹", "›"] as const).map((fl, k) => (
@@ -1114,7 +1114,7 @@ export default function GelExfoliantOrange() {
           }}>
             <img
               src={contenu?.images?.[0] ?? "/images/gel/hero.jpg"}
-              alt="NUTRELIS Gel exfoliant à l’orange"
+              alt={`NUTRELIS ${t("gel.nomProduit")}`}
               fetchPriority="high"
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
@@ -1321,7 +1321,7 @@ export default function GelExfoliantOrange() {
             {/* Image produit */}
             <img
               src="/images/gel/img_transparent.png"
-              alt="NUTRELIS Gel exfoliant à l’orange"
+              alt={`NUTRELIS ${t("gel.nomProduit")}`}
               style={{
                 width: isMobile ? "50%" : "55%", maxWidth: isMobile ? 180 : 240,
                 height: "auto", objectFit: "contain",
@@ -1333,7 +1333,7 @@ export default function GelExfoliantOrange() {
             {/* Info produit */}
             <div style={{ marginBottom: isMobile ? 14 : 20 }}>
               <p style={{ color: "var(--gel-text2)", fontSize: isMobile ? 12 : 13, marginBottom: 8 }}>
-                NUTRELIS Gel exfoliant à l’orange — {t("gel.productSubtitle")}
+                NUTRELIS {t("gel.nomProduit")} — {t("gel.productSubtitle")}
               </p>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: isMobile ? 8 : 12, flexWrap: "wrap" }}>
                 <span style={{ color: "var(--gel-accent)", fontSize: isMobile ? 24 : 36, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>
@@ -1984,7 +1984,7 @@ export default function GelExfoliantOrange() {
 
               {/* Titre produit */}
               <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontWeight: 800, fontSize: 20, marginBottom: 8, lineHeight: 1.3 }}>
-                NUTRELIS GEL EXFOLIANT À L’ORANGE — {t("gel.antiAgeComplex")}
+                NUTRELIS {t("gel.nomProduit").toUpperCase()} — {t("gel.antiAgeComplex")}
               </h3>
 
               {/* Prix */}
@@ -2283,7 +2283,7 @@ export default function GelExfoliantOrange() {
             {[
               { title: t("gel.footerProducts"), links: [
                 { label: "Astaxanthine 12mg", href: "/produits/astaxanthine-12mg" },
-                { label: "Gel exfoliant à l’orange", href: "/produits/gel-exfoliant-orange" },
+                { label: t("gel.nomProduit"), href: "/produits/gel-exfoliant-orange" },
                 { label: t("gel.footerAllProducts"), href: "/#produits" },
               ]},
               { title: t("gel.footerInfo"), links: [

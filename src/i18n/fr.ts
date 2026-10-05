@@ -467,6 +467,7 @@ const fr: Record<string, any> = {
 
   // PANIER
   gel: {
+    nomProduit: "Gel exfoliant à l’orange",
     altDoctor: "Votre routine NUTRELIS",
     altGuarantee: "Garantie 90 jours",
     altResults: "Le gel exfoliant NUTRELIS",

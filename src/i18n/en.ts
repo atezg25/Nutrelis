@@ -467,6 +467,7 @@ const en: Record<string, any> = {
 
   // CART
   gel: {
+    nomProduit: "Orange exfoliating gel",
     altDoctor: "Your NUTRELIS routine",
     altGuarantee: "90-day guarantee",
     altResults: "NUTRELIS exfoliating gel",
