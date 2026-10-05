@@ -21,11 +21,11 @@ export default function AvisClients() {
   const [filtre, setFiltre] = useState<string>("tous");
 
   useEffect(() => {
-    void fetch("/api/catalog", { cache: "no-store" })
+    void fetch(`/api/catalog?lang=${locale}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : { products: [] }))
       .then((d: { products?: Produit[] }) => setProduits(d.products ?? []))
       .catch(() => setProduits([]));
-  }, []);
+  }, [locale]);
 
   const nbAvis = (p: Produit) => (p.avisVerifies?.length ?? 0) + (p.content?.avis?.length ?? 0);
   const avecAvis = (produits ?? []).filter((p) => nbAvis(p) > 0);

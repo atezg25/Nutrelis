@@ -10,7 +10,7 @@ export default function Produits() {
   const { locale } = useLocale();
   const fr = locale === "fr";
   const [produits, setProduits] = useState<MedusaProduct[] | null>(null);
-  useEffect(() => { void fetchProducts().then(setProduits); }, []);
+  useEffect(() => { void fetchProducts(locale).then(setProduits); }, [locale]);
 
   return (
     <main style={{ maxWidth: 1040, margin: "0 auto", padding: "50px 20px 80px" }}>

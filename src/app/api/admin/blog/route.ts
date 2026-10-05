@@ -17,7 +17,7 @@ export async function GET() {
   if (refus) return refus;
   try {
     const articles = await query(
-      `SELECT b.id, b.slug, b.title, b.excerpt, b.body, b.category, b.product_id, b.image_url, b.external_url, b.published, b.published_at, p.name AS product_name
+      `SELECT b.id, b.slug, b.title, b.excerpt, b.body, b.title_en, b.excerpt_en, b.body_en, b.category, b.product_id, b.image_url, b.external_url, b.published, b.published_at, p.name AS product_name
          FROM blog_post b LEFT JOIN product p ON p.id = b.product_id ORDER BY b.published_at DESC, b.created_at DESC`,
     );
     const produits = await query("SELECT id, name FROM product ORDER BY sort, name");
@@ -45,9 +45,9 @@ export async function POST(req: Request) {
     const [existe] = await query("SELECT 1 FROM blog_post WHERE slug=$1", [slug]);
     if (existe) slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
     const [a] = await query<{ id: string }>(
-      `INSERT INTO blog_post (slug, title, excerpt, body, category, product_id, image_url, external_url, published)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`,
-      [slug, titre, texte(b.excerpt, 400) ?? "", typeof b.body === "string" ? b.body.slice(0, 20000) : "", categorie, produit, image, externe, b.published === true],
+      `INSERT INTO blog_post (slug, title, excerpt, body, category, product_id, image_url, external_url, published, title_en, excerpt_en, body_en)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id`,
+      [slug, titre, texte(b.excerpt, 400) ?? "", typeof b.body === "string" ? b.body.slice(0, 20000) : "", categorie, produit, image, externe, b.published === true, texte(b.titleEn, 160), texte(b.excerptEn, 400), typeof b.bodyEn === "string" && b.bodyEn.trim() ? b.bodyEn.slice(0, 20000) : null],
     );
     await journaliser("blog_cree", titre);
     return reponse({ id: a!.id, slug }, 201);

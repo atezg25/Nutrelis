@@ -12,6 +12,8 @@ type Article = {
 };
 
 /** Blog : les articles viennent de la console (onglet Blog) ; chacun peut être rattaché à un produit. Les filtres suivent les produits. */
+const CAT_EN: Record<string, string> = { Conseils: "Tips", "Beauté": "Beauty", "Santé": "Health", Utilisation: "How to use", Produit: "Product" };
+
 export default function Blog() {
   const { t, locale } = useLocale();
   const screen = useScreenSize();
@@ -22,11 +24,11 @@ export default function Blog() {
   const [filtre, setFiltre] = useState("tous");
 
   useEffect(() => {
-    void fetch("/api/blog", { cache: "no-store" })
+    void fetch(`/api/blog?lang=${locale}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : { articles: [] }))
       .then((d: { articles?: Article[] }) => setArticles(d.articles ?? []))
       .catch(() => setArticles([]));
-  }, []);
+  }, [locale]);
 
   const tous = articles ?? [];
   // Filtres : « Tous », un par produit ayant au moins un article, et « Conseils généraux » s'il y en a.
@@ -51,7 +53,7 @@ export default function Blog() {
       <div style={{ padding: grande ? (isMobile ? "22px 18px" : "36px 34px") : "22px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 10, flex: 1 }}>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <span style={{ background: "#e8f5eb", color: "var(--accent)", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, letterSpacing: 0.5 }}>{puce(a)}</span>
-          <span style={{ color: "#999", fontSize: 12 }}>{a.category} · {date(a.published_at)}</span>
+          <span style={{ color: "#999", fontSize: 12 }}>{locale === "fr" ? a.category : (CAT_EN[a.category] ?? a.category)} · {date(a.published_at)}</span>
         </div>
         <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: grande ? (isMobile ? "1.15rem" : "1.5rem") : "1.05rem", fontWeight: 800, lineHeight: 1.35, margin: 0 }}>{a.title}</h2>
         {a.excerpt && <p style={{ color: "#555", fontSize: grande ? 15 : 14, lineHeight: 1.7, margin: 0 }}>{a.excerpt}</p>}

@@ -25,6 +25,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if ("title" in b) { const v = texte(b.title, 160); if (!v) return erreur("Le titre est obligatoire.", 400); ajouter("title", v); }
     if ("excerpt" in b) ajouter("excerpt", texte(b.excerpt, 400) ?? "");
     if ("body" in b) ajouter("body", typeof b.body === "string" ? b.body.slice(0, 20000) : "");
+    if ("titleEn" in b) ajouter("title_en", texte(b.titleEn, 160));
+    if ("excerptEn" in b) ajouter("excerpt_en", texte(b.excerptEn, 400));
+    if ("bodyEn" in b) ajouter("body_en", typeof b.bodyEn === "string" && b.bodyEn.trim() ? b.bodyEn.slice(0, 20000) : null);
     if ("category" in b) ajouter("category", CATEGORIES.includes(String(b.category)) ? String(b.category) : "Conseils");
     if ("productId" in b) ajouter("product_id", typeof b.productId === "string" && UUID.test(b.productId) ? b.productId : null);
     if ("imageUrl" in b) { const v = texte(b.imageUrl, 200); if (v && !IMAGE.test(v)) return erreur("Image invalide : envoyez-la depuis la console.", 400); ajouter("image_url", v); }

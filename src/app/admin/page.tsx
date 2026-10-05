@@ -411,6 +411,29 @@ type Contenu = {
   comparatif?: { critere: string; nous: string; autres: string }[]; resultats?: string[]; videos?: { url: string; titre?: string }[];
 };
 const lignes = (v: string) => v.split("\n").map((x) => x.trim()).filter(Boolean);
+type ContenuEn = Contenu & { name?: string; subtitle?: string; descriptionCourte?: string; variants?: Record<string, { label?: string; description?: string }> };
+const CLES_EN = ["accroche", "avantages", "raisons", "etapes", "description", "ingredients", "utilisation", "precautions", "faq", "avis", "comparatif"] as const;
+const texteEn = (c: ContenuEn) => {
+  const t = enTexte(c);
+  return { ...Object.fromEntries(CLES_EN.map((k) => [k, t[k]])) as Record<(typeof CLES_EN)[number], string>, name: c.name ?? "", subtitle: c.subtitle ?? "", descriptionCourte: c.descriptionCourte ?? "",
+    variants: Object.entries(c.variants ?? {}).map(([sku, v]) => `${sku} | ${v.label ?? ""} | ${v.description ?? ""}`).join("
+") };
+};
+const contenuEn = (e: ReturnType<typeof texteEn>): ContenuEn => {
+  const paires = (v: string, n: number) => lignes(v).map((l) => { const p = l.split("|").map((x) => x.trim()); return [...p.slice(0, n - 1), p.slice(n - 1).join(" | ")]; });
+  const variants: Record<string, { label?: string; description?: string }> = {};
+  for (const [sku, label, ...r] of lignes(e.variants).map((l) => l.split("|").map((x) => x.trim()))) if (sku) variants[sku] = { label: label || undefined, description: r.join(" | ") || undefined };
+  return {
+    name: e.name, subtitle: e.subtitle, descriptionCourte: e.descriptionCourte, accroche: e.accroche, avantages: lignes(e.avantages),
+    raisons: paires(e.raisons, 2).map(([titre, texte]) => ({ titre: titre!, texte: texte! })),
+    etapes: paires(e.etapes, 2).map(([titre, texte]) => ({ titre: titre!, texte: texte! })),
+    description: e.description, ingredients: e.ingredients, utilisation: e.utilisation, precautions: e.precautions,
+    faq: paires(e.faq, 2).map(([q, a]) => ({ q: q!, a: a! })),
+    avis: paires(e.avis, 4).map(([nom, ville, note, texte]) => ({ nom: nom!, ville: ville || undefined, note: Number(note) || 5, texte: texte! })),
+    comparatif: paires(e.comparatif, 3).map(([critere, nous, autres]) => ({ critere: critere!, nous: nous!, autres: autres! })),
+    variants,
+  };
+};
 const enTexte = (c: Contenu) => ({
   accroche: c.accroche ?? "", miseEnAvant: c.miseEnAvant ?? "", avantages: (c.avantages ?? []).join("\n"),
   raisons: (c.raisons ?? []).map((r) => `${r.titre} | ${r.texte}`).join("\n"),
@@ -426,6 +449,8 @@ const enTexte = (c: Contenu) => ({
 
 function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer: () => void; enregistre: () => void }) {
   const [f, setF] = useState(() => enTexte((produit.content ?? {}) as Contenu));
+  const [en, setEn] = useState(() => texteEn(((((produit.content ?? {}) as unknown) as { en?: ContenuEn }).en ?? {})));
+  const majEn = (k: keyof typeof en, v: string) => setEn({ ...en, [k]: v });
   const [nom, setNom] = useState(String(produit.name ?? ""));
   const [soustitre, setSoustitre] = useState(String(produit.subtitle ?? ""));
   const [descCourte, setDescCourte] = useState(String(produit.description ?? ""));
@@ -479,6 +504,7 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
       comparatif: lignes(f.comparatif).map((l) => { const [critere, nous, ...r] = l.split("|"); return { critere: (critere ?? "").trim(), nous: (nous ?? "").trim(), autres: r.join("|").trim() }; }),
       resultats: f.resultats,
       videos: lignes(f.videos).map((l) => { const [url, ...r] = l.split("|"); return { url: (url ?? "").trim(), titre: r.join("|").trim() }; }),
+      en: contenuEn(en),
     };
     const a = await api(`products/${String(produit.id)}`, { method: "PATCH", body: { name: nom, subtitle: soustitre, description: descCourte, content: contenu } });
     setCharge(false);
@@ -518,6 +544,16 @@ function FicheProduit({ produit, fermer, enregistre }: { produit: Ligne; fermer:
       {zone("precautions", "Précautions", "", 70)}
       {zone("faq", "Questions fréquentes", "— une par ligne, au format  Question | Réponse", 110)}
       {zone("avis", "Avis clients", "— RÉELS uniquement, un par ligne : Nom | Ville | Note (1 à 5) | Texte. La section n'apparaît que s'il y en a.", 110)}
+      <div style={{ ...carte, background: "#f4fbf6", display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 10 }}>
+        <strong style={{ color: VERT }}>🇬🇧 Version anglaise — affichée aux visiteurs qui ont choisi l'anglais</strong>
+        <span style={{ fontSize: 12.5, color: "#555" }}>Même format que les champs français ci-dessus, dans le même ordre de lignes. Un champ laissé vide s'affiche en français. Les photos, vidéos et prix restent communs.</span>
+        {([["name", "Product name"], ["subtitle", "Subtitle"]] as const).map(([k, titre]) => <input key={k} placeholder={titre} value={en[k]} onChange={(e) => majEn(k, e.target.value)} style={champ} />)}
+        {([["descriptionCourte", "Short description (shown on the product cards)", 60], ["description", "Detailed description", 90], ["accroche", "Tagline", 60], ["avantages", "Benefits — one per line", 100], ["raisons", "Reasons — Title | Text, one per line", 100], ["etapes", "Steps — Title | Text, one per line", 100],
+          ["ingredients", "Composition", 60], ["utilisation", "How to use", 60], ["precautions", "Precautions", 60], ["faq", "FAQ — Question | Answer, one per line", 100], ["avis", "Testimonials — Name | City | Rating | Text (same order as the French list)", 100],
+          ["comparatif", "Comparison — Criterion | This product | Others", 80], ["variants", "Packs — SKU | Label | Description (one per line; the SKU is the one of the French pack)", 80]] as const).map(([k, titre, h]) => (
+          <label key={k} style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 4 }}><span style={{ fontWeight: 700, fontSize: 13 }}>{titre}</span><textarea value={en[k]} onChange={(e) => majEn(k, e.target.value)} style={{ ...champ, minHeight: h, fontFamily: "inherit", resize: "vertical" }} /></label>
+        ))}
+      </div>
       <div>
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Photos <span style={{ fontWeight: 400, color: "#777" }}>— la première est la photo principale (PNG, JPEG ou WebP, 3 Mo maximum)</span></div>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-start" }}>
@@ -930,8 +966,8 @@ function Expeditions() {
 }
 
 // ---------------------------------------------------------------- Blog
-type ArticleAdmin = { id: string; slug: string; title: string; excerpt: string; body: string; category: string; product_id: string | null; image_url: string | null; external_url: string | null; published: boolean; published_at: string; product_name: string | null };
-const ARTICLE_VIDE = { title: "", excerpt: "", body: "", category: "Conseils", productId: "", imageUrl: "", externalUrl: "", published: false };
+type ArticleAdmin = { id: string; slug: string; title: string; excerpt: string; body: string; title_en: string | null; excerpt_en: string | null; body_en: string | null; category: string; product_id: string | null; image_url: string | null; external_url: string | null; published: boolean; published_at: string; product_name: string | null };
+const ARTICLE_VIDE = { title: "", excerpt: "", body: "", titleEn: "", excerptEn: "", bodyEn: "", category: "Conseils", productId: "", imageUrl: "", externalUrl: "", published: false };
 
 function BlogAdmin() {
   const [d, setD] = useState<{ articles: ArticleAdmin[]; produits: { id: string; name: string }[]; categories: string[] } | null>(null);
@@ -944,12 +980,12 @@ function BlogAdmin() {
   function ouvrir(a?: ArticleAdmin) {
     setMsg("");
     if (!a) { setF(ARTICLE_VIDE); setEdit("nouveau"); return; }
-    setF({ title: a.title, excerpt: a.excerpt, body: a.body, category: a.category, productId: a.product_id ?? "", imageUrl: a.image_url ?? "", externalUrl: a.external_url ?? "", published: a.published });
+    setF({ title: a.title, excerpt: a.excerpt, body: a.body, titleEn: a.title_en ?? "", excerptEn: a.excerpt_en ?? "", bodyEn: a.body_en ?? "", category: a.category, productId: a.product_id ?? "", imageUrl: a.image_url ?? "", externalUrl: a.external_url ?? "", published: a.published });
     setEdit(a.id);
   }
   async function enregistrer() {
     setMsg("");
-    const corps = { title: f.title, excerpt: f.excerpt, body: f.body, category: f.category, productId: f.productId || null, imageUrl: f.imageUrl || null, externalUrl: f.externalUrl || null, published: f.published };
+    const corps = { title: f.title, excerpt: f.excerpt, body: f.body, titleEn: f.titleEn, excerptEn: f.excerptEn, bodyEn: f.bodyEn, category: f.category, productId: f.productId || null, imageUrl: f.imageUrl || null, externalUrl: f.externalUrl || null, published: f.published };
     const r = edit === "nouveau" ? await api("blog", { method: "POST", body: corps }) : await api(`blog/${edit}`, { method: "PATCH", body: corps });
     if (!r.ok) { setMsg(r.data.error ?? "Échec."); return; }
     setMsg("Enregistré ✓");
@@ -985,6 +1021,10 @@ function BlogAdmin() {
           <input placeholder="Titre" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} style={champ} />
           <textarea placeholder="Résumé affiché dans la liste (400 caractères au plus)" value={f.excerpt} onChange={(e) => setF({ ...f, excerpt: e.target.value })} rows={3} style={{ ...champ, fontFamily: "inherit" }} />
           <textarea placeholder="Texte complet de l'article (laissez vide pour renvoyer vers un lien externe). Séparez les paragraphes par une ligne vide ; une ligne commençant par « ## » devient un intertitre." value={f.body} onChange={(e) => setF({ ...f, body: e.target.value })} rows={12} style={{ ...champ, fontFamily: "inherit" }} />
+          <div style={{ fontWeight: 700, fontSize: 13, color: VERT }}>🇬🇧 Version anglaise (affichée aux visiteurs qui ont choisi l'anglais ; si vide, le français s'affiche)</div>
+          <input placeholder="Title (English)" value={f.titleEn} onChange={(e) => setF({ ...f, titleEn: e.target.value })} style={champ} />
+          <textarea placeholder="Summary (English)" value={f.excerptEn} onChange={(e) => setF({ ...f, excerptEn: e.target.value })} rows={2} style={{ ...champ, fontFamily: "inherit" }} />
+          <textarea placeholder="Full text (English) — same format: blank line between paragraphs, ## for headings" value={f.bodyEn} onChange={(e) => setF({ ...f, bodyEn: e.target.value })} rows={8} style={{ ...champ, fontFamily: "inherit" }} />
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <select value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} style={champ}>{(d?.categories ?? []).map((c) => <option key={c}>{c}</option>)}</select>
             <select value={f.productId} onChange={(e) => setF({ ...f, productId: e.target.value })} style={{ ...champ, minWidth: 200 }}>

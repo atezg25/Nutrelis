@@ -28,7 +28,27 @@ export type ContenuProduit = {
   resultats?: string[];
   /** Vidéos : lien YouTube ou Vimeo (stocké sous forme d'adresse « embed »). Vos propres vidéos, ou celles dont vous avez le droit. */
   videos?: { url: string; titre?: string }[];
+  /** Version anglaise : mêmes champs que ci-dessus (seuls les textes comptent), plus le nom, le sous-titre et les libellés des packs. Sans traduction, le français s'affiche. */
+  en?: Omit<ContenuProduit, "en"> & { name?: string; subtitle?: string; descriptionCourte?: string; variants?: Record<string, { label?: string; description?: string }> };
 };
+
+/** Textes d'un produit dans la langue demandée : le français par défaut, l'anglais s'il a été saisi (sinon repli sur le français, champ par champ). */
+export function localiserProduit<P extends { name: string; subtitle: string | null; description: string | null; content?: unknown; variants?: unknown[] }>(p: P, lang: string): P {
+  const c = (p.content ?? {}) as ContenuProduit;
+  const { en, ...base } = c;
+  if (lang !== "en" || !en) return { ...p, content: base };
+  const { name, subtitle, descriptionCourte, variants, ...champs } = en;
+  const contenu: Record<string, unknown> = { ...base };
+  for (const [k, v] of Object.entries(champs)) if (v !== undefined && !(Array.isArray(v) && v.length === 0) && k !== "images" && k !== "banniere" && k !== "resultats" && k !== "videos" && k !== "garantieJours") contenu[k] = v;
+  return {
+    ...p, name: name || p.name, subtitle: subtitle || p.subtitle, description: descriptionCourte || p.description, content: contenu,
+    variants: (p.variants ?? []).map((v) => {
+      const x = v as { sku: string; label: string; description: string | null };
+      const tr = variants?.[x.sku];
+      return { ...x, label: tr?.label || x.label, description: tr?.description || x.description };
+    }),
+  };
+}
 
 /**
  * Ramène un lien YouTube / Vimeo à son adresse d'intégration, ou null si le lien n'est pas reconnu. Idempotent : une adresse
@@ -114,5 +134,18 @@ export function nettoyerContenu(brut: unknown): ContenuProduit {
   if (typeof o.garantieJours === "number" && Number.isInteger(o.garantieJours) && o.garantieJours >= 0 && o.garantieJours <= 365) c.garantieJours = o.garantieJours;
   set("banniere", typeof o.banniere === "string" && IMAGE.test(o.banniere) ? o.banniere : undefined);
   set("images", liste(o.images, 30, (x) => (typeof x === "string" && IMAGE.test(x) ? x : null)));
+  if (o.en && typeof o.en === "object" && !Array.isArray(o.en)) {
+    const e = o.en as Record<string, unknown>;
+    const { en: _ignore, ...texte } = nettoyerContenu(e) as ContenuProduit;
+    const variants: Record<string, { label?: string; description?: string }> = {};
+    if (e.variants && typeof e.variants === "object") {
+      for (const [sku, v] of Object.entries(e.variants as Record<string, Record<string, unknown>>).slice(0, 40)) {
+        const label = t(v?.label, 120), description = t(v?.description, 300);
+        if (/^[A-Za-z0-9_.\-]{1,60}$/.test(sku) && (label || description)) variants[sku] = { ...(label ? { label } : {}), ...(description ? { description } : {}) };
+      }
+    }
+    const en = { ...texte, ...(t(e.name, 120) ? { name: t(e.name, 120) } : {}), ...(t(e.subtitle, 200) ? { subtitle: t(e.subtitle, 200) } : {}), ...(t(e.descriptionCourte, 2000) ? { descriptionCourte: t(e.descriptionCourte, 2000) } : {}), ...(Object.keys(variants).length ? { variants } : {}) };
+    if (Object.keys(en).length) c.en = en;
+  }
   return c;
 }

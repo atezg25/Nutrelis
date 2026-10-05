@@ -257,6 +257,9 @@ CREATE TABLE IF NOT EXISTS blog_post (
   published_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE blog_post ADD COLUMN IF NOT EXISTS title_en TEXT;
+ALTER TABLE blog_post ADD COLUMN IF NOT EXISTS excerpt_en TEXT;
+ALTER TABLE blog_post ADD COLUMN IF NOT EXISTS body_en TEXT;
 -- Nombre de produits d'un pack (1, 2 ou 3) : sert à calculer la durée du pack pour la relance d'abonnement.
 ALTER TABLE variant ADD COLUMN IF NOT EXISTS units INTEGER NOT NULL DEFAULT 1 CHECK (units >= 1);
 UPDATE variant SET units = 2 WHERE sku IN ('NUT-AX-2P', 'GEL-ORANGE-2') AND units = 1;

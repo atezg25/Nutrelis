@@ -1035,17 +1035,17 @@ export default function GelExfoliantOrange() {
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
   const isSmall = sc === "mobile" || sc === "tablet";
-  const { t, abonnement } = useLocale();
+  const { t, abonnement, locale } = useLocale();
   const px = isMobile ? "16px" : sc === "tablet" ? "28px" : "60px";
   const py = isMobile ? "48px" : sc === "tablet" ? "64px" : "96px";
 
   // Tout vient de la console : packs, prix, stock, photos, vidéos, avis, textes de la fiche.
   useEffect(() => {
-    fetch("/api/catalog", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(d => {
+    fetch(`/api/catalog?lang=${locale}`, { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(d => {
       const p = d?.products?.find((x: { slug: string }) => x.slug === "gel-exfoliant-orange");
       if (p) { setProduitApi(p); setAvisVerifies(p.avisVerifies ?? []); }
     }).catch(() => undefined);
-  }, []);
+  }, [locale]);
 
   const packs = useMemo(
     () => construirePacks(produitApi?.variants ?? [], { pct: abonnement.pct, joursParUnite: abonnement.jours }),

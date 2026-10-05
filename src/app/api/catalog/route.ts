@@ -1,5 +1,6 @@
 import { query } from "@/lib/db";
 import { reponse, reponseErreur } from "@/lib/http";
+import { localiserProduit } from "@/lib/contenu";
 
 export const dynamic = "force-dynamic";
 
@@ -9,8 +10,9 @@ type Ligne = {
 };
 
 /** Catalogue public : produits actifs, leurs packs, leur prix et s'ils sont en stock. */
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const lang = new URL(req.url).searchParams.get("lang") === "en" ? "en" : "fr";
     const rows = await query<Ligne>(
       `SELECT p.id AS pid, p.slug, p.name AS pname, p.subtitle, p.description, p.image_url, p.content,
               v.id AS vid, v.sku, v.label, v.price_fcfa, v.original_price_fcfa, v.description AS vdesc, v.popular, v.units, s.stock
@@ -40,7 +42,7 @@ export async function GET() {
       const p = produits.get(a.product_id);
       if (p) ((p.avisVerifies as unknown[] | undefined) ?? (p.avisVerifies = [])).push({ rating: a.rating, body: a.body, display_name: a.display_name, city: a.city, shop_reply: a.shop_reply, created_at: a.created_at });
     }
-    return reponse({ products: [...produits.values()] });
+    return reponse({ products: [...produits.values()].map((p) => localiserProduit(p as never, lang)) });
   } catch (err) {
     return reponseErreur(err);
   }

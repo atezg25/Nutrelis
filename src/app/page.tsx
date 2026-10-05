@@ -170,8 +170,8 @@ export default function Homepage() {
   const [avisBoutique, setAvisBoutique] = useState<{ rating: number; body: string; display_name: string; city: string | null; produit: string }[]>([]);
 
   useEffect(() => {
-    fetchProducts().then(setProduits);
-    void fetch("/api/catalog", { cache: "no-store" })
+    fetchProducts(locale).then(setProduits);
+    void fetch(`/api/catalog?lang=${locale}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         const tous: { rating: number; body: string; display_name: string; city: string | null; produit: string }[] = [];
@@ -180,7 +180,7 @@ export default function Homepage() {
         setBannieres(Object.fromEntries((d?.products ?? []).filter((p: { content?: { banniere?: string } }) => p.content?.banniere).map((p: { id: string; content: { banniere: string } }) => [p.id, p.content.banniere])));
       })
       .catch(() => undefined);
-  }, []);
+  }, [locale]);
 
   const px = isMobile ? "16px" : isTablet ? "32px" : "60px";
   const py = isMobile ? "56px" : isTablet ? "72px" : "100px";

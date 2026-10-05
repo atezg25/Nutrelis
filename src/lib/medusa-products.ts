@@ -53,9 +53,9 @@ function versProduit(p: ApiProduct): MedusaProduct {
   };
 }
 
-export async function fetchProducts(): Promise<MedusaProduct[]> {
+export async function fetchProducts(lang = "fr"): Promise<MedusaProduct[]> {
   try {
-    const res = await fetch("/api/catalog", { cache: "no-store" });
+    const res = await fetch(`/api/catalog?lang=${lang}`, { cache: "no-store" });
     if (!res.ok) return [];
     const data = (await res.json()) as { products?: ApiProduct[] };
     return (data.products ?? []).map(versProduit);

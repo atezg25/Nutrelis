@@ -17,11 +17,11 @@ function PageProduitInterne({ params }: { params: Promise<{ slug: string }> }) {
   const [produits, setProduits] = useState<ProduitCatalogue[] | null>(null);
 
   useEffect(() => {
-    void fetch("/api/catalog", { cache: "no-store" })
+    void fetch(`/api/catalog?lang=${locale}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : { products: [] }))
       .then((d: { products?: ProduitCatalogue[] }) => setProduits(d.products ?? []))
       .catch(() => setProduits([]));
-  }, []);
+  }, [locale]);
 
   if (produits === null) return <><Reveler /><p style={{ padding: 40, textAlign: "center" }}>{fr ? "Chargement…" : "Loading…"}</p></>;
 

@@ -12,6 +12,8 @@ type Article = {
 };
 
 /** Page d'un article du blog (texte saisi dans la console). Les paragraphes sont séparés par une ligne vide ; « ## » = intertitre. */
+const CAT_EN: Record<string, string> = { Conseils: "Tips", "Beauté": "Beauty", "Santé": "Health", Utilisation: "How to use", Produit: "Product" };
+
 export default function PageArticle({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const { t, locale } = useLocale();
@@ -21,11 +23,11 @@ export default function PageArticle({ params }: { params: Promise<{ slug: string
   const [article, setArticle] = useState<Article | null | undefined>(undefined);
 
   useEffect(() => {
-    void fetch(`/api/blog/${encodeURIComponent(slug)}`, { cache: "no-store" })
+    void fetch(`/api/blog/${encodeURIComponent(slug)}?lang=${locale}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d: { article?: Article } | null) => setArticle(d?.article ?? null))
       .catch(() => setArticle(null));
-  }, [slug]);
+  }, [slug, locale]);
 
   const blocs = (article?.body ?? "").split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
 
@@ -53,7 +55,7 @@ export default function PageArticle({ params }: { params: Promise<{ slug: string
           <article style={{ marginTop: 20 }}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 14 }}>
               <span style={{ background: "#e8f5eb", color: "var(--accent)", fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 20 }}>{article.product_name ?? t("blogPage.general")}</span>
-              <span style={{ color: "#999", fontSize: 13 }}>{article.category} · {new Date(article.published_at).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", { day: "numeric", month: "long", year: "numeric" })}</span>
+              <span style={{ color: "#999", fontSize: 13 }}>{locale === "fr" ? article.category : (CAT_EN[article.category] ?? article.category)} · {new Date(article.published_at).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", { day: "numeric", month: "long", year: "numeric" })}</span>
             </div>
             <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.6rem" : "2.3rem", fontWeight: 900, lineHeight: 1.2, margin: "0 0 18px" }}>{article.title}</h1>
             {article.excerpt && <p style={{ fontSize: isMobile ? 16 : 19, lineHeight: 1.7, color: "#555", margin: "0 0 24px" }}>{article.excerpt}</p>}
