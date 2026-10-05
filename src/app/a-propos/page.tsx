@@ -87,12 +87,12 @@ export default function APropos() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isSmall ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 16 : 28 }}>
             {[
-              { icon: "🤝", titre: t("about.value1Title"), desc: t("about.value1Desc") },
+              { icon: "🔬", titre: t("about.value1Title"), desc: t("about.value1Desc") },
               { icon: "🌿", titre: t("about.value2Title"), desc: t("about.value2Desc") },
               { icon: "🔍", titre: t("about.value3Title"), desc: t("about.value3Desc") },
-              { icon: "💰", titre: t("about.value4Title"), desc: t("about.value4Desc") },
-              { icon: "💬", titre: t("about.value5Title"), desc: t("about.value5Desc") },
-              { icon: "🛡️", titre: t("about.value6Title"), desc: t("about.value6Desc") },
+              { icon: "🎯", titre: t("about.value4Title"), desc: t("about.value4Desc") },
+              { icon: "🤝", titre: t("about.value5Title"), desc: t("about.value5Desc") },
+              { icon: "♻️", titre: t("about.value6Title"), desc: t("about.value6Desc") },
             ].map((v, i) => (
               <div key={i} style={{ background: "#fff", borderRadius: isMobile ? 14 : 20, padding: isMobile ? 20 : 32, border: "1px solid #c8e6d0", boxShadow: "0 2px 16px rgba(29,185,84,0.05)" }}>
                 <div style={{ fontSize: isMobile ? 28 : 36, marginBottom: isMobile ? 10 : 16 }}>{v.icon}</div>
