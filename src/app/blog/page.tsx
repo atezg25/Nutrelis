@@ -1,55 +1,67 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import NavbarCart from "@/components/NavbarCart";
 import { useLocale } from "@/context/LocaleContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import HydrationGuard from "@/components/HydrationGuard";
 
-const couleurCategorie: Record<string, string> = {
-  Science: "#1db954",
-  Beauté: "#e91e8c",
-  Santé: "#2196f3",
-  Témoignage: "#ff9800",
+type Article = {
+  slug: string; title: string; excerpt: string; category: string; image_url: string | null; external_url: string | null;
+  has_body: boolean; published_at: string; product_slug: string | null; product_name: string | null;
 };
 
+/** Blog : les articles viennent de la console (onglet Blog) ; chacun peut être rattaché à un produit. Les filtres suivent les produits. */
 export default function Blog() {
   const { t, locale } = useLocale();
   const screen = useScreenSize();
   const isMobile = screen === "mobile";
   const isSmall = screen === "mobile" || screen === "tablet";
-  const isFr = locale === "fr";
   const px = isMobile ? "16px" : isSmall ? "24px" : "60px";
+  const [articles, setArticles] = useState<Article[] | null>(null);
+  const [filtre, setFiltre] = useState("tous");
 
-  const articles = [
-    {
-      slug: "complement-alimentaire-bien-choisir",
-      categorie: "Santé",
-      titre: t("blogPage.art4Title"),
-      extrait: t("blogPage.art4Excerpt"),
-      date: t("blogPage.art4Date"),
-      duree: t("blogPage.art4Duration"),
-      vedette: true,
-      img: "/images/og-boutique.jpg",
-      url: isFr ? "https://www.nutripure.fr/fr/blog/comment-reconnaitre-les-complements-alimentaires-de-qualite--n22" : "https://ods.od.nih.gov/factsheets/WYNTK-Consumer/",
-    },
-    {
-      slug: "peau-lumineuse-naturellement",
-      categorie: "Beauté",
-      titre: t("blogPage.art2Title"),
-      extrait: t("blogPage.art2Excerpt"),
-      date: t("blogPage.art2Date"),
-      duree: t("blogPage.art2Duration"),
-      img: "/images/og-boutique.jpg",
-      url: isFr ? "https://propolia.com/fr/blog/top-10-des-aliments-bons-pour-la-peau-n91" : "https://www.webmd.com/beauty/nutrients-for-healthy-skin",
-    },
-  ];
+  useEffect(() => {
+    void fetch("/api/blog", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : { articles: [] }))
+      .then((d: { articles?: Article[] }) => setArticles(d.articles ?? []))
+      .catch(() => setArticles([]));
+  }, []);
 
-  const vedette = articles[0];
-  const reste = articles.slice(1);
+  const tous = articles ?? [];
+  // Filtres : « Tous », un par produit ayant au moins un article, et « Conseils généraux » s'il y en a.
+  const produits = Array.from(new Map(tous.filter((a) => a.product_slug).map((a) => [a.product_slug as string, a.product_name as string])).entries());
+  const aGeneraux = tous.some((a) => !a.product_slug);
+  const visibles = tous.filter((a) => filtre === "tous" || (filtre === "general" ? !a.product_slug : a.product_slug === filtre));
+  const vedette = visibles[0];
+  const reste = visibles.slice(1);
+  const lien = (a: Article) => (a.has_body ? `/blog/${a.slug}` : a.external_url ?? "#");
+  const externe = (a: Article) => !a.has_body && !!a.external_url;
+  const date = (iso: string) => new Date(iso).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const puce = (a: Article) => a.product_name ?? t("blogPage.general");
+
+  const carte = (a: Article, grande = false) => (
+    <a key={a.slug} href={lien(a)} target={externe(a) ? "_blank" : undefined} rel={externe(a) ? "noopener noreferrer" : undefined}
+      style={{ display: "flex", flexDirection: grande && !isSmall ? "row" : "column", background: "#fff", border: "1px solid #e8e8e8", borderRadius: 22, overflow: "hidden", textDecoration: "none", color: "inherit", boxShadow: "0 2px 16px rgba(0,0,0,0.04)" }}>
+      <div style={{ background: "#0a1a0d", flex: grande && !isSmall ? "0 0 48%" : undefined, aspectRatio: grande && !isSmall ? undefined : "16 / 9", minHeight: grande && !isSmall ? 300 : undefined, position: "relative" }}>
+        {a.image_url
+          ? <img src={a.image_url} alt={a.title} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+          : <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 48, opacity: 0.5 }}>📰</div>}
+      </div>
+      <div style={{ padding: grande ? (isMobile ? "22px 18px" : "36px 34px") : "22px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 10, flex: 1 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <span style={{ background: "#e8f5eb", color: "var(--accent)", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, letterSpacing: 0.5 }}>{puce(a)}</span>
+          <span style={{ color: "#999", fontSize: 12 }}>{a.category} · {date(a.published_at)}</span>
+        </div>
+        <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: grande ? (isMobile ? "1.15rem" : "1.5rem") : "1.05rem", fontWeight: 800, lineHeight: 1.35, margin: 0 }}>{a.title}</h2>
+        {a.excerpt && <p style={{ color: "#555", fontSize: grande ? 15 : 14, lineHeight: 1.7, margin: 0 }}>{a.excerpt}</p>}
+        <span style={{ color: "var(--accent)", fontWeight: 700, fontSize: 14, marginTop: 4 }}>{t("blogPage.readArticle")}{externe(a) ? " ↗" : ""}</span>
+      </div>
+    </a>
+  );
 
   return (
     <HydrationGuard bg="#fff" style={{ color: "#1a1a1a", overflowX: "hidden" }}>
-
       {/* NAVBAR */}
       <nav style={{ background: "#060f08", borderBottom: "1px solid #1a3522", padding: isMobile ? "0 12px" : isSmall ? "0 24px" : "0 60px", height: isMobile ? 56 : 68, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
         <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
@@ -57,7 +69,7 @@ export default function Blog() {
         </Link>
         {!isSmall && (
           <div style={{ display: "flex", gap: 32 }}>
-            {[{ label: t("nav.products"), href: "/#produits" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
+            {[{ label: t("nav.products"), href: "/#produits" }, { label: t("nav.faq"), href: "/faq" }].map((item) => (
               <Link key={item.href} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
             ))}
           </div>
@@ -74,131 +86,44 @@ export default function Blog() {
       <section style={{ background: "linear-gradient(135deg, #060f08, #0a1a0d)", padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px", textAlign: "center" }}>
         <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("blogPage.heroTag")}</p>
         <h1 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.6rem" : isSmall ? "2rem" : "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, color: "#f0fff4", marginBottom: 16 }}>
-          {t("blogPage.heroTitle1")}
-          <span style={{ color: "var(--accent)" }}>{t("blogPage.heroTitleHighlight")}</span>
+          {t("blogPage.heroTitle1")}<span style={{ color: "var(--accent)" }}>{t("blogPage.heroTitleHighlight")}</span>
         </h1>
-        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 16 }}>
-          {t("blogPage.heroDesc")}
-        </p>
+        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 16, maxWidth: 560, margin: "0 auto" }}>{t("blogPage.heroDesc")}</p>
       </section>
 
-      {/* ARTICLE EN VEDETTE */}
-      <section style={{ padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px", background: "#f0faf2" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 24 }}>{t("blogPage.featuredTag")}</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, background: "#fff", borderRadius: 24, overflow: "hidden", border: "1px solid #c8e6d0", boxShadow: "0 4px 32px rgba(29,185,84,0.06)" }}>
-            <div style={{ background: "#fdf5f3", display: "flex", alignItems: "center", justifyContent: "center", minHeight: isMobile ? 200 : 320, padding: isMobile ? 24 : 48 }}>
-              <img src={vedette.img} alt={vedette.titre} style={{ width: "100%", maxWidth: 300, objectFit: "contain" }} />
-            </div>
-            <div style={{ padding: isMobile ? "28px 16px" : isSmall ? "36px 28px" : "52px 48px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <span style={{ background: "#e8f5eb", color: "var(--accent)", fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 20, letterSpacing: 1, display: "inline-block", width: "fit-content", marginBottom: 20 }}>
-                {vedette.categorie.toUpperCase()}
-              </span>
-              <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.1rem" : isSmall ? "1.3rem" : "clamp(1.4rem, 2.5vw, 1.8rem)", fontWeight: 800, marginBottom: 16, lineHeight: 1.3 }}>
-                {vedette.titre}
-              </h2>
-              <p style={{ color: "#555", fontSize: 15, lineHeight: 1.75, marginBottom: 28 }}>
-                {vedette.extrait}
-              </p>
-              <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 32 }}>
-                <span style={{ color: "#888", fontSize: 13 }}>{"📅 " + vedette.date}</span>
-                <span style={{ color: "#888", fontSize: 13 }}>{"⏱️ " + vedette.duree + " " + t("blogPage.readTime")}</span>
+      {/* ARTICLES */}
+      <section style={{ padding: isMobile ? "32px 16px 56px" : isSmall ? "48px 24px 72px" : "64px 60px 88px" }}>
+        <div style={{ maxWidth: 1180, margin: "0 auto" }}>
+          {articles === null && <p style={{ textAlign: "center", color: "#777" }}>{locale === "fr" ? "Chargement…" : "Loading…"}</p>}
+          {articles !== null && tous.length === 0 && <p style={{ textAlign: "center", color: "#666", fontSize: 16 }}>{t("blogPage.empty")}</p>}
+
+          {tous.length > 0 && (
+            <>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 36 }}>
+                {[{ cle: "tous", nom: t("blogPage.filterAllProducts") }, ...produits.map(([cle, nom]) => ({ cle, nom })), ...(aGeneraux ? [{ cle: "general", nom: t("blogPage.general") }] : [])].map((f) => (
+                  <button key={f.cle} onClick={() => setFiltre(f.cle)} style={{
+                    padding: "10px 18px", borderRadius: 24, fontSize: 14, fontWeight: 600, cursor: "pointer", border: "1.5px solid",
+                    borderColor: filtre === f.cle ? "var(--accent)" : "#ddd", background: filtre === f.cle ? "#e8f5eb" : "#fff", color: filtre === f.cle ? "var(--accent)" : "#555",
+                  }}>{f.nom}</button>
+                ))}
               </div>
-              <a href={vedette.url} target={vedette.url.startsWith("/") ? undefined : "_blank"} rel={vedette.url.startsWith("/") ? undefined : "noopener noreferrer"} style={{ background: "var(--accent)", color: "#060f08", padding: "14px 32px", borderRadius: 10, fontSize: 14, fontWeight: 800, textDecoration: "none", display: "inline-block", width: "fit-content" }}>
-                {t("blogPage.readArticle")} {!vedette.url.startsWith("/") && "↗"}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* TOUS LES ARTICLES */}
-      <section style={{ padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 48, flexWrap: "wrap", gap: 20 }}>
-            <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.8rem", fontWeight: 800 }}>
-              {t("blogPage.allArticles")}
-            </h2>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              {[t("blogPage.filterAll"), t("blogPage.filterBeauty"), t("blogPage.filterHealth")].map((cat, i) => (
-                <span key={i} style={{ padding: "8px 18px", borderRadius: 20, border: "1.5px solid", borderColor: i === 0 ? "var(--accent)" : "#ddd", background: i === 0 ? "#e8f5eb" : "#fff", color: i === 0 ? "var(--accent)" : "#555", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                  {cat}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isSmall ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 20 : 28 }}>
-            {reste.map((art, i) => (
-              <div key={i} style={{ background: "#fff", border: "1px solid #eee", borderRadius: 20, overflow: "hidden", boxShadow: "0 2px 16px rgba(0,0,0,0.04)", transition: "all 0.3s" }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-                  (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 40px rgba(29,185,84,0.1)";
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                  (e.currentTarget as HTMLElement).style.boxShadow = "0 2px 16px rgba(0,0,0,0.04)";
-                }}
-              >
-                <div style={{ background: "#fdf5f3", height: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-                  <img src={art.img} alt={art.titre} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-                </div>
-                <div style={{ padding: "24px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                    <span style={{ background: "#e8f5eb", color: couleurCategorie[art.categorie] ?? "var(--accent)", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, letterSpacing: 1 }}>
-                      {art.categorie.toUpperCase()}
-                    </span>
-                    <span style={{ color: "#bbb", fontSize: 12 }}>{"⏱️ " + art.duree}</span>
-                  </div>
-                  <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: 15, fontWeight: 800, marginBottom: 10, lineHeight: 1.4 }}>
-                    {art.titre}
-                  </h3>
-                  <p style={{ color: "#666", fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>{art.extrait}</p>
-                  <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "center" : "space-between", alignItems: "center", gap: isMobile ? 10 : 0, textAlign: isMobile ? "center" : undefined }}>
-                    <span style={{ color: "#aaa", fontSize: 12 }}>{"📅 " + art.date}</span>
-                    <a href={art.url} target={art.url.startsWith("/") ? undefined : "_blank"} rel={art.url.startsWith("/") ? undefined : "noopener noreferrer"} style={{ color: "var(--accent)", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
-                      {t("blogPage.read")} {!art.url.startsWith("/") && "↗"}
-                    </a>
-                  </div>
-                </div>
+              {vedette && <div style={{ marginBottom: 28 }}>{carte(vedette, true)}</div>}
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : isSmall ? "repeat(2, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))", gap: isMobile ? 18 : 26 }}>
+                {reste.map((a) => carte(a))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
       </section>
 
-      {/* NEWSLETTER */}
-      <section style={{ background: "#f0faf2", padding: isMobile ? "40px 16px" : isSmall ? "56px 24px" : "72px 60px", textAlign: "center", borderTop: "1px solid #c8e6d0" }}>
-        <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("blogPage.newsletterTag")}</p>
-        <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isSmall ? "1.5rem" : "1.8rem", fontWeight: 800, marginBottom: 12 }}>
-          {t("blogPage.newsletterTitle")}
-        </h2>
-        <p style={{ color: "#555", fontSize: 15, marginBottom: 36 }}>{t("blogPage.newsletterDesc")}</p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", maxWidth: 480, margin: "0 auto" }}>
-          <input
-            type="email"
-            placeholder={t("blogPage.newsletterPlaceholder")}
-            style={{ flex: 1, padding: "14px 18px", borderRadius: 10, border: "1.5px solid #c8e6d0", fontSize: 15, outline: "none" }}
-            onFocus={e => e.currentTarget.style.borderColor = "var(--accent)"}
-            onBlur={e => e.currentTarget.style.borderColor = "#c8e6d0"}
-          />
-          <button style={{ background: "var(--accent)", color: "#060f08", border: "none", padding: "14px 28px", borderRadius: 10, fontSize: 14, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "var(--font-sora), sans-serif" }}>
-            {t("blogPage.newsletterBtn")}
-          </button>
-        </div>
-      </section>
-
-      <footer style={{ background: "#060f08", padding: isMobile ? "24px 16px" : "40px 60px", borderTop: "1px solid #1a3522" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "center" : "space-between", alignItems: "center", gap: isMobile ? 10 : 0, textAlign: isMobile ? "center" : undefined }}>
-          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: isMobile ? 11 : 13 }}>{t("home.footerRights")}</span>
-          <div style={{ display: "flex", gap: isMobile ? 16 : 24 }}>
-            {[{ label: t("blogPage.footerHome"), href: "/" }, { label: t("blogPage.footerProducts"), href: "/#produits" }, { label: t("blogPage.footerContact"), href: "/contact" }].map(l => (
-              <Link key={l.href} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: isMobile ? 11 : 13, textDecoration: "none" }}>{l.label}</Link>
-            ))}
-          </div>
+      <footer style={{ background: "#030a04", padding: isMobile ? "28px 16px" : "36px 60px", textAlign: "center" }}>
+        <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap" }}>
+          {[{ label: t("blogPage.footerHome"), href: "/" }, { label: t("blogPage.footerProducts"), href: "/#produits" }, { label: t("blogPage.footerContact"), href: "/contact" }].map((l) => (
+            <Link key={l.href} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: isMobile ? 11 : 13, textDecoration: "none" }}>{l.label}</Link>
+          ))}
         </div>
       </footer>
-
     </HydrationGuard>
   );
 }

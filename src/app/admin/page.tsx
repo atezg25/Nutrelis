@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 // Un seul écran à onglets. Tout passe par /api/admin/* (cookie signé, mot de passe unique).
 // ============================================================
 type Ligne = Record<string, string | number | boolean | null>;
-type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "avis" | "abonnements" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "utilisateurs" | "parametres" | "journal" | "compte";
+type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "avis" | "abonnements" | "blog" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "utilisateurs" | "parametres" | "journal" | "compte";
 
 const VERT = "#1f7a3a";
 const fcfa = (n: unknown) => `${Number(n ?? 0).toLocaleString("fr-FR")} FCFA`;
@@ -929,6 +929,102 @@ function Expeditions() {
   );
 }
 
+// ---------------------------------------------------------------- Blog
+type ArticleAdmin = { id: string; slug: string; title: string; excerpt: string; body: string; category: string; product_id: string | null; image_url: string | null; external_url: string | null; published: boolean; published_at: string; product_name: string | null };
+const ARTICLE_VIDE = { title: "", excerpt: "", body: "", category: "Conseils", productId: "", imageUrl: "", externalUrl: "", published: false };
+
+function BlogAdmin() {
+  const [d, setD] = useState<{ articles: ArticleAdmin[]; produits: { id: string; name: string }[]; categories: string[] } | null>(null);
+  const [edit, setEdit] = useState<string | null>(null); // identifiant de l'article, « nouveau » ou rien
+  const [f, setF] = useState(ARTICLE_VIDE);
+  const [msg, setMsg] = useState("");
+  const charger = useCallback(() => { void api<{ articles: ArticleAdmin[]; produits: { id: string; name: string }[]; categories: string[] }>("blog").then((r) => r.ok && setD(r.data)); }, []);
+  useEffect(charger, [charger]);
+
+  function ouvrir(a?: ArticleAdmin) {
+    setMsg("");
+    if (!a) { setF(ARTICLE_VIDE); setEdit("nouveau"); return; }
+    setF({ title: a.title, excerpt: a.excerpt, body: a.body, category: a.category, productId: a.product_id ?? "", imageUrl: a.image_url ?? "", externalUrl: a.external_url ?? "", published: a.published });
+    setEdit(a.id);
+  }
+  async function enregistrer() {
+    setMsg("");
+    const corps = { title: f.title, excerpt: f.excerpt, body: f.body, category: f.category, productId: f.productId || null, imageUrl: f.imageUrl || null, externalUrl: f.externalUrl || null, published: f.published };
+    const r = edit === "nouveau" ? await api("blog", { method: "POST", body: corps }) : await api(`blog/${edit}`, { method: "PATCH", body: corps });
+    if (!r.ok) { setMsg(r.data.error ?? "Échec."); return; }
+    setMsg("Enregistré ✓");
+    setEdit(null);
+    charger();
+  }
+  async function supprimer(id: string) {
+    if (!window.confirm("Supprimer cet article définitivement ?")) return;
+    await api(`blog/${id}`, { method: "DELETE" });
+    setEdit(null);
+    charger();
+  }
+  async function publier(a: ArticleAdmin) { await api(`blog/${a.id}`, { method: "PATCH", body: { published: !a.published } }); charger(); }
+  async function envoyerImage(fichier: File | undefined) {
+    if (!fichier) return;
+    const res = await fetch("/api/admin/media", { method: "POST", headers: { "Content-Type": fichier.type }, body: fichier });
+    const j = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+    if (!res.ok || !j.url) { setMsg(j.error ?? "Envoi impossible."); return; }
+    setF((x) => ({ ...x, imageUrl: j.url! }));
+  }
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
+      <div style={{ ...carte, background: "#f4fbf6", fontSize: 13.5, color: "#2b312b" }}>
+        Les articles du blog s'écrivent ici. Rattachez un article à un <strong>produit</strong> (il apparaît alors dans le filtre de ce produit sur la page Blog) ou laissez « Conseils généraux ». Un article peut avoir un <strong>texte complet</strong> (page du site) ou renvoyer vers un <strong>lien externe</strong>. Un nouveau produit ajouté à la boutique apparaît tout seul dans les filtres dès qu'un article lui est rattaché.
+      </div>
+      <div><button onClick={() => ouvrir()} style={bouton}>+ Nouvel article</button></div>
+      {msg && <div style={{ color: msg.startsWith("Enregistré") ? VERT : "#b91c1c", fontWeight: 700 }}>{msg}</div>}
+
+      {edit && (
+        <div style={{ ...carte, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 10 }}>
+          <strong>{edit === "nouveau" ? "Nouvel article" : "Modifier l'article"}</strong>
+          <input placeholder="Titre" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} style={champ} />
+          <textarea placeholder="Résumé affiché dans la liste (400 caractères au plus)" value={f.excerpt} onChange={(e) => setF({ ...f, excerpt: e.target.value })} rows={3} style={{ ...champ, fontFamily: "inherit" }} />
+          <textarea placeholder="Texte complet de l'article (laissez vide pour renvoyer vers un lien externe). Séparez les paragraphes par une ligne vide ; une ligne commençant par « ## » devient un intertitre." value={f.body} onChange={(e) => setF({ ...f, body: e.target.value })} rows={12} style={{ ...champ, fontFamily: "inherit" }} />
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <select value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })} style={champ}>{(d?.categories ?? []).map((c) => <option key={c}>{c}</option>)}</select>
+            <select value={f.productId} onChange={(e) => setF({ ...f, productId: e.target.value })} style={{ ...champ, minWidth: 200 }}>
+              <option value="">Conseils généraux (aucun produit)</option>
+              {(d?.produits ?? []).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          <input placeholder="Lien externe (https://…) : seulement si l'article n'a pas de texte complet" value={f.externalUrl} onChange={(e) => setF({ ...f, externalUrl: e.target.value })} style={champ} />
+          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            {f.imageUrl && <img src={f.imageUrl} alt="" style={{ width: 120, aspectRatio: "16 / 9", objectFit: "cover", borderRadius: 8, border: "1px solid #e4e7e2" }} />}
+            <label style={{ ...boutonDiscret, display: "inline-block" }}>{f.imageUrl ? "Remplacer l'image" : "+ Ajouter une image (PNG, JPEG, WebP, 3 Mo max)"}<input type="file" accept="image/png,image/jpeg,image/webp" style={{ display: "none" }} onChange={(e) => { void envoyerImage(e.target.files?.[0]); e.target.value = ""; }} /></label>
+            {f.imageUrl && <button onClick={() => setF({ ...f, imageUrl: "" })} style={{ ...boutonDiscret, color: "#b91c1c" }}>Retirer l'image</button>}
+          </div>
+          <label style={{ display: "flex", gap: 8, alignItems: "center" }}><input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} /> Publié sur le site</label>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button onClick={() => void enregistrer()} disabled={!f.title.trim()} style={bouton}>Enregistrer</button>
+            <button onClick={() => setEdit(null)} style={boutonDiscret}>Annuler</button>
+            {edit !== "nouveau" && <button onClick={() => void supprimer(edit)} style={{ ...boutonDiscret, color: "#b91c1c" }}>Supprimer</button>}
+          </div>
+        </div>
+      )}
+
+      {(d?.articles ?? []).length === 0 && !edit && <div style={{ ...carte, color: "#777" }}>Aucun article pour l'instant.</div>}
+      {(d?.articles ?? []).map((a) => (
+        <div key={a.id} style={{ ...carte, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", opacity: a.published ? 1 : 0.7 }}>
+          {a.image_url && <img src={a.image_url} alt="" style={{ width: 90, aspectRatio: "16 / 9", objectFit: "cover", borderRadius: 8 }} />}
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <strong>{a.title}</strong><br />
+            <span style={{ color: "#777", fontSize: 12 }}>{a.category} · {a.product_name ?? "Conseils généraux"} · {a.body ? "texte complet" : a.external_url ? "lien externe" : "sans contenu"} · {new Date(a.published_at).toLocaleDateString("fr-FR")}</span>
+          </div>
+          <Badge texte={a.published ? "Publié" : "Brouillon"} couleur={a.published ? VERT : "#b45309"} />
+          <button onClick={() => void publier(a)} style={boutonDiscret}>{a.published ? "Dépublier" : "Publier"}</button>
+          <button onClick={() => ouvrir(a)} style={boutonDiscret}>Modifier</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+
 // ---------------------------------------------------------------- Abonnements
 function Abonnements() {
   const [d, setD] = useState<{ abonnes: Ligne[]; joursParUnite: number; avanceJours: number; remisePct: number } | null>(null);
@@ -1218,6 +1314,7 @@ const MENU: { id: Onglet; titre: string; icone: string; proprietaire?: boolean; 
   { id: "paiements", titre: "Paiements", icone: "💳" },
   { id: "avis", titre: "Avis clients", icone: "⭐" },
   { id: "abonnements", titre: "Abonnements", icone: "🔁" },
+  { id: "blog", titre: "Blog", icone: "📰" },
   { id: "clients", titre: "Clients", icone: "👥" },
   { id: "stock", titre: "Stock", icone: "📦" },
   { id: "produits", titre: "Produits", icone: "🌿" },
@@ -1295,6 +1392,7 @@ export default function Admin() {
       {onglet === "paiements" && <Paiements />}
       {onglet === "avis" && <Avis />}
       {onglet === "abonnements" && <Abonnements />}
+      {onglet === "blog" && <BlogAdmin />}
       {onglet === "clients" && <Clients />}
       {onglet === "stock" && <Stock />}
       {onglet === "produits" && <Produits />}

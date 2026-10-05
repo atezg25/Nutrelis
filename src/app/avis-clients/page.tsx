@@ -7,7 +7,8 @@ import { useScreenSize } from "@/hooks/useIsMobile";
 import HydrationGuard from "@/components/HydrationGuard";
 
 type AvisVerifie = { rating: number; body: string; display_name: string; city: string | null; shop_reply: string | null; created_at: string };
-type Produit = { id: string; slug: string; name: string; imageUrl: string | null; avisVerifies?: AvisVerifie[] };
+type Temoignage = { nom: string; ville?: string; note: number; texte: string };
+type Produit = { id: string; slug: string; name: string; imageUrl: string | null; avisVerifies?: AvisVerifie[]; content?: { avis?: Temoignage[] } };
 
 /** Avis clients, classés par produit : uniquement des avis vérifiés (commande livrée) et validés dans la console. */
 export default function AvisClients() {
@@ -26,12 +27,13 @@ export default function AvisClients() {
       .catch(() => setProduits([]));
   }, []);
 
-  const avecAvis = (produits ?? []).filter((p) => (p.avisVerifies?.length ?? 0) > 0);
+  const nbAvis = (p: Produit) => (p.avisVerifies?.length ?? 0) + (p.content?.avis?.length ?? 0);
+  const avecAvis = (produits ?? []).filter((p) => nbAvis(p) > 0);
   const visibles = filtre === "tous" ? avecAvis : avecAvis.filter((p) => p.slug === filtre);
-  const total = avecAvis.reduce((n, p) => n + (p.avisVerifies?.length ?? 0), 0);
+  const total = avecAvis.reduce((n, p) => n + nbAvis(p), 0);
   const moyenne = (p: Produit) => {
-    const a = p.avisVerifies ?? [];
-    return a.length ? a.reduce((n, x) => n + x.rating, 0) / a.length : 0;
+    const notes = [...(p.avisVerifies ?? []).map((x) => x.rating), ...(p.content?.avis ?? []).map((x) => x.note)];
+    return notes.length ? notes.reduce((n, x) => n + x, 0) / notes.length : 0;
   };
   const date = (iso: string) => new Date(iso).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", { month: "long", year: "numeric" });
 
@@ -86,7 +88,7 @@ export default function AvisClients() {
             <>
               {/* Filtre par produit */}
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 40 }}>
-                {[{ slug: "tous", name: (locale === "fr" ? "Tous les produits" : "All products") + ` (${total})` }, ...avecAvis.map((p) => ({ slug: p.slug, name: `${p.name} (${p.avisVerifies?.length ?? 0})` }))].map((f) => (
+                {[{ slug: "tous", name: (locale === "fr" ? "Tous les produits" : "All products") + ` (${total})` }, ...avecAvis.map((p) => ({ slug: p.slug, name: `${p.name} (${nbAvis(p)})` }))].map((f) => (
                   <button key={f.slug} onClick={() => setFiltre(f.slug)} style={{
                     padding: "10px 18px", borderRadius: 24, fontSize: 14, fontWeight: 600, cursor: "pointer", border: "1.5px solid",
                     borderColor: filtre === f.slug ? "var(--accent)" : "#ddd", background: filtre === f.slug ? "#e8f5eb" : "#fff",
@@ -103,7 +105,7 @@ export default function AvisClients() {
                       <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.15rem" : "1.5rem", fontWeight: 800, margin: 0 }}>{p.name}</h2>
                       <div style={{ color: "#555", fontSize: 14, marginTop: 4 }}>
                         <span style={{ color: "#f5a623", letterSpacing: 1 }}>{"★".repeat(Math.round(moyenne(p)))}{"☆".repeat(5 - Math.round(moyenne(p)))}</span>{" "}
-                        {moyenne(p).toFixed(1).replace(".", locale === "fr" ? "," : ".")} / 5 · {p.avisVerifies?.length} {locale === "fr" ? ((p.avisVerifies?.length ?? 0) > 1 ? "avis" : "avis") : ((p.avisVerifies?.length ?? 0) > 1 ? "reviews" : "review")}
+                        {moyenne(p).toFixed(1).replace(".", locale === "fr" ? "," : ".")} / 5 · {nbAvis(p)} {locale === "fr" ? "avis" : nbAvis(p) > 1 ? "reviews" : "review"} ({p.avisVerifies?.length ?? 0} {locale === "fr" ? ((p.avisVerifies?.length ?? 0) > 1 ? "vérifiés" : "vérifié") : "verified"})
                       </div>
                     </div>
                     <Link href={`/produits/${p.slug}`} style={{ border: "1.5px solid var(--accent)", color: "var(--accent)", padding: "10px 20px", borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: "none" }}>{locale === "fr" ? "Voir le produit" : "View product"}</Link>
@@ -123,6 +125,22 @@ export default function AvisClients() {
                       </div>
                     ))}
                   </div>
+                  {(p.content?.avis?.length ?? 0) > 0 && (
+                    <div style={{ marginTop: 28 }}>
+                      <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.05rem", fontWeight: 800, margin: "0 0 4px" }}>{t("reviewsPage.testimonialsTitle")}</h3>
+                      <p style={{ color: "#888", fontSize: 13, margin: "0 0 14px" }}>{t("reviewsPage.testimonialsNote")}</p>
+                      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", gap: 16 }}>
+                        {(p.content?.avis ?? []).map((a, i) => (
+                          <div key={i} style={{ border: "1px solid #e8e8e8", borderRadius: 16, padding: 20, background: "#fff" }}>
+                            <div style={{ color: "#f5a623", fontSize: 16, marginBottom: 8 }}>{"★".repeat(a.note)}{"☆".repeat(5 - a.note)}</div>
+                            <p style={{ color: "#333", fontSize: 15, lineHeight: 1.7, margin: "0 0 14px", fontStyle: "italic" }}>&ldquo;{a.texte}&rdquo;</p>
+                            <div style={{ fontWeight: 700, fontSize: 14 }}>{a.nom}{a.ville ? ` · ${a.ville}` : ""}</div>
+                            <div style={{ color: "#888", fontSize: 12, fontWeight: 600, marginTop: 2 }}>{t("reviewsPage.testimonial")}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
 

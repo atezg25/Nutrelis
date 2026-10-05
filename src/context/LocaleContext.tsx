@@ -10,6 +10,8 @@ interface LocaleContextType {
   /** Réglages pilotés depuis la console (abonnement, accueil). */
   abonnement: { actif: boolean; pct: number; jours: number };
   boutique: { titre: string; description: string; carrousel: number };
+  /** Numéro WhatsApp de la boutique, chiffres seulement (Paramètres de la console). */
+  contact: { whatsapp: string };
 }
 
 const LocaleContext = createContext<LocaleContextType | null>(null);
@@ -35,6 +37,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("fr");
   const [abonnement, setAbonnement] = useState({ actif: true, pct: 15, jours: 60 });
   const [boutique, setBoutique] = useState({ titre: "", description: "", carrousel: 5 });
+  const [contact, setContact] = useState({ whatsapp: "" });
 
   // Réglages saisis dans la console : l'abonnement (remise, activation) et les textes de l'accueil.
   useEffect(() => {
@@ -43,6 +46,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       .then((d) => {
         if (d?.abonnement) setAbonnement(d.abonnement);
         if (d?.boutique) setBoutique(d.boutique);
+        if (d?.contact) setContact(d.contact);
       })
       .catch(() => undefined);
   }, []);
@@ -64,7 +68,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <LocaleContext.Provider value={{ locale, setLocale, t, abonnement, boutique }}>
+    <LocaleContext.Provider value={{ locale, setLocale, t, abonnement, boutique, contact }}>
       {children}
     </LocaleContext.Provider>
   );

@@ -87,12 +87,12 @@ export default function APropos() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isSmall ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 16 : 28 }}>
             {[
-              { icon: "🔬", titre: t("about.value1Title"), desc: t("about.value1Desc") },
+              { icon: "🤝", titre: t("about.value1Title"), desc: t("about.value1Desc") },
               { icon: "🌿", titre: t("about.value2Title"), desc: t("about.value2Desc") },
               { icon: "🔍", titre: t("about.value3Title"), desc: t("about.value3Desc") },
-              { icon: "🎯", titre: t("about.value4Title"), desc: t("about.value4Desc") },
-              { icon: "🤝", titre: t("about.value5Title"), desc: t("about.value5Desc") },
-              { icon: "♻️", titre: t("about.value6Title"), desc: t("about.value6Desc") },
+              { icon: "💰", titre: t("about.value4Title"), desc: t("about.value4Desc") },
+              { icon: "💬", titre: t("about.value5Title"), desc: t("about.value5Desc") },
+              { icon: "🛡️", titre: t("about.value6Title"), desc: t("about.value6Desc") },
             ].map((v, i) => (
               <div key={i} style={{ background: "#fff", borderRadius: isMobile ? 14 : 20, padding: isMobile ? 20 : 32, border: "1px solid #c8e6d0", boxShadow: "0 2px 16px rgba(29,185,84,0.05)" }}>
                 <div style={{ fontSize: isMobile ? 28 : 36, marginBottom: isMobile ? 10 : 16 }}>{v.icon}</div>
@@ -112,7 +112,8 @@ export default function APropos() {
           <div style={{ background: "#f0faf2", borderRadius: isMobile ? 16 : 24, padding: isMobile ? "28px 16px" : "56px", border: "1px solid #c8e6d0", position: "relative" }}>
             <div style={{ fontSize: isMobile ? 40 : 64, color: "var(--accent)", lineHeight: 1, marginBottom: isMobile ? 16 : 24, opacity: 0.3 }}>"</div>
             <p style={{ fontSize: isMobile ? 15 : 18, lineHeight: 1.9, color: "#333", marginBottom: 16, fontStyle: "italic" }}>{t("about.founderQuote1")}</p>
-            <p style={{ fontSize: isMobile ? 15 : 18, lineHeight: 1.9, color: "#333", marginBottom: isMobile ? 20 : 32, fontStyle: "italic" }}>{t("about.founderQuote2")}</p>
+            <p style={{ fontSize: isMobile ? 15 : 18, lineHeight: 1.9, color: "#333", marginBottom: 16, fontStyle: "italic" }}>{t("about.founderQuote2")}</p>
+            <p style={{ fontSize: isMobile ? 15 : 18, lineHeight: 1.9, color: "#1a1a1a", marginBottom: isMobile ? 20 : 32, fontStyle: "italic", fontWeight: 700 }}>{t("about.founderQuote3")}</p>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
               <div style={{ width: isMobile ? 44 : 56, height: isMobile ? 44 : 56, borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: isMobile ? 16 : 20 }}>A</div>
               <div style={{ textAlign: "left" }}>
@@ -120,6 +121,20 @@ export default function APropos() {
                 <div style={{ color: "#666", fontSize: isMobile ? 12 : 13 }}>{t("about.founderRole")}</div>
               </div>
             </div>
+          </div>
+
+          {/* Les bonnes raisons de choisir NUTRELIS */}
+          <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.2rem" : "1.6rem", fontWeight: 800, margin: isMobile ? "36px 0 20px" : "56px 0 28px" }}>{t("about.reasonsTitle")}</h3>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "repeat(auto-fit, minmax(min(100%, 250px), 1fr))", gap: isMobile ? 12 : 18, textAlign: "left" }}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <div key={n} style={{ border: "1px solid #c8e6d0", borderRadius: 18, padding: isMobile ? "16px" : "22px", background: "#fff", display: "flex", gap: 14, alignItems: "flex-start" }}>
+                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--accent)", color: "#060f08", fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{n}</div>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: isMobile ? 15 : 16, marginBottom: 4 }}>{t(`about.reason${n}Title`)}</div>
+                  <div style={{ color: "#555", fontSize: isMobile ? 13 : 14, lineHeight: 1.7 }}>{t(`about.reason${n}Desc`)}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

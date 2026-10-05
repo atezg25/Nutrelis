@@ -241,6 +241,22 @@ GROUP BY v.id;
 ALTER TABLE order_item ADD COLUMN IF NOT EXISTS subscription BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE customer_order ADD COLUMN IF NOT EXISTS subscription BOOLEAN NOT NULL DEFAULT FALSE;
 CREATE INDEX IF NOT EXISTS customer_order_phone_idx ON customer_order (phone);
+
+-- Blog : articles saisis dans la console, rattachés (ou non) à un produit. Sans texte intégral, l'article renvoie vers un lien externe.
+CREATE TABLE IF NOT EXISTS blog_post (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug         TEXT NOT NULL UNIQUE,
+  title        TEXT NOT NULL,
+  excerpt      TEXT NOT NULL DEFAULT '',
+  body         TEXT NOT NULL DEFAULT '',
+  category     TEXT NOT NULL DEFAULT 'Conseils',
+  product_id   UUID REFERENCES product(id) ON DELETE SET NULL,
+  image_url    TEXT,
+  external_url TEXT,
+  published    BOOLEAN NOT NULL DEFAULT FALSE,
+  published_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 -- Nombre de produits d'un pack (1, 2 ou 3) : sert à calculer la durée du pack pour la relance d'abonnement.
 ALTER TABLE variant ADD COLUMN IF NOT EXISTS units INTEGER NOT NULL DEFAULT 1 CHECK (units >= 1);
 UPDATE variant SET units = 2 WHERE sku IN ('NUT-AX-2P', 'GEL-ORANGE-2') AND units = 1;

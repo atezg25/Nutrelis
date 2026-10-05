@@ -10,6 +10,7 @@ export async function GET() {
     const [ab, r] = await Promise.all([lireAbonnement(), lireReglages()]);
     return reponse({
       abonnement: ab,
+      contact: { whatsapp: (r.alerte_whatsapp || r.boutique_telephone || "").replace(/\D/g, "") },
       boutique: { titre: r.boutique_titre, description: r.boutique_description, carrousel: Math.max(0, Number(r.boutique_carrousel_secondes) || 0) },
     });
   } catch (err) {
