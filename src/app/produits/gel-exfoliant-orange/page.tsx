@@ -325,11 +325,17 @@ useEffect(() => {
                 }} />
               )}
             </div>
-            <img
-              src={pack.img}
-              alt={pack.label}
-              style={{ width: isMobilePS ? 36 : 56, height: isMobilePS ? 36 : 56, objectFit: "contain", flexShrink: 0 }}
-            />
+            {/* Autant de tubes que de gels dans le pack (1, 2 ou 3), légèrement superposés */}
+            <div aria-hidden="true" style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", width: isMobilePS ? 62 : 92, height: isMobilePS ? 44 : 62, flexShrink: 0 }}>
+              {Array.from({ length: pack.id }, (_, k) => (
+                <img
+                  key={k}
+                  src={pack.img}
+                  alt=""
+                  style={{ height: isMobilePS ? 40 : 58, width: "auto", objectFit: "contain", marginLeft: k === 0 ? 0 : (isMobilePS ? -10 : -14), position: "relative", zIndex: k, filter: "drop-shadow(0 3px 4px rgba(110,45,0,0.25))" }}
+                />
+              ))}
+            </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 800, fontSize: isMobilePS ? 12 : 15, color: "var(--gel-text)", lineHeight: 1.3 }}>
                 {pack.capsules}
