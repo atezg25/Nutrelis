@@ -409,6 +409,7 @@ type Contenu = {
   avis?: { nom: string; ville?: string; note: number; texte: string }[]; garantieJours?: number; images?: string[]; banniere?: string;
   etapes?: { titre: string; texte: string }[]; chiffres?: { valeur: string; libelle: string }[]; sourceChiffres?: string;
   comparatif?: { critere: string; nous: string; autres: string }[]; resultats?: string[]; videos?: { url: string; titre?: string }[];
+  en?: ContenuEn;
 };
 const lignes = (v: string) => v.split("\n").map((x) => x.trim()).filter(Boolean);
 type ContenuEn = Contenu & { name?: string; subtitle?: string; descriptionCourte?: string; variants?: Record<string, { label?: string; description?: string }> };
