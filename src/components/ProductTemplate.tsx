@@ -154,7 +154,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
           </a>
           {!isSmall && (
             <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-              {[{ label: t("nav.products"), href: "/produits" }, { label: t("nav.science"), href: "/science" }, { label: t("nav.reviews"), href: "/avis-clients" }, { label: t("nav.faq"), href: "/faq" }].map((i) => (
+              {[{ label: t("nav.products"), href: "/produits" }, { label: t("nav.reviews"), href: "/avis-clients" }, { label: t("nav.faq"), href: "/faq" }].map((i) => (
                 <a key={i.href} href={i.href} style={{ color: "var(--asta-text2)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{i.label}</a>
               ))}
             </div>
@@ -553,7 +553,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
             </div>
             {[
               { title: t("product.footerProducts"), links: [...autres.map((p) => ({ label: p.name, href: `/produits/${p.slug}` })), { label: t("product.footerAllProducts"), href: "/produits" }] },
-              { title: t("product.footerInfo"), links: [{ label: t("product.footerAbout"), href: "/a-propos" }, { label: t("product.footerScience"), href: "/science" }, { label: t("product.footerBlog"), href: "/blog" }, { label: t("product.footerContact"), href: "/contact" }] },
+              { title: t("product.footerInfo"), links: [{ label: t("product.footerAbout"), href: "/a-propos" }, { label: t("product.footerBlog"), href: "/blog" }, { label: t("product.footerContact"), href: "/contact" }] },
               { title: t("product.footerService"), links: [{ label: t("product.footerFaq"), href: "/faq" }, { label: t("product.footerShipping"), href: "/livraison" }, { label: t("product.footerRefunds"), href: "/retours" }, { label: t("product.footerTerms"), href: "/cgv" }] },
             ].map((col, i) => (
               <div key={i}>

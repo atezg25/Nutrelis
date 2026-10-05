@@ -71,7 +71,6 @@ function Navbar() {
           <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
             {[
               { label: t("nav.products"), href: "/produits/astaxanthine-12mg" },
-              { label: t("nav.science"), href: "/science" },
               { label: t("nav.reviews"), href: "/avis-clients" },
               { label: t("nav.faq"), href: "/faq" },
             ].map((item) => (
@@ -2491,7 +2490,6 @@ export default function Astaxanthine() {
               ]},
               { title: t("product.footerInfo"), links: [
                 { label: t("product.footerAbout"), href: "/a-propos" },
-                { label: t("product.footerScience"), href: "/science" },
                 { label: t("product.footerBlog"), href: "/blog" },
                 { label: t("product.footerContact"), href: "/contact" },
               ]},

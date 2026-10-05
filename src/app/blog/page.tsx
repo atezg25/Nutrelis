@@ -22,15 +22,15 @@ export default function Blog() {
 
   const articles = [
     {
-      slug: "astaxanthine-guide-complet",
-      categorie: "Science",
-      titre: t("blogPage.art1Title"),
-      extrait: t("blogPage.art1Excerpt"),
-      date: t("blogPage.art1Date"),
-      duree: t("blogPage.art1Duration"),
-      img: "/images/astaxanthine/NUT2.png",
+      slug: "complement-alimentaire-bien-choisir",
+      categorie: "Santé",
+      titre: t("blogPage.art4Title"),
+      extrait: t("blogPage.art4Excerpt"),
+      date: t("blogPage.art4Date"),
+      duree: t("blogPage.art4Duration"),
       vedette: true,
-      url: isFr ? "https://doctonat.com/astaxanthine-bienfaits-posologies/" : "https://examine.com/supplements/astaxanthin/",
+      img: "/images/og-boutique.jpg",
+      url: isFr ? "https://www.nutripure.fr/fr/blog/comment-reconnaitre-les-complements-alimentaires-de-qualite--n22" : "https://ods.od.nih.gov/factsheets/WYNTK-Consumer/",
     },
     {
       slug: "peau-lumineuse-naturellement",
@@ -39,48 +39,8 @@ export default function Blog() {
       extrait: t("blogPage.art2Excerpt"),
       date: t("blogPage.art2Date"),
       duree: t("blogPage.art2Duration"),
-      img: "/images/astaxanthine/NUT3.png",
+      img: "/images/og-boutique.jpg",
       url: isFr ? "https://propolia.com/fr/blog/top-10-des-aliments-bons-pour-la-peau-n91" : "https://www.webmd.com/beauty/nutrients-for-healthy-skin",
-    },
-    {
-      slug: "antioxydants-comparaison",
-      categorie: "Science",
-      titre: t("blogPage.art3Title"),
-      extrait: t("blogPage.art3Excerpt"),
-      date: t("blogPage.art3Date"),
-      duree: t("blogPage.art3Duration"),
-      img: "/images/astaxanthine/NUT4.png",
-      url: isFr ? "https://santecool.net/lastaxanthine-plus-puissant-que-la-vitamine-c-la-vitamine-e-et-la-coenzyme-q10/" : "https://www.lifeextension.com/wellness/antioxidants/astaxanthin-vs-coq10",
-    },
-    {
-      slug: "complement-alimentaire-bien-choisir",
-      categorie: "Santé",
-      titre: t("blogPage.art4Title"),
-      extrait: t("blogPage.art4Excerpt"),
-      date: t("blogPage.art4Date"),
-      duree: t("blogPage.art4Duration"),
-      img: "/images/astaxanthine/NUT5.png",
-      url: isFr ? "https://www.nutripure.fr/fr/blog/comment-reconnaitre-les-complements-alimentaires-de-qualite--n22" : "https://ods.od.nih.gov/factsheets/WYNTK-Consumer/",
-    },
-    {
-      slug: "temoignage-marie-ange",
-      categorie: "Témoignage",
-      titre: t("blogPage.art5Title"),
-      extrait: t("blogPage.art5Excerpt"),
-      date: t("blogPage.art5Date"),
-      duree: t("blogPage.art5Duration"),
-      img: "/images/astaxanthine/Ast2.png",
-      url: "/produits/astaxanthine-12mg",
-    },
-    {
-      slug: "astaxanthine-yeux-ecrans",
-      categorie: "Santé",
-      titre: t("blogPage.art6Title"),
-      extrait: t("blogPage.art6Excerpt"),
-      date: t("blogPage.art6Date"),
-      duree: t("blogPage.art6Duration"),
-      img: "/images/astaxanthine/img4A.png",
-      url: isFr ? "https://www.echlorial.com/blog/astaxanthin-eyes/" : "https://pmc.ncbi.nlm.nih.gov/articles/PMC7281326/",
     },
   ];
 
@@ -97,15 +57,15 @@ export default function Blog() {
         </Link>
         {!isSmall && (
           <div style={{ display: "flex", gap: 32 }}>
-            {[{ label: t("nav.products"), href: "/produits/astaxanthine-12mg" }, { label: t("nav.science"), href: "/science" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
+            {[{ label: t("nav.products"), href: "/#produits" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
               <Link key={item.href} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
             ))}
           </div>
         )}
         <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12 }}>
           <NavbarCart />
-          <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: isMobile ? "8px 12px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>
-            {isMobile ? t("nav.order") : t("nav.orderArrow")}
+          <Link href="/#produits" style={{ background: "var(--accent)", color: "#060f08", padding: isMobile ? "8px 12px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>
+            {isMobile ? t("home.navShop") : t("home.navShopArrow")}
           </Link>
         </div>
       </nav>
@@ -160,7 +120,7 @@ export default function Blog() {
               {t("blogPage.allArticles")}
             </h2>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              {[t("blogPage.filterAll"), t("blogPage.filterScience"), t("blogPage.filterBeauty"), t("blogPage.filterHealth"), t("blogPage.filterTestimonial")].map((cat, i) => (
+              {[t("blogPage.filterAll"), t("blogPage.filterBeauty"), t("blogPage.filterHealth")].map((cat, i) => (
                 <span key={i} style={{ padding: "8px 18px", borderRadius: 20, border: "1.5px solid", borderColor: i === 0 ? "var(--accent)" : "#ddd", background: i === 0 ? "#e8f5eb" : "#fff", color: i === 0 ? "var(--accent)" : "#555", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                   {cat}
                 </span>
@@ -232,7 +192,7 @@ export default function Blog() {
         <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "center" : "space-between", alignItems: "center", gap: isMobile ? 10 : 0, textAlign: isMobile ? "center" : undefined }}>
           <span style={{ color: "rgba(255,255,255,0.4)", fontSize: isMobile ? 11 : 13 }}>{t("home.footerRights")}</span>
           <div style={{ display: "flex", gap: isMobile ? 16 : 24 }}>
-            {[{ label: t("blogPage.footerHome"), href: "/" }, { label: t("blogPage.footerProducts"), href: "/produits/astaxanthine-12mg" }, { label: t("blogPage.footerContact"), href: "/contact" }].map(l => (
+            {[{ label: t("blogPage.footerHome"), href: "/" }, { label: t("blogPage.footerProducts"), href: "/#produits" }, { label: t("blogPage.footerContact"), href: "/contact" }].map(l => (
               <Link key={l.href} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: isMobile ? 11 : 13, textDecoration: "none" }}>{l.label}</Link>
             ))}
           </div>

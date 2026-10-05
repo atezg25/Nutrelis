@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/contact`,
     title: "Contactez NUTRELIS — Service Client",
     description: "Email, WhatsApp, formulaire — nous répondons rapidement.",
-    images: [{ url: "/images/astaxanthine/NUT2.png", width: 1200, height: 630, alt: "NUTRELIS — Contact" }],
+    images: [{ url: "/images/og-boutique.jpg", width: 1200, height: 630, alt: "NUTRELIS — Contact" }],
     siteName: "NUTRELIS",
     locale: "fr_CM",
     alternateLocale: ["en_CM"],
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Contact NUTRELIS — Customer Service",
     description: "Email, WhatsApp, contact form — we respond quickly.",
-    images: ["/images/astaxanthine/NUT2.png"],
+    images: ["/images/og-boutique.jpg"],
   },
   alternates: {
     canonical: `${SITE_URL}/contact`,

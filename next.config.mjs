@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [{ source: "/science", destination: "/produits", permanent: true }];
+  },
   async headers() {
     return [
       {

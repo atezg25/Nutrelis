@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/livraison`,
     title: "Livraison ATEZ Express — Partout au Cameroun | NUTRELIS",
     description: "Livraison rapide dans tout le Cameroun. Douala, Yaoundé et toutes les villes.",
-    images: [{ url: "/images/astaxanthine/NUT2.png", width: 1200, height: 630, alt: "NUTRELIS — Livraison" }],
+    images: [{ url: "/images/og-boutique.jpg", width: 1200, height: 630, alt: "NUTRELIS — Livraison" }],
     siteName: "NUTRELIS",
     locale: "fr_CM",
     alternateLocale: ["en_CM"],
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "ATEZ Express Delivery — All Cameroon | NUTRELIS",
     description: "Fast delivery across Cameroon. Douala, Yaoundé and all cities.",
-    images: ["/images/astaxanthine/NUT2.png"],
+    images: ["/images/og-boutique.jpg"],
   },
   alternates: {
     canonical: `${SITE_URL}/livraison`,

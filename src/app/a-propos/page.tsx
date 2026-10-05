@@ -21,15 +21,15 @@ export default function APropos() {
         </Link>
         {!isSmall && (
           <div style={{ display: "flex", gap: 32 }}>
-            {[{ label: t("nav.products"), href: "/produits/astaxanthine-12mg" }, { label: t("nav.science"), href: "/science" }, { label: t("nav.reviews"), href: "/avis-clients" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
+            {[{ label: t("nav.products"), href: "/#produits" }, { label: t("nav.reviews"), href: "/avis-clients" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
               <Link key={item.href} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
             ))}
           </div>
         )}
         <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12 }}>
           <NavbarCart />
-          <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: isMobile ? "8px 12px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>
-            {isMobile ? t("nav.order") : t("nav.orderArrow")}
+          <Link href="/#produits" style={{ background: "var(--accent)", color: "#060f08", padding: isMobile ? "8px 12px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>
+            {isMobile ? t("home.navShop") : t("home.navShopArrow")}
           </Link>
         </div>
       </nav>
@@ -130,7 +130,7 @@ export default function APropos() {
           {t("about.ctaTitle")}
         </h2>
         <p style={{ color: "rgba(6,15,8,0.75)", fontSize: isMobile ? 14 : 16, marginBottom: isMobile ? 24 : 36 }}>{t("about.ctaDesc")}</p>
-        <Link href="/produits/astaxanthine-12mg" style={{ display: "inline-block", background: "#060f08", color: "#fff", padding: isMobile ? "14px 32px" : "18px 52px", borderRadius: 12, fontSize: isMobile ? 14 : 16, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
+        <Link href="/#produits" style={{ display: "inline-block", background: "#060f08", color: "#fff", padding: isMobile ? "14px 32px" : "18px 52px", borderRadius: 12, fontSize: isMobile ? 14 : 16, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
           {t("about.ctaBtn")}
         </Link>
       </section>
@@ -140,7 +140,7 @@ export default function APropos() {
         <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: isMobile ? "column" : "row", justifyContent: isMobile ? "center" : "space-between", alignItems: "center", gap: isMobile ? 10 : 0, textAlign: isMobile ? "center" : undefined }}>
           <span style={{ color: "rgba(255,255,255,0.4)", fontSize: isMobile ? 12 : 13 }}>{t("home.footerRights")}</span>
           <div style={{ display: "flex", gap: isMobile ? 16 : 24 }}>
-            {[{ label: t("about.footerHome"), href: "/" }, { label: t("about.footerProducts"), href: "/produits/astaxanthine-12mg" }, { label: t("about.footerContact"), href: "/contact" }].map(l => (
+            {[{ label: t("about.footerHome"), href: "/" }, { label: t("about.footerProducts"), href: "/#produits" }, { label: t("about.footerContact"), href: "/contact" }].map(l => (
               <Link key={l.href} href={l.href} style={{ color: "rgba(255,255,255,0.5)", fontSize: isMobile ? 12 : 13, textDecoration: "none" }}>{l.label}</Link>
             ))}
           </div>

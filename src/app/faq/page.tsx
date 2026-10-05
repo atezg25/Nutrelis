@@ -31,48 +31,51 @@ export default function FAQ() {
 
   const categories = [
     {
-      titre: "🌿 " + t("faqPage.cat1"),
+      titre: "🛍️ " + t("faqPage.cat1"),
       faqs: [
         { q: t("faqPage.faq1Q"), a: t("faqPage.faq1A") },
         { q: t("faqPage.faq2Q"), a: t("faqPage.faq2A") },
         { q: t("faqPage.faq3Q"), a: t("faqPage.faq3A") },
-        { q: t("faqPage.faq4Q"), a: t("faqPage.faq4A") },
-        { q: t("faqPage.faq5Q"), a: t("faqPage.faq5A") },
       ]
     },
     {
       titre: "⏱️ " + t("faqPage.cat2"),
       faqs: [
+        { q: t("faqPage.faq4Q"), a: t("faqPage.faq4A") },
+        { q: t("faqPage.faq5Q"), a: t("faqPage.faq5A") },
         { q: t("faqPage.faq6Q"), a: t("faqPage.faq6A") },
         { q: t("faqPage.faq7Q"), a: t("faqPage.faq7A") },
-        { q: t("faqPage.faq8Q"), a: t("faqPage.faq8A") },
-        { q: t("faqPage.faq9Q"), a: t("faqPage.faq9A") },
       ]
     },
     {
-      titre: "🔒 " + t("faqPage.cat3"),
+      titre: "💳 " + t("faqPage.cat3"),
       faqs: [
+        { q: t("faqPage.faq8Q"), a: t("faqPage.faq8A") },
+        { q: t("faqPage.faq9Q"), a: t("faqPage.faq9A") },
         { q: t("faqPage.faq10Q"), a: t("faqPage.faq10A") },
-        { q: t("faqPage.faq11Q"), a: t("faqPage.faq11A") },
-        { q: t("faqPage.faq12Q"), a: t("faqPage.faq12A") },
-        { q: t("faqPage.faq13Q"), a: t("faqPage.faq13A") },
       ]
     },
     {
       titre: "📦 " + t("faqPage.cat4"),
       faqs: [
-        { q: t("faqPage.faq14Q"), a: t("faqPage.faq14A") },
-        { q: t("faqPage.faq15Q"), a: t("faqPage.faq15A") },
-        { q: t("faqPage.faq16Q"), a: t("faqPage.faq16A") },
-        { q: t("faqPage.faq17Q"), a: t("faqPage.faq17A") },
+        { q: t("faqPage.faq11Q"), a: t("faqPage.faq11A") },
+        { q: t("faqPage.faq12Q"), a: t("faqPage.faq12A") },
       ]
     },
     {
-      titre: "↩️ " + t("faqPage.cat5"),
+      titre: "🔁 " + t("faqPage.cat5"),
       faqs: [
+        { q: t("faqPage.faq13Q"), a: t("faqPage.faq13A") },
+        { q: t("faqPage.faq14Q"), a: t("faqPage.faq14A") },
+        { q: t("faqPage.faq15Q"), a: t("faqPage.faq15A") },
+      ]
+    },
+    {
+      titre: "↩️ " + t("faqPage.cat6"),
+      faqs: [
+        { q: t("faqPage.faq16Q"), a: t("faqPage.faq16A") },
+        { q: t("faqPage.faq17Q"), a: t("faqPage.faq17A") },
         { q: t("faqPage.faq18Q"), a: t("faqPage.faq18A") },
-        { q: t("faqPage.faq19Q"), a: t("faqPage.faq19A") },
-        { q: t("faqPage.faq20Q"), a: t("faqPage.faq20A") },
       ]
     },
   ];
@@ -87,15 +90,15 @@ export default function FAQ() {
         </Link>
         {!isSmall && (
           <div style={{ display: "flex", gap: 32 }}>
-            {[{ label: t("nav.products"), href: "/produits/astaxanthine-12mg" }, { label: t("nav.science"), href: "/science" }, { label: t("nav.reviews"), href: "/avis-clients" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
+            {[{ label: t("nav.products"), href: "/#produits" }, { label: t("nav.reviews"), href: "/avis-clients" }, { label: t("nav.faq"), href: "/faq" }].map(item => (
               <Link key={item.href} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
             ))}
           </div>
         )}
         <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12 }}>
           <NavbarCart />
-          <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: isMobile ? "8px 12px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>
-            {isMobile ? t("nav.order") : t("nav.orderArrow")}
+          <Link href="/#produits" style={{ background: "var(--accent)", color: "#060f08", padding: isMobile ? "8px 12px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>
+            {isMobile ? t("home.navShop") : t("home.navShopArrow")}
           </Link>
         </div>
       </nav>
@@ -147,7 +150,7 @@ export default function FAQ() {
           <Link href="/contact" style={{ background: "var(--accent)", color: "#060f08", padding: "16px 40px", borderRadius: 10, fontSize: 15, fontWeight: 800, textDecoration: "none" }}>
             {t("faqPage.ctaContact")}
           </Link>
-          <Link href="/produits/astaxanthine-12mg" style={{ background: "#fff", color: "var(--accent)", padding: "16px 40px", borderRadius: 10, fontSize: 15, fontWeight: 700, textDecoration: "none", border: "1.5px solid var(--accent)" }}>
+          <Link href="/#produits" style={{ background: "#fff", color: "var(--accent)", padding: "16px 40px", borderRadius: 10, fontSize: 15, fontWeight: 700, textDecoration: "none", border: "1.5px solid var(--accent)" }}>
             {t("faqPage.ctaProduct")}
           </Link>
         </div>

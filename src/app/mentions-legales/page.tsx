@@ -31,15 +31,15 @@ export default function MentionsLegales() {
         </Link>
         {!isSmall && (
           <div style={{ display: "flex", gap: 32 }}>
-            {[{ label: t("nav.products"), href: "/produits/astaxanthine-12mg" }, { label: t("nav.faq"), href: "/faq" }, { label: t("mentions.footerContact"), href: "/contact" }].map(item => (
+            {[{ label: t("nav.products"), href: "/#produits" }, { label: t("nav.faq"), href: "/faq" }, { label: t("mentions.footerContact"), href: "/contact" }].map(item => (
               <Link key={item.href} href={item.href} style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{item.label}</Link>
             ))}
           </div>
         )}
         <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12 }}>
           <NavbarCart />
-          <Link href="/produits/astaxanthine-12mg" style={{ background: "var(--accent)", color: "#060f08", padding: isMobile ? "8px 12px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>
-            {isMobile ? t("nav.order") : t("nav.orderArrow")}
+          <Link href="/#produits" style={{ background: "var(--accent)", color: "#060f08", padding: isMobile ? "8px 12px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>
+            {isMobile ? t("home.navShop") : t("home.navShopArrow")}
           </Link>
         </div>
       </nav>

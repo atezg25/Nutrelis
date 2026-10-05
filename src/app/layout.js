@@ -22,8 +22,8 @@ const organizationJsonLd = {
   "@type": "Organization",
   name: "NUTRELIS",
   url: SITE_URL,
-  logo: `${SITE_URL}/images/astaxanthine/NUT2.png`,
-  description: "Compléments alimentaires premium à base d'actifs naturels pour le Cameroun",
+  logo: `${SITE_URL}/images/og-boutique.jpg`,
+  description: "Soins et compléments naturels, livrés partout au Cameroun",
   contactPoint: {
     "@type": "ContactPoint",
     email: "support@nutrelis.bio",
@@ -52,8 +52,8 @@ export const metadata = {
     "La boutique NUTRELIS : soins et compléments naturels, livrés partout au Cameroun. Paiement par Mobile Money ou à la livraison, garantie 90 jours.",
   keywords: [
     "compléments alimentaires Cameroun",
-    "astaxanthine 12mg",
-    "antioxydant naturel",
+    "soins naturels Cameroun",
+    "boutique en ligne Cameroun",
     "beauté peau Cameroun",
     "énergie vitalité",
     "NUTRELIS",
@@ -75,13 +75,13 @@ export const metadata = {
     siteName: "NUTRELIS",
     title: "NUTRELIS — Compléments Alimentaires Premium au Cameroun",
     description:
-      "L'Astaxanthine naturelle à dose clinique de 12mg. Peau lumineuse, énergie, protection cellulaire. Livraison ATEZ Express partout au Cameroun.",
+      "La boutique NUTRELIS : soins et compléments naturels, livrés partout au Cameroun. Paiement Mobile Money ou à la livraison, garantie 90 jours.",
     images: [
       {
-        url: "/images/astaxanthine/NUT2.png",
+        url: "/images/og-boutique.jpg",
         width: 1200,
         height: 630,
-        alt: "NUTRELIS Astaxanthine 12mg — Compléments Premium",
+        alt: "NUTRELIS — La boutique",
       },
     ],
   },
@@ -89,8 +89,8 @@ export const metadata = {
     card: "summary_large_image",
     title: "NUTRELIS — Compléments Alimentaires Premium au Cameroun",
     description:
-      "L'Astaxanthine naturelle à dose clinique de 12mg. Peau lumineuse, énergie, protection cellulaire.",
-    images: ["/images/astaxanthine/NUT2.png"],
+      "La boutique NUTRELIS : soins et compléments naturels, livrés partout au Cameroun.",
+    images: ["/images/og-boutique.jpg"],
   },
   alternates: {
     canonical: SITE_URL,

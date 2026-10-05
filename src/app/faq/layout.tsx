@@ -8,34 +8,18 @@ const faqJsonLd = {
   mainEntity: [
     {
       "@type": "Question",
-      name: "Qu'est-ce que l'astaxanthine ?",
+      name: "Comment passer commande sur NUTRELIS ?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "L'astaxanthine est un antioxydant naturel issu de la microalgue Haematococcus pluvialis, 6000× plus puissant que la Vitamine C.",
+        text: "Ouvrez la fiche du produit, choisissez votre pack, puis ajoutez-le au panier ou achetez directement. Les frais de livraison s'affichent avant le paiement.",
       },
     },
     {
       "@type": "Question",
-      name: "Quelle est la posologie recommandée ?",
+      name: "Quels moyens de paiement ?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "1 capsule de 12mg par jour, de préférence avec un repas contenant des graisses pour une meilleure absorption.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Quand vais-je voir les résultats ?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Les premiers résultats sont généralement visibles dès 2 semaines d'utilisation régulière.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Comment payer au Cameroun ?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Nous acceptons MTN Mobile Money et Orange Money via Notchpay, ainsi que les cartes bancaires.",
+        text: "Mobile Money en ligne (paiement sécurisé), ou espèces à la livraison.",
       },
     },
     {
@@ -43,39 +27,32 @@ const faqJsonLd = {
       name: "Quelle est la politique de retour ?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Garantie satisfait ou remboursé 90 jours pour les boîtes non ouvertes.",
+        text: "Garantie de 90 jours : voir les conditions sur la page Retours et remboursements. Seuls les produits non ouverts et non entamés peuvent être retournés.",
       },
     },
   ],
 };
 
 export const metadata: Metadata = {
-  title: "FAQ — Questions Fréquentes sur l'Astaxanthine et NUTRELIS",
+  title: "FAQ — Questions fréquentes sur les produits NUTRELIS",
   description:
-    "Réponses à toutes vos questions : posologie, effets, livraison, paiement Mobile Money, garantie 90 jours. — Answers to all your questions: dosage, effects, delivery, Mobile Money payment, 90-day guarantee.",
-  keywords: [
-    "FAQ astaxanthine",
-    "questions compléments alimentaires",
-    "posologie astaxanthine",
-    "livraison Cameroun",
-    "paiement Mobile Money",
-    "FAQ supplements Cameroon",
-  ],
+    "Commande, paiement, livraison, abonnement, retours et garantie : les réponses à vos questions sur les produits NUTRELIS au Cameroun. — Ordering, payment, delivery, subscription, returns: answers about NUTRELIS products in Cameroon.",
+  keywords: ["FAQ NUTRELIS", "livraison Cameroun", "paiement Mobile Money", "garantie 90 jours", "NUTRELIS questions"],
   openGraph: {
     type: "website",
     url: `${SITE_URL}/faq`,
-    title: "FAQ — Questions Fréquentes | NUTRELIS",
-    description: "Posologie, effets, livraison, paiement, garantie — toutes les réponses.",
-    images: [{ url: "/images/astaxanthine/NUT2.png", width: 1200, height: 630, alt: "NUTRELIS — FAQ" }],
+    title: "FAQ — Questions fréquentes | NUTRELIS",
+    description: "Commande, paiement, livraison, abonnement, retours et garantie.",
+    images: [{ url: "/images/og-boutique.jpg", width: 1200, height: 630, alt: "NUTRELIS — FAQ" }],
     siteName: "NUTRELIS",
     locale: "fr_CM",
     alternateLocale: ["en_CM"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FAQ — Frequently Asked Questions | NUTRELIS",
-    description: "Dosage, effects, delivery, payment, guarantee — all the answers.",
-    images: ["/images/astaxanthine/NUT2.png"],
+    title: "FAQ | NUTRELIS",
+    description: "Ordering, payment, delivery, subscription, returns and guarantee.",
+    images: ["/images/og-boutique.jpg"],
   },
   alternates: {
     canonical: `${SITE_URL}/faq`,
@@ -86,10 +63,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       {children}
     </>
   );

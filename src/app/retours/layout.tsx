@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/retours`,
     title: "Politique de Retours & Garantie 90 Jours | NUTRELIS",
     description: "Satisfait ou remboursé 90 jours. Boîte non ouverte = remboursement intégral.",
-    images: [{ url: "/images/astaxanthine/NUT2.png", width: 1200, height: 630, alt: "NUTRELIS — Retours" }],
+    images: [{ url: "/images/og-boutique.jpg", width: 1200, height: 630, alt: "NUTRELIS — Retours" }],
     siteName: "NUTRELIS",
     locale: "fr_CM",
     alternateLocale: ["en_CM"],
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Return Policy & 90-Day Guarantee | NUTRELIS",
     description: "90-day money-back guarantee. Unopened box = full refund.",
-    images: ["/images/astaxanthine/NUT2.png"],
+    images: ["/images/og-boutique.jpg"],
   },
   alternates: {
     canonical: `${SITE_URL}/retours`,

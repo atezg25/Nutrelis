@@ -17,13 +17,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${URL}/a-propos`,
+      url: `${URL}/produits/gel-exfoliant-orange`,
       lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
+      changeFrequency: "weekly",
+      priority: 0.9,
     },
     {
-      url: `${URL}/science`,
+      url: `${URL}/a-propos`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.7,

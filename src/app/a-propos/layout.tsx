@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: "À Propos de NUTRELIS — Notre Mission Santé au Cameroun",
     description:
       "Compléments alimentaires premium à base d'actifs naturels. Notre mission : rendre la santé optimale accessible au Cameroun.",
-    images: [{ url: "/images/astaxanthine/NUT2.png", width: 1200, height: 630, alt: "NUTRELIS — À Propos" }],
+    images: [{ url: "/images/og-boutique.jpg", width: 1200, height: 630, alt: "NUTRELIS — À Propos" }],
     siteName: "NUTRELIS",
     locale: "fr_CM",
     alternateLocale: ["en_CM"],
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "About NUTRELIS — Our Health Mission in Cameroon",
     description: "Premium natural supplements. Our mission: making optimal health accessible in Cameroon.",
-    images: ["/images/astaxanthine/NUT2.png"],
+    images: ["/images/og-boutique.jpg"],
   },
   alternates: {
     canonical: `${SITE_URL}/a-propos`,
