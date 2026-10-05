@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import MemoireProduit from "@/components/MemoireProduit";
 
 const SITE_URL = process.env.NEXT_PUBLIC_URL || "https://nutrelis.bio";
 
@@ -94,6 +95,7 @@ export default function AstaxanthineLayout({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
+      <MemoireProduit />
       {children}
     </>
   );

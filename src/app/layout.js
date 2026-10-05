@@ -49,7 +49,7 @@ export const metadata = {
     template: "%s | NUTRELIS",
   },
   description:
-    "NUTRELIS propose des compléments alimentaires d'excellence à base d'actifs naturels — Astaxanthine 12mg, livraison ATEZ Express au Cameroun. Résultats visibles dès 2 semaines.",
+    "La boutique NUTRELIS : soins et compléments naturels, livrés partout au Cameroun. Paiement par Mobile Money ou à la livraison, garantie 90 jours.",
   keywords: [
     "compléments alimentaires Cameroun",
     "astaxanthine 12mg",

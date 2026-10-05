@@ -4,12 +4,13 @@ import Link from "next/link";
 import Reveler from "@/components/Reveler";
 import ProductTemplate, { type ProduitCatalogue } from "@/components/ProductTemplate";
 import { useLocale } from "@/context/LocaleContext";
+import MemoireProduit from "@/components/MemoireProduit";
 
 /**
  * Page d'un produit ajouté depuis l'administration (tout produit autre que l'Astaxanthine, qui a sa page dédiée).
  * Elle reprend la charte et toutes les sections de la page principale : voir `ProductTemplate`.
  */
-export default function PageProduit({ params }: { params: Promise<{ slug: string }> }) {
+function PageProduitInterne({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const { locale } = useLocale();
   const fr = locale === "fr";
@@ -37,4 +38,14 @@ export default function PageProduit({ params }: { params: Promise<{ slug: string
     );
   }
   return <ProductTemplate produit={produit} autres={produits} />;
+}
+
+/** Mémorise la page visitée pour « Continuer mes achats », puis affiche le produit. */
+export default function PageProduit({ params }: { params: Promise<{ slug: string }> }) {
+  return (
+    <>
+      <MemoireProduit />
+      <PageProduitInterne params={params} />
+    </>
+  );
 }

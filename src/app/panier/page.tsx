@@ -23,6 +23,15 @@ export default function Panier() {
       .catch(() => undefined);
   }, []);
 
+  // « Continuer mes achats » : la dernière page produit visitée, sinon la boutique.
+  const [retour, setRetour] = useState("/#produits");
+  useEffect(() => {
+    try {
+      const r = localStorage.getItem("nutrelis-boutique-retour");
+      if (r && /^\/produits\/[^/]+$/.test(r)) setRetour(r);
+    } catch { /* retour vers la boutique */ }
+  }, []);
+
   return (
     <HydrationGuard bg="#fff" style={{ color: "#1a1a1a", minHeight: "100vh" }}>
 
@@ -32,7 +41,7 @@ export default function Panier() {
           <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: isMobile ? 22 : 32, width: "auto" }} />
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link href="/produits/astaxanthine-12mg" style={{ color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 12 : 14, textDecoration: "none" }}>
+          <Link href={retour} style={{ color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 12 : 14, textDecoration: "none" }}>
             ← {isMobile ? t("nav.products") : t("cart.continueShopping")}
           </Link>
         </div>
@@ -56,7 +65,7 @@ export default function Panier() {
             <p style={{ color: "#888", fontSize: 15, marginBottom: 36 }}>
               {t("cart.emptyDesc")}
             </p>
-            <Link href="/produits/astaxanthine-12mg" style={{ background: "#7D0806", color: "#fff", padding: "16px 40px", borderRadius: 10, fontSize: 15, fontWeight: 800, textDecoration: "none" }}>
+            <Link href={retour} style={{ background: "#7D0806", color: "#fff", padding: "16px 40px", borderRadius: 10, fontSize: 15, fontWeight: 800, textDecoration: "none" }}>
               {t("cart.seeProducts")}
             </Link>
           </div>
@@ -172,7 +181,7 @@ export default function Panier() {
                 {t("cart.placeOrder")}
               </Link>
 
-              <Link href="/produits/astaxanthine-12mg" style={{ display: "block", textAlign: "center", color: "#888", fontSize: 13, textDecoration: "none" }}>
+              <Link href={retour} style={{ display: "block", textAlign: "center", color: "#888", fontSize: 13, textDecoration: "none" }}>
                 ← {t("cart.continueShopping")}
               </Link>
 

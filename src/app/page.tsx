@@ -41,10 +41,10 @@ function Navbar() {
       {!isSmall && (
         <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
           {[
-            { label: t("nav.products"), href: "/produits/astaxanthine-12mg" },
-            { label: t("nav.science"), href: "/science" },
-            { label: t("nav.reviews"), href: "/avis-clients" },
-            { label: t("nav.faq"), href: "/faq" },
+            { label: t("home.navProducts"), href: "#produits" },
+            { label: t("home.footerShipping"), href: "/livraison" },
+            { label: t("home.footerAbout"), href: "/a-propos" },
+            { label: t("home.footerContact"), href: "/contact" },
           ].map((item) => (
             <Link key={item.label} href={item.href} style={{ color: "rgba(255,255,255,0.75)", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>
               {item.label}
@@ -56,14 +56,14 @@ function Navbar() {
       <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 8 }}>
         {!isMobile && <LanguageSwitcher />}
         <NavbarCart />
-        <Link href="/produits/astaxanthine-12mg" style={{
+        <Link href="#produits" style={{
           background: "var(--accent)", color: "#fff",
           padding: isMobile ? "7px 10px" : "10px 20px",
           borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 700, textDecoration: "none",
           fontFamily: "var(--font-sora), sans-serif",
           whiteSpace: "nowrap",
         }}>
-          {isMobile ? t("nav.order") : t("nav.orderArrow")}
+          {isMobile ? t("home.navShop") : t("home.navShopArrow")}
         </Link>
       </div>
     </nav>
@@ -79,24 +79,19 @@ export default function Homepage() {
   const fr = locale === "fr";
   // Catalogue : tous les produits actifs de la boutique (null tant qu'il n'est pas chargé).
   const [produits, setProduits] = useState<MedusaProduct[] | null>(null);
-  const [startPrice, setStartPrice] = useState(15000);
-  const [oldPrice, setOldPrice] = useState(18750);
+  // Avis vérifiés (achat livré, validés dans la console), tous produits confondus.
+  const [avisBoutique, setAvisBoutique] = useState<{ rating: number; body: string; display_name: string; city: string | null; produit: string }[]>([]);
 
-  // Charger le prix depuis Medusa
   useEffect(() => {
-    fetchProducts().then(products => {
-      setProduits(products);
-      const astax = products.find(p => p.handle === "astaxanthine-12mg");
-      if (!astax) return;
-      const v1 = astax.variants.find(v => v.sku === "NUT-AX-1P");
-      if (v1) {
-        const price = getVariantPrice(v1);
-        if (price > 0) {
-          setStartPrice(price);
-          setOldPrice(Math.round(price * 1.25));
-        }
-      }
-    });
+    fetchProducts().then(setProduits);
+    void fetch("/api/catalog", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        const tous: { rating: number; body: string; display_name: string; city: string | null; produit: string }[] = [];
+        for (const p of d?.products ?? []) for (const a of p.avisVerifies ?? []) tous.push({ ...a, produit: p.name });
+        setAvisBoutique(tous.slice(0, 6));
+      })
+      .catch(() => undefined);
   }, []);
 
   const px = isMobile ? "16px" : isTablet ? "32px" : "60px";
@@ -119,7 +114,7 @@ export default function Homepage() {
         </div>
       )}
 
-      {/* HERO */}
+      {/* HERO : la boutique, tous les produits (aucun produit n'est mis en avant ici) */}
       <section style={{
         background: "radial-gradient(ellipse at 30% 50%, rgba(29,185,84,0.12) 0%, transparent 60%), var(--bg-primary)",
         display: "flex", alignItems: "center",
@@ -129,99 +124,78 @@ export default function Homepage() {
         <div style={{ maxWidth: 1280, margin: "0 auto", width: "100%" }}>
           <div style={{
             display: "grid",
-            gridTemplateColumns: isDesktop ? "1fr 1fr" : "1fr",
+            gridTemplateColumns: isDesktop ? "minmax(0, 1fr) minmax(0, 1fr)" : "minmax(0, 1fr)",
             gap: isMobile ? 32 : isTablet ? 48 : 80,
             alignItems: "center",
           }}>
-            {/* Image */}
-            <div style={{ position: "relative", display: "flex", justifyContent: "center", order: isMobile ? 1 : 1 }}>
-              <div style={{ position: "absolute", inset: "10%", background: "radial-gradient(circle, rgba(29,185,84,0.15) 0%, transparent 70%)", borderRadius: "50%" }} />
+            {/* Tous les produits de la boutique, côte à côte */}
+            <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "flex-end", minHeight: isMobile ? 220 : 340 }}>
+              <div style={{ position: "absolute", inset: "6%", background: "radial-gradient(circle, rgba(29,185,84,0.15) 0%, transparent 70%)", borderRadius: "50%" }} />
               <div style={{
-                position: "absolute", top: "8%", left: isMobile ? "2%" : "5%", zIndex: 2,
-                width: isMobile ? 62 : isTablet ? 76 : 90,
-                height: isMobile ? 62 : isTablet ? 76 : 90,
-                borderRadius: "50%", background: "#fff", border: "3px solid var(--accent)",
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                boxShadow: "0 4px 16px rgba(29,185,84,0.25)",
-              }}>
-                <span style={{ fontSize: isMobile ? 14 : 18 }}>🌿</span>
-                <span style={{ color: "#1a7a3c", fontSize: isMobile ? 6 : 8, fontWeight: 800, textAlign: "center" }}>{t("common.natural100").split("\n").map((line, i, arr) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</span>
-              </div>
-              <div style={{
-                position: "absolute", top: "8%", right: isMobile ? "2%" : "5%", zIndex: 2,
-                width: isMobile ? 62 : isTablet ? 76 : 90,
-                height: isMobile ? 62 : isTablet ? 76 : 90,
+                position: "absolute", top: "4%", right: isMobile ? "2%" : "5%", zIndex: 2,
+                width: isMobile ? 62 : isTablet ? 76 : 90, height: isMobile ? 62 : isTablet ? 76 : 90,
                 borderRadius: "50%", background: "#fff", border: "3px solid var(--accent)",
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
                 boxShadow: "0 4px 16px rgba(29,185,84,0.25)",
               }}>
                 <span style={{ color: "var(--accent)", fontSize: isMobile ? 16 : 22, fontWeight: 900, lineHeight: 1 }}>90</span>
                 <span style={{ color: "var(--accent)", fontSize: isMobile ? 6 : 8, fontWeight: 800 }}>{t("common.days")}</span>
-                <span style={{ color: "#888", fontSize: 6, textAlign: "center" }}>{t("common.satisfiedOrRefunded").split("\n").map((line, i, arr) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</span>
               </div>
-              <img
-                src="/images/astaxanthine/img_transparent.png"
-                alt="NUTRELIS Astaxanthine"
-                style={{
-                  width: isMobile ? "60%" : isTablet ? "50%" : "70%",
-                  maxWidth: isMobile ? 220 : 320,
-                  height: "auto", objectFit: "contain", position: "relative", zIndex: 1,
-                  filter: "drop-shadow(0 20px 60px rgba(29,185,84,0.2))",
-                }}
-              />
+              {(produits ?? []).filter((p) => p.thumbnail).slice(0, 3).map((p, i) => (
+                <img key={p.id} src={p.thumbnail as string} alt={p.title}
+                  style={{
+                    height: isMobile ? 190 : isTablet ? 260 : 320, width: "auto", maxWidth: "46%", objectFit: "contain",
+                    position: "relative", zIndex: 1, marginLeft: i === 0 ? 0 : isMobile ? -18 : -28,
+                    filter: "drop-shadow(0 20px 40px rgba(29,185,84,0.2))",
+                  }} />
+              ))}
             </div>
 
             {/* Texte */}
-            <div style={{ order: isMobile ? 2 : 2, textAlign: isMobile ? "center" : "left" }}>
+            <div style={{ textAlign: isMobile ? "center" : "left" }}>
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 background: "rgba(29,185,84,0.1)", border: "1px solid rgba(29,185,84,0.3)",
                 borderRadius: 20, padding: "6px 14px", marginBottom: 20,
               }}>
                 <span style={{ color: "var(--accent)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 1 }}>
-                  {t("home.ratedBadge")}
+                  {t("home.shopPill")}
                 </span>
               </div>
 
               <h1 style={{
                 fontFamily: "var(--font-sora), sans-serif",
                 fontSize: isMobile ? "1.6rem" : isTablet ? "2.2rem" : "clamp(2.4rem, 4vw, 3.8rem)",
-                fontWeight: 900, lineHeight: 1.15,
-                marginBottom: 18, letterSpacing: -0.5,
+                fontWeight: 900, lineHeight: 1.15, marginBottom: 18, letterSpacing: -0.5,
               }}>
-                {t("home.heroTitlePart1")}{" "}
-                <span style={{ color: "var(--accent)" }}>{t("home.heroTitleHighlight")}</span>
-                {" "}{t("home.heroTitlePart2")}
+                {t("home.shopTitle1")}{" "}
+                <span style={{ color: "var(--accent)" }}>{t("home.shopTitleHighlight")}</span>
               </h1>
 
               <p style={{
-                color: "rgba(255,255,255,0.65)",
-                fontSize: isMobile ? 14 : isTablet ? 16 : 18,
-                lineHeight: 1.8, marginBottom: 28,
-                maxWidth: isMobile ? "100%" : 480,
-                margin: isMobile ? "0 auto 28px" : "0 0 28px 0",
+                color: "rgba(255,255,255,0.65)", fontSize: isMobile ? 14 : isTablet ? 16 : 18, lineHeight: 1.8,
+                maxWidth: isMobile ? "100%" : 520, margin: isMobile ? "0 auto 28px" : "0 0 28px 0",
               }}>
-                {t("home.heroShortDesc")}
+                {t("home.shopDesc")}
               </p>
 
               <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 32, justifyContent: isMobile ? "center" : "flex-start", flexWrap: "wrap" }}>
-                <Link href="/produits/astaxanthine-12mg" style={{
+                <Link href="#produits" style={{
                   background: "var(--accent)", color: "#fff",
                   padding: isMobile ? "14px 24px" : "18px 40px", borderRadius: 12,
                   fontSize: isMobile ? 14 : 16, fontWeight: 900, textDecoration: "none",
-                  fontFamily: "var(--font-sora), sans-serif",
-                  boxShadow: "0 8px 32px rgba(29,185,84,0.35)",
+                  fontFamily: "var(--font-sora), sans-serif", boxShadow: "0 8px 32px rgba(29,185,84,0.35)",
                 }}>
-                  {t("home.discoverProducts")}
+                  {t("home.shopCta")}
                 </Link>
               </div>
 
               <div style={{ display: "flex", gap: isMobile ? 20 : 40, justifyContent: isMobile ? "center" : "flex-start", flexWrap: "wrap" }}>
                 {[
-                  { val: "12 000+", label: t("home.statClients") },
-                  { val: "4.8/5", label: t("home.statRating") },
-                  { val: "90j", label: t("home.statGuarantee") },
-                ].map((stat, i) => (
+                  { val: String((produits ?? []).length || ""), label: t("home.statProducts") },
+                  { val: "24 h", label: t("home.statShip") },
+                  { val: "90 j", label: t("home.statWarranty") },
+                ].filter((s) => s.val !== "").map((stat, i) => (
                   <div key={i} style={{ textAlign: isMobile ? "center" : "left" }}>
                     <div style={{ color: "var(--accent)", fontSize: isMobile ? 17 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>{stat.val}</div>
                     <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>{stat.label}</div>
@@ -237,10 +211,10 @@ export default function Homepage() {
       <section style={{ background: "rgba(29,185,84,0.08)", borderTop: "1px solid rgba(29,185,84,0.15)", borderBottom: "1px solid rgba(29,185,84,0.15)", padding: `18px ${px}` }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "center", gap: isMobile ? 12 : 40, flexWrap: "wrap" }}>
           {[
-            { icon: "🔬", label: isMobile ? t("home.clinicalFormulaShort") : t("home.clinicalFormula") },
-            { icon: "✅", label: isMobile ? t("home.certifiedShort") : t("home.certified") },
-            { icon: "🌿", label: t("home.naturalIngredients") },
-            { icon: "🚚", label: isMobile ? t("home.expressDeliveryShort") : t("home.expressDeliveryLabel") },
+            { icon: "🚚", label: t("home.trustDelivery") },
+            { icon: "📱", label: t("home.trustPay") },
+            { icon: "✅", label: t("home.trustGuarantee") },
+            { icon: "📦", label: t("home.trustShip") },
           ].map((b, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ fontSize: isMobile ? 14 : 18 }}>{b.icon}</span>
@@ -261,41 +235,8 @@ export default function Homepage() {
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 20 : 24 }}>
-            {/* Produit vedette */}
-            {(produits === null || produits.some((p) => p.handle === "astaxanthine-12mg")) && (
-            <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(29,185,84,0.3)", borderRadius: isMobile ? 16 : 24, overflow: "hidden" }}>
-              <div style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(29,185,84,0.12) 0%, rgba(6,15,8,0.8) 100%)", padding: isMobile ? "24px 20px" : "32px", textAlign: "center", position: "relative" }}>
-                <div style={{ position: "absolute", top: 12, right: 12, background: "var(--accent)", color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 10px", borderRadius: 20 }}>−20%</div>
-                <img src="/images/astaxanthine/img_transparent.png" alt="Astaxanthine"
-                  style={{ width: isMobile ? "45%" : "55%", maxWidth: isMobile ? 130 : 160, height: "auto", objectFit: "contain", margin: "12px auto 0", display: "block" }} />
-              </div>
-              <div style={{ padding: isMobile ? "16px" : "28px" }}>
-                <p style={{ color: "var(--accent)", fontSize: 11, fontWeight: 700, letterSpacing: 1.5, marginBottom: 8 }}>{t("home.premiumAntioxidant")}</p>
-                <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 16 : 20, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>{t("home.astaxanthin12mg")}</h3>
-                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: isMobile ? 13 : 14, lineHeight: 1.7, marginBottom: 14 }}>
-                  {t("home.astaxanthinDesc")}
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
-                  {[t("home.tagSkin"), t("home.tagEyes"), t("home.tagEnergy"), t("home.tagAntiAge")].map((tag, i) => (
-                    <span key={i} style={{ background: "rgba(29,185,84,0.1)", color: "var(--accent)", fontSize: isMobile ? 10 : 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20, border: "1px solid rgba(29,185,84,0.2)" }}>{tag}</span>
-                  ))}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
-                  <div>
-                    <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, textDecoration: "line-through", marginRight: 6 }}>{oldPrice.toLocaleString("fr-FR")} F</span>
-                    <span style={{ color: "var(--accent)", fontSize: isMobile ? 16 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>{startPrice.toLocaleString("fr-FR")} FCFA</span>
-                  </div>
-                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>★★★★★</div>
-                </div>
-                <Link href="/produits/astaxanthine-12mg" style={{ display: "block", textAlign: "center", background: "var(--accent)", color: "#fff", padding: isMobile ? "12px" : "14px", borderRadius: 10, fontSize: isMobile ? 13 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
-                  {t("home.discover")}
-                </Link>
-              </div>
-            </div>
-            )}
-
-            {/* Les autres produits de la boutique : ajoutés depuis la console, ils apparaissent ici tout seuls */}
-            {(produits ?? []).filter((p) => p.handle !== "astaxanthine-12mg").map((p) => {
+            {/* Tous les produits de la boutique, ajoutés depuis la console : ils apparaissent ici tout seuls */}
+            {(produits ?? []).map((p) => {
               const prix = Math.min(...p.variants.map(getVariantPrice));
               const plusieurs = p.variants.length > 1;
               // Remise = la meilleure économie réelle d'un pack (prix du pack vs prix barré de CE pack), pas prix mini vs barré maxi.
@@ -362,10 +303,10 @@ export default function Homepage() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : isTablet ? "1fr 1fr" : "repeat(4, 1fr)", gap: isMobile ? 14 : 24 }}>
             {[
-              { icon: "🔬", titre: t("home.clinicalDosage"), desc: t("home.clinicalDosageDesc") },
-              { icon: "🌿", titre: t("home.natural"), desc: t("home.naturalDesc") },
-              { icon: "✅", titre: t("home.testedCertified"), desc: t("home.testedCertifiedDesc") },
-              { icon: "🛡️", titre: t("home.guaranteed90"), desc: t("home.guaranteed90Desc") },
+              { icon: "🚚", titre: t("home.whyDelivery"), desc: t("home.whyDeliveryDesc") },
+              { icon: "📱", titre: t("home.whyPay"), desc: t("home.whyPayDesc") },
+              { icon: "🛡️", titre: t("home.whyWarranty"), desc: t("home.whyWarrantyDesc") },
+              { icon: "💬", titre: t("home.whySupport"), desc: t("home.whySupportDesc") },
             ].map((item, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(29,185,84,0.15)", borderRadius: isMobile ? 16 : 20, padding: isMobile ? "16px 14px" : "32px 28px" }}>
                 <div style={{ width: isMobile ? 40 : 52, height: isMobile ? 40 : 52, borderRadius: 12, background: "rgba(29,185,84,0.1)", border: "1px solid rgba(29,185,84,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: isMobile ? 18 : 24, marginBottom: 14 }}>{item.icon}</div>
@@ -377,60 +318,53 @@ export default function Homepage() {
         </div>
       </section>
 
-      {/* AVIS CLIENTS */}
+      {/* AVIS CLIENTS : uniquement les avis vérifiés (achat livré, validés dans la console) ; la section n'existe pas sans avis */}
+      {avisBoutique.length > 0 && (
       <section style={{ padding: `${py} ${px}` }}>
         <div style={{ maxWidth: 1280, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: isMobile ? 32 : 48 }}>
-            <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("home.testimonialsTag")}</p>
+            <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 12 }}>{t("home.shopReviewsTag")}</p>
             <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.3rem" : isTablet ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800 }}>
-              {t("home.transformedHealth")}
+              {t("home.shopReviewsTitle")}
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 16 : 24 }}>
-            {[
-              { nom: "Marie Ange", img: "/images/astaxanthine/designfreek-ai-generated-8702314-1.jpg", texte: t("home.review1Text"), semaines: t("home.review1Weeks") },
-              { nom: "Christine", img: "/images/astaxanthine/counselling-woman-628928-1.jpg", texte: t("home.review2Text"), semaines: t("home.review2Weeks") },
-              { nom: "Audrey", img: "/images/astaxanthine/awala-bride-5521283-1.jpg", texte: t("home.review3Text"), semaines: t("home.review3Weeks") },
-            ].map((avis, i) => (
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : isTablet ? "repeat(2, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))", gap: isMobile ? 16 : 24 }}>
+            {avisBoutique.map((avis, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(29,185,84,0.15)", borderRadius: 20, padding: isMobile ? "20px" : "28px" }}>
-                <div style={{ color: "var(--accent)", fontSize: 16, marginBottom: 12 }}>★★★★★</div>
-                <p style={{ color: "rgba(255,255,255,0.75)", fontSize: isMobile ? 14 : 15, lineHeight: 1.8, marginBottom: 20, fontStyle: "italic" }}>&ldquo;{avis.texte}&rdquo;</p>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: "50%", overflow: "hidden", border: "2px solid var(--accent)", flexShrink: 0 }}>
-                      <img src={avis.img} alt={avis.nom} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    </div>
-                    <div>
-                      <p style={{ fontWeight: 700, fontSize: 13 }}>{avis.nom}</p>
-                      <p style={{ color: "var(--accent)", fontSize: 11, fontWeight: 600 }}>✓ {t("home.verifiedClient")}</p>
-                    </div>
+                <div style={{ color: "var(--accent)", fontSize: 16, marginBottom: 12 }}>{"★".repeat(avis.rating)}</div>
+                <p style={{ color: "rgba(255,255,255,0.75)", fontSize: isMobile ? 14 : 15, lineHeight: 1.8, marginBottom: 20, fontStyle: "italic" }}>&ldquo;{avis.body}&rdquo;</p>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                  <div>
+                    <p style={{ fontWeight: 700, fontSize: 13 }}>{avis.display_name}{avis.city ? ` · ${avis.city}` : ""}</p>
+                    <p style={{ color: "var(--accent)", fontSize: 11, fontWeight: 600 }}>✓ {t("home.verifiedClient")}</p>
                   </div>
-                  <span style={{ background: "rgba(29,185,84,0.1)", color: "var(--accent)", fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 20, flexShrink: 0 }}>{avis.semaines}</span>
+                  <span style={{ background: "rgba(29,185,84,0.1)", color: "var(--accent)", fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 20, flexShrink: 0 }}>{avis.produit}</span>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </section>
+      )}
 
       {/* CTA FINAL */}
       <section style={{ padding: `${py} ${px}`, background: "radial-gradient(ellipse at 50% 50%, rgba(29,185,84,0.12) 0%, transparent 70%)", textAlign: "center", borderTop: "1px solid rgba(29,185,84,0.1)" }}>
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
           <p style={{ color: "var(--accent)", fontSize: 12, fontWeight: 700, letterSpacing: 2, marginBottom: 16 }}>{t("home.startToday")}</p>
           <h2 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? "1.5rem" : isTablet ? "1.8rem" : "clamp(2rem, 3vw, 2.8rem)", fontWeight: 900, marginBottom: 20, lineHeight: 1.2 }}>
-            {t("home.transformHealth")}
+            {t("home.shopCtaTitle")}
           </h2>
           <p style={{ color: "rgba(255,255,255,0.6)", fontSize: isMobile ? 14 : 17, lineHeight: 1.8, marginBottom: 32 }}>
-            {t("home.join12000")}
+            {t("home.shopCtaDesc")}
           </p>
-          <Link href="/produits/astaxanthine-12mg" style={{
+          <Link href="#produits" style={{
             display: "inline-block", background: "var(--accent)", color: "#fff",
             padding: isMobile ? "15px 28px" : "20px 56px", borderRadius: 14,
             fontSize: isMobile ? 14 : 17, fontWeight: 900, textDecoration: "none",
             fontFamily: "var(--font-sora), sans-serif",
             boxShadow: "0 8px 40px rgba(29,185,84,0.4)", marginBottom: 16,
           }}>
-            {t("home.orderNow70")}
+            {t("home.shopCtaBtn")}
           </Link>
           <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>
             {t("home.guarantee90Free")}
@@ -453,8 +387,8 @@ export default function Homepage() {
               </p>
             </div>
             {[
-              { titre: t("home.footerProducts"), liens: [{ label: t("home.astaxanthin12mg"), href: "/produits/astaxanthine-12mg" }, { label: t("home.collagenName"), href: "#" }, { label: t("home.omega3Name"), href: "#" }] },
-              { titre: t("home.footerCompany"), liens: [{ label: t("home.footerAbout"), href: "/a-propos" }, { label: t("home.footerScience"), href: "/science" }, { label: t("home.footerBlog"), href: "/blog" }] },
+              { titre: t("home.footerProducts"), liens: [...(produits ?? []).map((p) => ({ label: p.title, href: `/produits/${p.handle}` })), { label: t("home.navShop"), href: "#produits" }] },
+              { titre: t("home.footerCompany"), liens: [{ label: t("home.footerAbout"), href: "/a-propos" }, { label: t("home.footerBlog"), href: "/blog" }] },
               { titre: t("home.footerSupport"), liens: [{ label: t("home.footerFaq"), href: "/faq" }, { label: t("home.footerContact"), href: "/contact" }, { label: t("home.footerShipping"), href: "/livraison" }] },
             ].map((col, i) => (
               <div key={i}>
