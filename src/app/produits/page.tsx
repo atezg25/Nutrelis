@@ -24,7 +24,7 @@ export default function Produits() {
           return (
             <Link key={p.id} href={`/produits/${p.handle}`} style={{ textDecoration: "none", color: "inherit", border: "1.5px solid #e4e7e2", borderRadius: 18, padding: 18, display: "block", background: "#fff" }}>
               <div style={{ height: 180, display: "flex", alignItems: "center", justifyContent: "center", background: "#f6f7f5", borderRadius: 12, marginBottom: 12 }}>
-                {p.thumbnail ? <img src={p.thumbnail} alt={p.title} style={{ maxHeight: 160, maxWidth: "90%", objectFit: "contain" }} /> : <span style={{ fontSize: 48 }}>🌿</span>}
+                {p.thumbnail ? <div style={{ height: 160, aspectRatio: "4 / 5" }}><img src={p.thumbnail} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} /></div> : <span style={{ fontSize: 48 }}>🌿</span>}
               </div>
               <div style={{ fontWeight: 800, fontSize: 17 }}>{p.title}</div>
               {p.subtitle && <div style={{ color: "#777", fontSize: 13 }}>{p.subtitle}</div>}
