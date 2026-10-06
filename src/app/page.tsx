@@ -305,7 +305,7 @@ export default function Homepage() {
             </h2>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : isTablet ? "1fr 1fr" : "repeat(3, 1fr)", gap: isMobile ? 20 : 24 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : isTablet ? "repeat(2, minmax(0, 1fr))" : "repeat(3, minmax(0, 1fr))", gap: isMobile ? 12 : 24 }}>
             {/* Tous les produits de la boutique, ajoutés depuis la console : ils apparaissent ici tout seuls */}
             {(produits ?? []).map((p) => {
               const prix = Math.min(...p.variants.map(getVariantPrice));
@@ -319,24 +319,24 @@ export default function Homepage() {
               const dispo = p.variants.some((v) => v.inStock !== false);
               return (
                 <div key={p.id} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(29,185,84,0.3)", borderRadius: isMobile ? 16 : 24, overflow: "hidden" }}>
-                  <div style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(29,185,84,0.12) 0%, rgba(6,15,8,0.8) 100%)", padding: isMobile ? "24px 20px" : "32px", textAlign: "center", position: "relative" }}>
-                    {remise > 0 && <div style={{ position: "absolute", top: 12, right: 12, background: "var(--accent)", color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 10px", borderRadius: 20 }}>−{remise}%</div>}
+                  <div style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(29,185,84,0.12) 0%, rgba(6,15,8,0.8) 100%)", padding: isMobile ? "14px 10px" : isTablet ? "22px" : "32px", textAlign: "center", position: "relative" }}>
+                    {remise > 0 && <div style={{ position: "absolute", top: isMobile ? 6 : 12, right: isMobile ? 6 : 12, background: "var(--accent)", color: "#fff", fontSize: isMobile ? 10 : 11, fontWeight: 800, padding: "4px 10px", borderRadius: 20 }}>−{remise}%</div>}
                     {p.thumbnail
-                      ? <div style={{ width: "100%", maxWidth: 340, aspectRatio: "4 / 5", margin: "12px auto 0" }}><img src={p.thumbnail} alt={p.title} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} /></div>
+                      ? <div style={{ width: "100%", maxWidth: isMobile ? 150 : isTablet ? 230 : 340, aspectRatio: "4 / 5", margin: isMobile ? "6px auto 0" : "12px auto 0" }}><img src={p.thumbnail} alt={p.title} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} /></div>
                       : <span style={{ fontSize: isMobile ? 48 : 64, opacity: 0.5 }}>🌿</span>}
                   </div>
-                  <div style={{ padding: isMobile ? "16px" : "28px" }}>
+                  <div style={{ padding: isMobile ? "12px" : isTablet ? "20px" : "28px" }}>
                     {p.subtitle && <p style={{ color: "var(--accent)", fontSize: 11, fontWeight: 700, letterSpacing: 1.5, marginBottom: 8, textTransform: "uppercase" }}>{p.subtitle}</p>}
-                    <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 16 : 20, fontWeight: 800, marginBottom: 10, lineHeight: 1.3 }}>{p.title}</h3>
-                    {p.description && <p style={{ color: "rgba(255,255,255,0.55)", fontSize: isMobile ? 13 : 14, lineHeight: 1.7, marginBottom: 14, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.description}</p>}
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+                    <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: isMobile ? 14 : isTablet ? 17 : 20, fontWeight: 800, marginBottom: isMobile ? 6 : 10, lineHeight: 1.3 }}>{p.title}</h3>
+                    {p.description && !isMobile && <p style={{ color: "rgba(255,255,255,0.55)", fontSize: isMobile ? 13 : 14, lineHeight: 1.7, marginBottom: 14, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.description}</p>}
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: isMobile ? 10 : 14, flexWrap: "wrap" }}>
                       {prix > 0
                         ? <><span style={{ color: "rgba(255,255,255,0.45)", fontSize: 12 }}>{plusieurs ? (fr ? "À partir de" : "From") : ""}</span>
-                          <span style={{ color: "var(--accent)", fontSize: isMobile ? 16 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>{prix.toLocaleString("fr-FR")} FCFA</span></>
+                          <span style={{ color: "var(--accent)", fontSize: isMobile ? 14 : 22, fontWeight: 900, fontFamily: "var(--font-sora), sans-serif" }}>{prix.toLocaleString("fr-FR")} FCFA</span></>
                         : null}
                       {!dispo && <span style={{ color: "#f87171", fontSize: 12, fontWeight: 700 }}>{fr ? "Rupture de stock" : "Out of stock"}</span>}
                     </div>
-                    <Link href={`/produits/${p.handle}`} style={{ display: "block", textAlign: "center", background: "var(--accent)", color: "#fff", padding: isMobile ? "12px" : "14px", borderRadius: 10, fontSize: isMobile ? 13 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
+                    <Link href={`/produits/${p.handle}`} style={{ display: "block", textAlign: "center", background: "var(--accent)", color: "#fff", padding: isMobile ? "10px 6px" : "14px", borderRadius: 10, fontSize: isMobile ? 12 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif" }}>
                       {t("home.discover")}
                     </Link>
                   </div>
