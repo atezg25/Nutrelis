@@ -525,7 +525,7 @@ function RaisonsSection() {
           key={i}
           onClick={() => setActive(isOpen ? null : i)}
           style={{
-            gridColumn: isMobileR && i === raisons.length - 1 ? "1 / -1" : undefined,
+            ...(isMobileR && i === raisons.length - 1 ? { gridColumn: "1 / -1", width: "calc(50% - 5px)", justifySelf: "center" } : {}),
             background: "#fff",
             borderRadius: R,
             border: `2px solid ${isOpen ? "var(--gel-accent)" : "var(--gel-border)"}`,
