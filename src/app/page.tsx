@@ -322,7 +322,7 @@ export default function Homepage() {
                   <div style={{ background: "radial-gradient(ellipse at 50% 60%, rgba(29,185,84,0.12) 0%, rgba(6,15,8,0.8) 100%)", padding: isMobile ? "14px 10px" : isTablet ? "22px" : "32px", textAlign: "center", position: "relative" }}>
                     {remise > 0 && <div style={{ position: "absolute", top: isMobile ? 6 : 12, right: isMobile ? 6 : 12, background: "var(--accent)", color: "#fff", fontSize: isMobile ? 10 : 11, fontWeight: 800, padding: "4px 10px", borderRadius: 20 }}>−{remise}%</div>}
                     {p.thumbnail
-                      ? <div style={{ width: "100%", maxWidth: isMobile ? 150 : isTablet ? 230 : 340, aspectRatio: "4 / 5", margin: isMobile ? "6px auto 0" : "12px auto 0" }}><img src={p.thumbnail} alt={p.title} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} /></div>
+                      ? <div style={{ width: "100%", maxWidth: isMobile ? 112 : isTablet ? 190 : 340, aspectRatio: "4 / 5", margin: isMobile ? "6px auto 0" : "12px auto 0" }}><img src={p.thumbnail} alt={p.title} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} /></div>
                       : <span style={{ fontSize: isMobile ? 48 : 64, opacity: 0.5 }}>🌿</span>}
                   </div>
                   <div style={{ padding: isMobile ? "12px" : isTablet ? "20px" : "28px" }}>
