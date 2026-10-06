@@ -476,7 +476,7 @@ function RaisonsSection() {
   const scR = useScreenSize();
   const isMobileR = scR === "mobile";
   const isTabletR = scR === "tablet";
-  const colsR = isMobileR ? "1fr" : isTabletR ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
+  const colsR = isMobileR ? "repeat(2, minmax(0, 1fr))" : isTabletR ? "repeat(3, 1fr)" : "repeat(5, 1fr)";
   const { t } = useLocale();
   const raisons = [
     {
@@ -525,6 +525,7 @@ function RaisonsSection() {
           key={i}
           onClick={() => setActive(isOpen ? null : i)}
           style={{
+            gridColumn: isMobileR && (isOpen || i === raisons.length - 1) ? "1 / -1" : undefined,
             background: "#fff",
             borderRadius: R,
             border: `2px solid ${isOpen ? "var(--gel-accent)" : "var(--gel-border)"}`,
