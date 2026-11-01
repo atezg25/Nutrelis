@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/produits/gel-exfoliant-orange`,
     title: "NUTRELIS Gel exfoliant aux enzymes d’orange",
     description: "Une exfoliation douce en 60 secondes, sans grains abrasifs. Livraison partout au Cameroun.",
-    images: [{ url: "/images/gel/NUT2.png", width: 1200, height: 630, alt: "NUTRELIS Gel exfoliant à l’orange" }],
+    images: [{ url: "/api/og/gel-exfoliant-orange", width: 1200, height: 630, alt: "NUTRELIS Gel exfoliant à l’orange" }],
     siteName: "NUTRELIS",
     locale: "fr_CM",
     alternateLocale: ["en_CM"],

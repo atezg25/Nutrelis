@@ -58,7 +58,7 @@ export const metadata: Metadata = {
       "6000× plus puissante que la Vitamine C. Résultats visibles dès 2 semaines : peau lumineuse, énergie stable, protection cellulaire. Livraison partout au Cameroun.",
     images: [
       {
-        url: "/images/astaxanthine/NUT2.png",
+        url: "/api/og/astaxanthine-12mg",
         width: 1200,
         height: 630,
         alt: "NUTRELIS Astaxanthine 12mg — Premium Supplement",
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     title: "NUTRELIS Astaxanthin 12mg — The World's Most Powerful Antioxidant",
     description:
       "6000× more powerful than Vitamin C. Visible results in 2 weeks. Delivery in Cameroon. 90-day money-back guarantee.",
-    images: ["/images/astaxanthine/NUT2.png"],
+    images: ["/api/og/astaxanthine-12mg"],
   },
   alternates: {
     canonical: `${SITE_URL}/produits/astaxanthine-12mg`,
