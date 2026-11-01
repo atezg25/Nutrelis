@@ -957,7 +957,7 @@ const fr: Record<string, any> = {
     emailVal: "support@nutrelis.bio",
     emailDesc: "Réponse sous 24h ouvrées",
     whatsappTitle: "WhatsApp",
-    whatsappVal: "+237 6XX XXX XXX",
+    whatsappVal: "+237 677 04 32 75",
     whatsappDesc: "Lun–Ven, 8h–18h (heure Cameroun)",
     addressTitle: "Siège",
     addressVal: "Douala, Cameroun",
