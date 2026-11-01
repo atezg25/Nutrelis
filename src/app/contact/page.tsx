@@ -7,7 +7,10 @@ import { useScreenSize } from "@/hooks/useIsMobile";
 import HydrationGuard from "@/components/HydrationGuard";
 
 export default function Contact() {
-  const { t } = useLocale();
+  const { t, contact } = useLocale();
+  // Numéro WhatsApp RÉEL de la boutique (réglage de la console), mis en forme : 237677043275 -> +237 677 04 32 75
+  const wa = contact.whatsapp.replace(/\D/g, "");
+  const waAffiche = wa.length === 12 && wa.startsWith("237") ? `+237 ${wa.slice(3, 6)} ${wa.slice(6, 8)} ${wa.slice(8, 10)} ${wa.slice(10)}` : wa ? `+${wa}` : "";
   const screen = useScreenSize();
   const isMobile = screen === "mobile";
   const isSmall = screen === "mobile" || screen === "tablet";
@@ -58,14 +61,16 @@ export default function Contact() {
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               {[
                 { icon: "📧", titre: t("contactPage.emailTitle"), val: t("contactPage.emailVal"), desc: t("contactPage.emailDesc") },
-                { icon: "📱", titre: t("contactPage.whatsappTitle"), val: t("contactPage.whatsappVal"), desc: t("contactPage.whatsappDesc") },
+                { icon: "📱", titre: t("contactPage.whatsappTitle"), val: waAffiche || t("contactPage.whatsappVal"), desc: t("contactPage.whatsappDesc"), href: wa ? `https://wa.me/${wa}` : undefined },
                 { icon: "📍", titre: t("contactPage.addressTitle"), val: t("contactPage.addressVal"), desc: t("contactPage.addressDesc") },
               ].map((c, i) => (
                 <div key={i} style={{ display: "flex", gap: 16, padding: "20px", background: "#f8fffe", borderRadius: 14, border: "1px solid #c8e6d0" }}>
                   <span style={{ fontSize: 28, flexShrink: 0 }}>{c.icon}</span>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{c.titre}</div>
-                    <div style={{ fontWeight: 800, fontSize: 16, color: "var(--accent)", marginBottom: 4 }}>{c.val}</div>
+                    <div style={{ fontWeight: 800, fontSize: 16, color: "var(--accent)", marginBottom: 4 }}>
+                      {"href" in c && c.href ? <a href={c.href} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>{c.val}</a> : c.val}
+                    </div>
                     <div style={{ color: "#888", fontSize: 12 }}>{c.desc}</div>
                   </div>
                 </div>
