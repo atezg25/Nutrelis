@@ -24,6 +24,10 @@
   --asta-text:    #1a0505;
   --asta-text2:   #7a3030;
   --asta-border:  #e8d0cc;
+  --asta-rgb:     125, 8, 6;
+  --asta-tint:    #fdecea;
+  --asta-deep:    #7D0806;
+  --asta-nav:     rgba(255,248,246,0.97);
 
   /* Gel exfoliant à l'orange : même gabarit que l'Astaxanthine, palette orange */
   --gel-bg:      #fff8f1;

@@ -24,6 +24,13 @@ export type ProduitCatalogue = {
   avisVerifies?: { rating: number; body: string; display_name: string; city: string | null; shop_reply: string | null; created_at: string }[];
 };
 
+/** Palette « violet » (Bleach Darkening) : surcharge les variables --asta-* de la charte pour cette fiche seulement. */
+const THEME_VIOLET = {
+  "--asta-bg": "#fffaf3", "--asta-bg2": "#f6ecfb", "--asta-accent": "#6B1B8F", "--asta-hover": "#7e22a8", "--asta-soft": "#f3e6fa",
+  "--asta-gold": "#b8860b", "--asta-text": "#24102e", "--asta-text2": "#5e3b72", "--asta-border": "#e3cdf0",
+  "--asta-rgb": "107, 27, 143", "--asta-tint": "#f1e2fa", "--asta-deep": "#4a0f66", "--asta-nav": "rgba(255,250,243,0.97)",
+} as React.CSSProperties;
+
 const SORA = "var(--font-sora), sans-serif";
 const fcfa = (n: number) => `${n.toLocaleString("fr-FR")} FCFA`;
 
@@ -44,7 +51,7 @@ function Question({ q, a, ouvert, onClic }: { q: string; a: string; ouvert: bool
 }
 
 export default function ProductTemplate({ produit, autres }: { produit: ProduitCatalogue; autres: ProduitCatalogue[] }) {
-  const { t, locale } = useLocale();
+  const { t, locale, abonnement } = useLocale();
   const fr = locale === "fr";
   const L = (f: string, e: string) => (fr ? f : e);
   const sc = useScreenSize();
@@ -66,6 +73,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
   const [info, setInfo] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [ajoute, setAjoute] = useState(false);
+  const [mode, setMode] = useState<"unique" | "abonnement">("unique");
   // Barre de commande fixe sur mobile : visible une fois le héros passé, masquée quand le bloc de commande est à l'écran.
   const [barre, setBarre] = useState(false);
   useEffect(() => {
@@ -82,6 +90,12 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
   useEffect(() => { if (!packId && defaut) setPackId(defaut.id); }, [defaut, packId]);
 
   const pack = packs.find((p) => p.id === packId) ?? defaut;
+  const abo = abonnement.actif && c.abonnement !== false;
+  const modeEff = abo ? mode : "unique";
+  // Prix d'abonnement : même calcul que le serveur (`prixAbonne`), qui refacture de toute façon à ce tarif.
+  const prixDe = (p?: PackCatalogue) => (p ? (modeEff === "abonnement" ? Math.round((p.priceFcfa * (100 - abonnement.pct)) / 100) : p.priceFcfa) : 0);
+  const remiseM = (p?: PackCatalogue) => { const a = ancienDe(p); return p && a && a > prixDe(p) ? Math.round(100 * (1 - prixDe(p) / a)) : 0; };
+  const ancienDe = (p?: PackCatalogue) => (p ? (modeEff === "abonnement" ? p.priceFcfa : p.originalPriceFcfa ?? null) : null);
   const remise = (p?: PackCatalogue) => (p && p.originalPriceFcfa && p.originalPriceFcfa > p.priceFcfa ? Math.round(100 * (1 - p.priceFcfa / p.originalPriceFcfa)) : 0);
   // Avis vérifiés (acheteurs dont le colis est livré, validés par la boutique) d'abord ; avis saisis à la main ensuite.
   const verifies = (produit.avisVerifies ?? []).map((a) => ({ nom: a.display_name, ville: a.city ?? undefined, note: a.rating, texte: a.body, reponse: a.shop_reply ?? undefined, verifie: true }));
@@ -115,8 +129,8 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
     let ok = true;
     for (let i = 0; i < qte && ok; i++) {
       ok = await ajouterArticle({
-        id: pack.id, nom: `${produit.name} — ${pack.label}`, description: pack.label, prix: pack.priceFcfa,
-        prixOriginal: pack.originalPriceFcfa ?? pack.priceFcfa, image: images[0] ?? "", mode: "unique", variantId: pack.id,
+        id: pack.id, nom: `${produit.name} — ${pack.label}`, description: pack.label, prix: prixDe(pack),
+        prixOriginal: modeEff === "abonnement" ? pack.priceFcfa : pack.originalPriceFcfa ?? pack.priceFcfa, image: images[0] ?? "", mode: modeEff, variantId: pack.id,
       });
     }
     if (!ok) { setMessage(L("Ce pack est en rupture de stock.", "This pack is out of stock.")); return; }
@@ -126,7 +140,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
   const bouton: React.CSSProperties = {
     display: "flex", alignItems: "center", justifyContent: "center", background: "var(--asta-accent)", color: "#fff", border: 0,
     padding: isSmall ? "16px" : "19px 52px", borderRadius: 50, fontSize: isMobile ? 13 : 15, fontWeight: 800, textDecoration: "none",
-    boxShadow: "0 8px 28px rgba(125,8,6,0.35)", letterSpacing: 0.5, fontFamily: SORA, cursor: "pointer", whiteSpace: "nowrap",
+    boxShadow: "0 8px 28px rgba(var(--asta-rgb),0.35)", letterSpacing: 0.5, fontFamily: SORA, cursor: "pointer", whiteSpace: "nowrap",
   };
   const surtitre: React.CSSProperties = { color: "var(--asta-gold)", fontSize: isMobile ? 10 : 12, fontWeight: 700, letterSpacing: 2, marginBottom: isMobile ? 8 : 12 };
   const h2: React.CSSProperties = { fontSize: isMobile ? "1.3rem" : isSmall ? "1.7rem" : "clamp(1.8rem, 3vw, 2.4rem)", fontWeight: 800, fontFamily: SORA, marginBottom: 12 };
@@ -139,15 +153,15 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
   ].filter((b) => b.texte);
 
   return (
-    <HydrationGuard bg="var(--asta-bg)" style={{ color: "var(--asta-text)", overflowX: "hidden" }}>
+    <HydrationGuard bg="var(--asta-bg)" style={{ color: "var(--asta-text)", overflowX: "hidden", ...(c.theme === "violet" ? THEME_VIOLET : {}) }}>
       {/* BANDEAU */}
-      <div style={{ background: "#7D0806", color: "#fff", textAlign: "center", padding: "10px 16px", fontSize: isMobile ? 12 : 13, fontWeight: 600, lineHeight: 1.5 }}>
+      <div style={{ background: "var(--asta-deep)", color: "#fff", textAlign: "center", padding: "10px 16px", fontSize: isMobile ? 12 : 13, fontWeight: 600, lineHeight: 1.5 }}>
         🚚 {L("Livraison au Cameroun", "Delivery in Cameroon")} &nbsp;·&nbsp; 🔒 {L("Paiement sécurisé Mobile Money", "Secure Mobile Money payment")}
         {garantie > 0 && <> &nbsp;·&nbsp; ✅ {L(`Satisfait ou remboursé ${garantie} jours`, `${garantie}-day money-back guarantee`)}</>}
       </div>
 
       {/* NAVBAR */}
-      <nav style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(255,248,246,0.97)", borderBottom: "1px solid var(--asta-border)", backdropFilter: "blur(12px)" }}>
+      <nav style={{ position: "sticky", top: 0, zIndex: 100, background: "var(--asta-nav)", borderBottom: "1px solid var(--asta-border)", backdropFilter: "blur(12px)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 16px" : "0 40px", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <a href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
             <img src="/images/logo-product.png" alt="Nutrelis" style={{ height: isMobile ? 28 : 40, width: "auto" }} />
@@ -161,7 +175,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
           )}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <NavbarCart dark={false} />
-            <a href="#commander" style={{ background: "var(--asta-accent)", color: "#fff", padding: isMobile ? "8px 14px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 12 : 14, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 14px rgba(125,8,6,0.25)", fontFamily: SORA, whiteSpace: "nowrap" }}>
+            <a href="#commander" style={{ background: "var(--asta-accent)", color: "#fff", padding: isMobile ? "8px 14px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 12 : 14, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 14px rgba(var(--asta-rgb),0.25)", fontFamily: SORA, whiteSpace: "nowrap" }}>
               {isMobile ? t("nav.order") : t("nav.orderArrow")}
             </a>
           </div>
@@ -182,19 +196,19 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
       {/* HÉROS */}
       <section style={{ background: "#fff", display: "grid", gridTemplateColumns: isSmall ? "1fr" : "1fr 1fr", minHeight: isSmall ? "auto" : 540, overflow: "hidden" }}>
         <div style={{ position: "relative", background: "radial-gradient(ellipse at 50% 50%, #f7d5cf 0%, #fde8e4 40%, #fff5f3 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: isMobile ? "32px 16px" : "40px 20px", overflow: "hidden", minHeight: isSmall ? 280 : undefined }}>
-          {!isMobile && <div style={{ position: "absolute", width: 420, height: 420, borderRadius: "50%", border: "1px solid rgba(125,8,6,0.06)", top: "50%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />}
+          {!isMobile && <div style={{ position: "absolute", width: 420, height: 420, borderRadius: "50%", border: "1px solid rgba(var(--asta-rgb),0.06)", top: "50%", left: "50%", transform: "translate(-50%,-50%)", pointerEvents: "none" }} />}
           {garantie > 0 && (
-            <div style={{ position: "absolute", top: isMobile ? 12 : 40, right: isMobile ? 16 : 52, zIndex: 40, width: isMobile ? 72 : 100, height: isMobile ? 72 : 100, borderRadius: "50%", background: "#fff", border: "3px solid var(--asta-accent)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(125,8,6,0.2)" }}>
+            <div style={{ position: "absolute", top: isMobile ? 12 : 40, right: isMobile ? 16 : 52, zIndex: 40, width: isMobile ? 72 : 100, height: isMobile ? 72 : 100, borderRadius: "50%", background: "#fff", border: "3px solid var(--asta-accent)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(var(--asta-rgb),0.2)" }}>
               <span style={{ color: "var(--asta-accent)", fontSize: isMobile ? 20 : 28, fontWeight: 900, lineHeight: 1 }}>{garantie}</span>
               <span style={{ color: "var(--asta-accent)", fontSize: isMobile ? 8 : 11, fontWeight: 800, letterSpacing: 0.5 }}>{t("common.days")}</span>
               {!isMobile && <span style={{ color: "#888", fontSize: 7, textAlign: "center", padding: "0 6px", lineHeight: 1.3 }}>{L("satisfait ou remboursé", "money-back guarantee")}</span>}
             </div>
           )}
           {images[0]
-            ? <img src={images[0]} alt={produit.name} style={{ width: isMobile ? "62%" : "58%", maxWidth: 340, height: "auto", objectFit: "contain", position: "relative", zIndex: 2, filter: "drop-shadow(0 24px 48px rgba(125,8,6,0.2))" }} />
+            ? <img src={images[0]} alt={produit.name} style={{ width: isMobile ? "62%" : "58%", maxWidth: 340, height: "auto", objectFit: "contain", position: "relative", zIndex: 2, filter: "drop-shadow(0 24px 48px rgba(var(--asta-rgb),0.2))" }} />
             : <span style={{ fontSize: 96, position: "relative", zIndex: 2 }}>🌿</span>}
           {remise(defaut) > 0 && (
-            <div style={{ position: "absolute", bottom: isMobile ? 20 : 64, left: isMobile ? 16 : 52, zIndex: 3, background: "var(--asta-accent)", color: "#fff", fontWeight: 900, fontSize: isMobile ? 13 : 17, padding: isMobile ? "5px 10px" : "8px 16px", borderRadius: 50, boxShadow: "0 4px 16px rgba(125,8,6,0.4)" }}>−{remise(defaut)}%</div>
+            <div style={{ position: "absolute", bottom: isMobile ? 20 : 64, left: isMobile ? 16 : 52, zIndex: 3, background: "var(--asta-accent)", color: "#fff", fontWeight: 900, fontSize: isMobile ? 13 : 17, padding: isMobile ? "5px 10px" : "8px 16px", borderRadius: 50, boxShadow: "0 4px 16px rgba(var(--asta-rgb),0.4)" }}>−{remise(defaut)}%</div>
           )}
           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 5, background: "linear-gradient(90deg, transparent, var(--asta-accent) 30%, var(--asta-accent) 70%, transparent)" }} />
         </div>
@@ -208,13 +222,14 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
               <span style={{ color: "#555", fontSize: 13 }}>{avis.length} {avis.length > 1 ? L("avis clients", "customer reviews") : L("avis client", "customer review")}</span>
             </div>
           )}
+          {c.categorie && <span style={{ alignSelf: "flex-start", marginBottom: 14, background: "var(--asta-soft)", color: "var(--asta-accent)", fontSize: 11, fontWeight: 800, letterSpacing: 1.5, padding: "5px 14px", borderRadius: 50, border: "1px solid var(--asta-border)", textTransform: "uppercase" }}>{c.categorie}</span>}
           <h1 style={{ fontSize: isMobile ? "1.6rem" : isSmall ? "2.2rem" : "clamp(2.4rem, 3.5vw, 2.9rem)", fontWeight: 800, lineHeight: 1.15, marginBottom: 18, fontFamily: SORA, color: "#0d0d0d", letterSpacing: -0.5 }}>{titre}</h1>
           {(c.accroche ?? produit.subtitle) && <p style={{ color: "#666", fontSize: 15, lineHeight: 1.75, marginBottom: 28, maxWidth: 460 }}>{c.accroche ?? produit.subtitle}</p>}
           {points.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
               {points.map((p, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#fdecea", border: "1.5px solid var(--asta-accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--asta-tint)", border: "1.5px solid var(--asta-accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <span style={{ color: "var(--asta-accent)", fontSize: 11, fontWeight: 900 }}>✓</span>
                   </div>
                   <span style={{ color: "#444", fontSize: 14, fontWeight: 500 }}>{p}</span>
@@ -347,19 +362,33 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
               <h3 style={{ fontFamily: SORA, fontWeight: 800, fontSize: 20, marginBottom: 8, lineHeight: 1.3 }}>{produit.name.toUpperCase()}{produit.subtitle ? ` — ${produit.subtitle}` : ""}</h3>
               {pack && (
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
-                  {remise(pack) > 0 && <span style={{ color: "var(--asta-text2)", fontSize: 15, textDecoration: "line-through" }}>{fcfa(pack.originalPriceFcfa!)}</span>}
-                  <span style={{ color: "var(--asta-accent)", fontSize: 26, fontWeight: 900, fontFamily: SORA }}>{fcfa(pack.priceFcfa)}</span>
+                  {remiseM(pack) > 0 && <span style={{ color: "var(--asta-text2)", fontSize: 15, textDecoration: "line-through" }}>{fcfa(ancienDe(pack)!)}</span>}
+                  <span style={{ color: "var(--asta-accent)", fontSize: 26, fontWeight: 900, fontFamily: SORA }}>{fcfa(prixDe(pack))}</span>
                 </div>
               )}
               {produit.description && <p style={{ color: "var(--asta-text2)", fontSize: 14, lineHeight: 1.7, marginBottom: 20, borderLeft: "3px solid var(--asta-accent)", paddingLeft: 12 }}>{produit.description}</p>}
 
+              {abo && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 6, background: "var(--asta-bg2)", border: "1.5px solid var(--asta-border)", borderRadius: 12, padding: 5 }}>
+                    {([["unique", L("Achat unique", "One-time purchase")], ["abonnement", `⭐ ${L(`Abonnement −${abonnement.pct}%`, `Subscribe −${abonnement.pct}%`)}`]] as const).map(([id, nom]) => (
+                      <button key={id} onClick={() => setMode(id)} aria-pressed={modeEff === id} style={{ padding: "12px 8px", border: 0, borderRadius: 8, fontWeight: 700, fontSize: isMobile ? 13 : 14, fontFamily: SORA, cursor: "pointer", background: modeEff === id ? "var(--asta-accent)" : "transparent", color: modeEff === id ? "#fff" : "var(--asta-text2)", lineHeight: 1.25 }}>{nom}</button>
+                    ))}
+                  </div>
+                  {modeEff === "abonnement" && (
+                    <div style={{ marginTop: 10, background: "var(--asta-tint)", border: "1px solid var(--asta-accent)", borderRadius: 10, padding: "10px 14px", fontSize: isMobile ? 12 : 13.5, color: "var(--asta-text2)", lineHeight: 1.6 }}>
+                      📦 <strong style={{ color: "var(--asta-text)" }}>{L("Livraison régulière", "Regular delivery")}</strong> &nbsp;·&nbsp; 💰 <strong style={{ color: "var(--asta-text)" }}>{L(`−${abonnement.pct}% à chaque livraison`, `−${abonnement.pct}% on every delivery`)}</strong> &nbsp;·&nbsp; ✅ <strong style={{ color: "var(--asta-text)" }}>{L("Annulable à tout moment", "Cancel anytime")}</strong>
+                    </div>
+                  )}
+                </div>
+              )}
               <p style={{ fontWeight: 700, fontSize: 13, letterSpacing: 1, marginBottom: 12 }}>{L("CHOISISSEZ VOTRE PACK", "CHOOSE YOUR PACK")}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {packs.map((p) => {
                   const choisi = p.id === packId;
                   return (
                     <button key={p.id} onClick={() => p.inStock && setPackId(p.id)} disabled={!p.inStock} aria-pressed={choisi}
-                      style={{ position: "relative", textAlign: "left", display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 16, cursor: p.inStock ? "pointer" : "not-allowed", opacity: p.inStock ? 1 : 0.55, background: choisi ? "#fdecea" : "#fff", border: `2px solid ${choisi ? "var(--asta-accent)" : "var(--asta-border)"}`, transition: "all .2s" }}>
+                      style={{ position: "relative", textAlign: "left", display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 16, cursor: p.inStock ? "pointer" : "not-allowed", opacity: p.inStock ? 1 : 0.55, background: choisi ? "var(--asta-tint)" : "#fff", border: `2px solid ${choisi ? "var(--asta-accent)" : "var(--asta-border)"}`, transition: "all .2s" }}>
                       {p.popular && <span style={{ position: "absolute", top: -11, right: 16, background: "var(--asta-accent)", color: "#fff", fontSize: 10, fontWeight: 800, letterSpacing: 1, padding: "3px 12px", borderRadius: 20 }}>{L("LE PLUS POPULAIRE", "MOST POPULAR")}</span>}
                       <div style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${choisi ? "var(--asta-accent)" : "#ccc"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                         {choisi && <div style={{ width: 12, height: 12, borderRadius: "50%", background: "var(--asta-accent)" }} />}
@@ -371,9 +400,9 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
                         {p.inStock && p.stockFaible && <div style={{ color: "#b45309", fontSize: 12, fontWeight: 700, marginTop: 2 }}>{L("Plus que quelques exemplaires", "Only a few left")}</div>}
                       </div>
                       <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        {remise(p) > 0 && <div style={{ color: "var(--asta-text2)", fontSize: 12, textDecoration: "line-through" }}>{fcfa(p.originalPriceFcfa!)}</div>}
-                        <div style={{ color: "var(--asta-accent)", fontWeight: 900, fontSize: 17, fontFamily: SORA }}>{fcfa(p.priceFcfa)}</div>
-                        {remise(p) > 0 && <div style={{ color: "#1a7a3c", fontSize: 11, fontWeight: 800 }}>−{remise(p)}%</div>}
+                        {remiseM(p) > 0 && <div style={{ color: "var(--asta-text2)", fontSize: 12, textDecoration: "line-through" }}>{fcfa(ancienDe(p)!)}</div>}
+                        <div style={{ color: "var(--asta-accent)", fontWeight: 900, fontSize: 17, fontFamily: SORA }}>{fcfa(prixDe(p))}</div>
+                        {remiseM(p) > 0 && <div style={{ color: "#1a7a3c", fontSize: 11, fontWeight: 800 }}>−{remiseM(p)}%</div>}
                       </div>
                     </button>
                   );
@@ -529,7 +558,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
       {garantie > 0 && (
         <section style={{ background: "#fff", padding: isMobile ? `28px ${px}` : `${py} ${px}` }}>
           <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
-            <div style={{ width: isMobile ? 110 : 140, height: isMobile ? 110 : 140, borderRadius: "50%", border: "4px solid var(--asta-accent)", margin: "0 auto 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 28px rgba(125,8,6,0.18)" }}>
+            <div style={{ width: isMobile ? 110 : 140, height: isMobile ? 110 : 140, borderRadius: "50%", border: "4px solid var(--asta-accent)", margin: "0 auto 20px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 28px rgba(var(--asta-rgb),0.18)" }}>
               <span style={{ color: "var(--asta-accent)", fontSize: isMobile ? 34 : 44, fontWeight: 900, lineHeight: 1, fontFamily: SORA }}>{garantie}</span>
               <span style={{ color: "var(--asta-accent)", fontSize: isMobile ? 12 : 14, fontWeight: 800 }}>{t("common.days")}</span>
             </div>

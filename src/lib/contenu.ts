@@ -14,6 +14,12 @@ export type ContenuProduit = {
   faq?: { q: string; a: string }[];
   avis?: { nom: string; ville?: string; note: number; texte: string }[];
   garantieJours?: number;
+  /** Catégorie affichée au-dessus du titre (ex. « Cosmetic »). */
+  categorie?: string;
+  /** Palette de la fiche : « violet » surcharge les couleurs de la charte (Bleach Darkening). */
+  theme?: "violet";
+  /** `false` masque l'onglet d'abonnement de la fiche (activé par défaut si le réglage de la console l'est). */
+  abonnement?: boolean;
   images?: string[];
   /** Image large (16:9 conseillé) du carrousel de la page d'accueil. */
   banniere?: string;
@@ -80,6 +86,9 @@ export function nettoyerContenu(brut: unknown): ContenuProduit {
     if (v !== undefined && !(Array.isArray(v) && v.length === 0)) c[k] = v;
   };
   set("accroche", t(o.accroche, 400));
+  set("categorie", t(o.categorie, 40));
+  if (o.theme === "violet") c.theme = "violet";
+  if (o.abonnement === false) c.abonnement = false;
   set("miseEnAvant", t(o.miseEnAvant, 60));
   set("avantages", liste(o.avantages, 12, (x) => t(x, 200) ?? null));
   set("raisons", liste(o.raisons, 5, (x) => {
