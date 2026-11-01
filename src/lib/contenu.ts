@@ -16,6 +16,8 @@ export type ContenuProduit = {
   garantieJours?: number;
   /** Catégorie affichée au-dessus du titre (ex. « Cosmetic »). */
   categorie?: string;
+  /** Image d'un pack, par SKU (ex. 1, 2 ou 3 flacons) : affichée dans le choix du pack et dans le panier. */
+  imagesPacks?: Record<string, string>;
   /** Palette de la fiche : « violet » surcharge les couleurs de la charte (Bleach Darkening). */
   theme?: "violet";
   /** `false` masque l'onglet d'abonnement de la fiche (activé par défaut si le réglage de la console l'est). */
@@ -87,6 +89,13 @@ export function nettoyerContenu(brut: unknown): ContenuProduit {
   };
   set("accroche", t(o.accroche, 400));
   set("categorie", t(o.categorie, 40));
+  if (o.imagesPacks && typeof o.imagesPacks === "object" && !Array.isArray(o.imagesPacks)) {
+    const ip: Record<string, string> = {};
+    for (const [sku, u] of Object.entries(o.imagesPacks as Record<string, unknown>).slice(0, 20)) {
+      if (/^[A-Za-z0-9_.\-]{1,60}$/.test(sku) && typeof u === "string" && IMAGE.test(u)) ip[sku] = u;
+    }
+    if (Object.keys(ip).length) c.imagesPacks = ip;
+  }
   if (o.theme === "violet") c.theme = "violet";
   if (o.abonnement === false) c.abonnement = false;
   set("miseEnAvant", t(o.miseEnAvant, 60));

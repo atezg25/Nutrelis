@@ -130,7 +130,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
     for (let i = 0; i < qte && ok; i++) {
       ok = await ajouterArticle({
         id: pack.id, nom: `${produit.name} — ${pack.label}`, description: pack.label, prix: prixDe(pack),
-        prixOriginal: modeEff === "abonnement" ? pack.priceFcfa : pack.originalPriceFcfa ?? pack.priceFcfa, image: images[0] ?? "", mode: modeEff, variantId: pack.id,
+        prixOriginal: modeEff === "abonnement" ? pack.priceFcfa : pack.originalPriceFcfa ?? pack.priceFcfa, image: c.imagesPacks?.[pack.sku] ?? images[0] ?? "", mode: modeEff, variantId: pack.id,
       });
     }
     if (!ok) { setMessage(L("Ce pack est en rupture de stock.", "This pack is out of stock.")); return; }
@@ -393,6 +393,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
                       <div style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${choisi ? "var(--asta-accent)" : "#ccc"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                         {choisi && <div style={{ width: 12, height: 12, borderRadius: "50%", background: "var(--asta-accent)" }} />}
                       </div>
+                      {c.imagesPacks?.[p.sku] && <img src={c.imagesPacks[p.sku]} alt="" loading="lazy" decoding="async" style={{ height: isMobile ? 48 : 60, width: "auto", flexShrink: 0, objectFit: "contain" }} />}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontFamily: SORA, fontWeight: 800, fontSize: 15 }}>{p.label}</div>
                         {p.description && <div style={{ color: "var(--asta-text2)", fontSize: 12, marginTop: 2 }}>{p.description}</div>}
