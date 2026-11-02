@@ -292,3 +292,15 @@ JOIN (VALUES ('NUT-AX-1P','1 Pack - 60 caps',15000,1),('NUT-AX-2P','2 Packs - 12
   AS v(sku,label,price,sort) ON TRUE
 WHERE p.slug = 'astaxanthine-12mg'
 ON CONFLICT (sku) DO NOTHING;
+
+-- Messages du formulaire de contact (onglet « Messages » de la console)
+CREATE TABLE IF NOT EXISTS contact_message (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name       TEXT NOT NULL,
+  email      TEXT NOT NULL,
+  subject    TEXT,
+  message    TEXT NOT NULL,
+  status     TEXT NOT NULL DEFAULT 'nouveau' CHECK (status IN ('nouveau','traite')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS contact_message_status_idx ON contact_message (status, created_at DESC);

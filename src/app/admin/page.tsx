@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 // Un seul écran à onglets. Tout passe par /api/admin/* (cookie signé, mot de passe unique).
 // ============================================================
 type Ligne = Record<string, string | number | boolean | null>;
-type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "avis" | "abonnements" | "blog" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "utilisateurs" | "parametres" | "journal" | "compte";
+type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "avis" | "abonnements" | "blog" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "messages" | "utilisateurs" | "parametres" | "journal" | "compte";
 
 const VERT = "#1f7a3a";
 const fcfa = (n: unknown) => `${Number(n ?? 0).toLocaleString("fr-FR")} FCFA`;
@@ -31,26 +31,26 @@ async function api<T = Ligne>(chemin: string, options?: { method?: string; body?
 }
 
 function Badge({ texte, couleur }: { texte: string; couleur: string }) {
-  return <span style={{ background: `${couleur}1a`, color: couleur, padding: "2px 9px", borderRadius: 999, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>{texte}</span>;
+  return <span style={{ background: `${couleur}14`, color: couleur, padding: "3px 10px", borderRadius: 999, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${couleur}26` }}><span aria-hidden style={{ width: 6, height: 6, borderRadius: "50%", background: couleur }} />{texte}</span>;
 }
 
-const carte: React.CSSProperties = { background: "#fff", border: "1px solid #e4e7e2", borderRadius: 14, padding: 16 };
-const champ: React.CSSProperties = { border: "1px solid #cfd5cc", borderRadius: 9, padding: "8px 10px", fontSize: 14, background: "#fff", minWidth: 0 };
-const bouton: React.CSSProperties = { background: VERT, color: "#fff", border: 0, borderRadius: 9, padding: "9px 14px", fontWeight: 700, fontSize: 14, cursor: "pointer" };
-const boutonDiscret: React.CSSProperties = { ...bouton, background: "#fff", color: "#1a1a1a", border: "1px solid #cfd5cc" };
+const carte: React.CSSProperties = { background: "#fff", border: "1px solid #e3e9e3", borderRadius: 16, padding: 18, boxShadow: "0 1px 2px rgba(16,24,20,.04), 0 6px 20px rgba(16,24,20,.04)" };
+const champ: React.CSSProperties = { border: "1px solid #d5ddd5", borderRadius: 10, padding: "10px 12px", fontSize: 14, background: "#fff", minWidth: 0, color: "inherit" };
+const bouton: React.CSSProperties = { background: "linear-gradient(180deg, #22a455 0%, #1a8a45 100%)", color: "#fff", border: 0, borderRadius: 10, padding: "10px 16px", fontWeight: 700, fontSize: 14, cursor: "pointer", boxShadow: "0 1px 2px rgba(21,128,61,.35), inset 0 1px 0 rgba(255,255,255,.18)" };
+const boutonDiscret: React.CSSProperties = { ...bouton, background: "#fff", color: "#16201a", border: "1px solid #d5ddd5", boxShadow: "0 1px 2px rgba(16,24,20,.05)" };
 
 function Tableau({ colonnes, lignes, onClic }: { colonnes: { titre: string; rendu: (l: Ligne) => React.ReactNode }[]; lignes: Ligne[]; onClic?: (l: Ligne) => void }) {
   return (
     <div style={{ ...carte, padding: 0, overflowX: "auto" }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
-          <tr>{colonnes.map((c) => <th key={c.titre} style={{ textAlign: "left", padding: "10px 12px", borderBottom: "1px solid #e4e7e2", color: "#555", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.4 }}>{c.titre}</th>)}</tr>
+          <tr>{colonnes.map((c) => <th key={c.titre} style={{ textAlign: "left", padding: "12px 14px", borderBottom: "1px solid #e3e9e3", color: "#5b665e", fontSize: 11.5, textTransform: "uppercase", letterSpacing: 0.6 }}>{c.titre}</th>)}</tr>
         </thead>
         <tbody>
-          {lignes.length === 0 && <tr><td colSpan={colonnes.length} style={{ padding: 18, color: "#777" }}>Rien à afficher.</td></tr>}
+          {lignes.length === 0 && <tr><td colSpan={colonnes.length} style={{ padding: "28px 18px", color: "#7a857d", textAlign: "center" }}>📭 Rien à afficher pour le moment.</td></tr>}
           {lignes.map((l, i) => (
-            <tr key={String(l.id ?? i)} onClick={onClic ? () => onClic(l) : undefined} style={{ cursor: onClic ? "pointer" : "default", borderBottom: "1px solid #f0f2ee" }}>
-              {colonnes.map((c) => <td key={c.titre} style={{ padding: "10px 12px", verticalAlign: "top" }}>{c.rendu(l)}</td>)}
+            <tr key={String(l.id ?? i)} onClick={onClic ? () => onClic(l) : undefined} style={{ cursor: onClic ? "pointer" : "default", borderBottom: "1px solid #eef2ee" }}>
+              {colonnes.map((c) => <td key={c.titre} style={{ padding: "12px 14px", verticalAlign: "top" }}>{c.rendu(l)}</td>)}
             </tr>
           ))}
         </tbody>
@@ -73,9 +73,12 @@ function Connexion({ onOk }: { onOk: () => void }) {
     if (r.ok) onOk(); else setErr(r.data.error ?? "Connexion impossible.");
   }
   return (
-    <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <form onSubmit={envoyer} style={{ ...carte, width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", gap: 12 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: VERT }}>NUTRELIS — Console d'administration</h1>
+    <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", padding: 16, background: "radial-gradient(1200px 600px at 20% -10%, #d9f2e1 0%, transparent 60%), radial-gradient(900px 500px at 100% 110%, #e6f4ea 0%, transparent 55%)" }}>
+      <form onSubmit={envoyer} style={{ ...carte, width: "100%", maxWidth: 400, display: "flex", flexDirection: "column", gap: 14, padding: 28, borderRadius: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg, #22a455, #15803d)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, boxShadow: "0 6px 16px rgba(21,128,61,.35)" }}>🌿</div>
+          <div><div style={{ fontWeight: 900, fontSize: 20, letterSpacing: -0.3, color: "#16201a" }}>NUTRELIS</div><div style={{ fontSize: 11, letterSpacing: 2, color: "#7a857d", fontWeight: 700 }}>CONSOLE D'ADMINISTRATION</div></div>
+        </div>
         <input type="email" autoFocus autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Adresse e-mail" style={champ} />
         <input type="password" autoComplete="current-password" value={mdp} onChange={(e) => setMdp(e.target.value)} placeholder="Mot de passe" style={champ} />
         {err && <div style={{ color: "#b91c1c", fontSize: 13 }}>{err}</div>}
@@ -134,12 +137,15 @@ function TableauDeBord({ ouvrir }: { ouvrir: (o: Onglet) => void }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
       <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
-        {tuiles.map(([t, v, o]) => (
-          <button key={t} onClick={() => o && ouvrir(o)} style={{ ...carte, textAlign: "left", cursor: "pointer" }}>
-            <div style={{ fontSize: 12.5, color: "#666" }}>{t}</div>
-            <div style={{ fontSize: 22, fontWeight: 800, marginTop: 4 }}>{v}</div>
-          </button>
-        ))}
+        {tuiles.map(([t, v, o], i) => {
+          const [icone, teinte] = ([["🧾", "#2563eb"], ["💰", "#16a34a"], ["📈", "#0d9488"], ["⏳", "#d97706"], ["⚠️", "#dc2626"]] as const)[i] ?? ["•", "#16a34a"];
+          return (
+            <button key={t} onClick={() => o && ouvrir(o)} style={{ ...carte, textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, borderTop: `3px solid ${teinte}` }}>
+              <span aria-hidden style={{ width: 42, height: 42, borderRadius: 12, background: `${teinte}14`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>{icone}</span>
+              <span><div style={{ fontSize: 12.5, color: "#5b665e", fontWeight: 600 }}>{t}</div><div style={{ fontSize: 24, fontWeight: 800, marginTop: 2, letterSpacing: -0.5 }}>{v}</div></span>
+            </button>
+          );
+        })}
       </div>
       {d.stockFaible.length > 0 && (
         <div style={{ ...carte, borderColor: "#f1c27d", background: "#fffaf0" }}>
@@ -283,6 +289,22 @@ function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => 
   );
 }
 
+/** Exporte les commandes affichées en CSV (séparateur « ; », accents conservés : s'ouvre directement dans Excel). */
+function exporterCsv(lignes: Ligne[]) {
+  const cols: [string, (l: Ligne) => string][] = [
+    ["N°", (l) => String(l.number)], ["Date", (l) => date(l.created_at)], ["Client", (l) => String(l.customer_name)], ["Téléphone", (l) => String(l.phone)],
+    ["Ville", (l) => String(l.city ?? "")], ["Commande", (l) => String(l.resume ?? "")], ["Total FCFA", (l) => String(l.total_fcfa)],
+    ["Statut", (l) => LIB_STATUT[String(l.status)] ?? String(l.status)], ["Paiement", (l) => LIB_PAIEMENT[String(l.payment_status)] ?? String(l.payment_status)],
+  ];
+  const cell = (v: string) => `"${v.replace(/"/g, '""')}"`;
+  const csv = "\uFEFF" + [cols.map(([t]) => cell(t)).join(";"), ...lignes.map((l) => cols.map(([, f]) => cell(f(l))).join(";"))].join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  a.download = `commandes-nutrelis-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 function Commandes() {
   const [lignes, setLignes] = useState<Ligne[]>([]);
   const [statut, setStatut] = useState("");
@@ -310,6 +332,7 @@ function Commandes() {
           <option value="">Tous les canaux</option>
           {Object.entries(LIB_CANAL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
+        <button onClick={() => exporterCsv(lignes)} style={boutonDiscret} title="Télécharger les commandes affichées (tableur)">⬇ Exporter</button>
         <button onClick={() => setNouvelle(true)} style={bouton}>+ Nouvelle commande</button>
       </div>
       {nouvelle && <NouvelleCommande fait={() => { setNouvelle(false); charger(); }} annuler={() => setNouvelle(false)} />}
@@ -1178,6 +1201,44 @@ function Clients() {
   );
 }
 
+// ---------------------------------------------------------------- Messages (formulaire de contact)
+function Messages() {
+  const [vue, setVue] = useState<"nouveau" | "traite" | "">("nouveau");
+  const [lignes, setLignes] = useState<Ligne[]>([]);
+  const charger = useCallback(() => { void api<{ messages: Ligne[] }>(`messages?vue=${vue}`).then((r) => r.ok && setLignes(r.data.messages ?? [])); }, [vue]);
+  useEffect(charger, [charger]);
+  async function marquer(id: string, status: "nouveau" | "traite") {
+    await api(`messages/${id}`, { method: "PATCH", body: { status } });
+    charger();
+  }
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        {([["nouveau", "À traiter"], ["traite", "Traités"], ["", "Tous"]] as const).map(([v, t]) => (
+          <button key={t} onClick={() => setVue(v)} style={{ ...boutonDiscret, ...(vue === v ? { background: VERT, color: "#fff", borderColor: VERT } : {}) }}>{t}</button>
+        ))}
+      </div>
+      {lignes.length === 0 && <p style={{ color: "#666" }}>Aucun message {vue === "nouveau" ? "à traiter" : ""}.</p>}
+      {lignes.map((m) => (
+        <div key={String(m.id)} style={{ ...carte, borderColor: m.status === "nouveau" ? "#f1c27d" : "#e4e7e2", background: m.status === "nouveau" ? "#fffaf0" : "#fff" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+            <strong>{String(m.name)}</strong>
+            <span style={{ color: "#777", fontSize: 12.5 }}>{date(m.created_at)}</span>
+          </div>
+          <div style={{ fontSize: 13, color: "#555", margin: "2px 0 8px" }}>{String(m.email)}{m.subject ? ` · ${String(m.subject)}` : ""}</div>
+          <div style={{ whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6 }}>{String(m.message)}</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+            <a href={`mailto:${String(m.email)}?subject=${encodeURIComponent("Re: " + String(m.subject ?? "Votre message à NUTRELIS"))}`} style={{ ...bouton, textDecoration: "none" }}>✉️ Répondre par e-mail</a>
+            {m.status === "nouveau"
+              ? <button onClick={() => void marquer(String(m.id), "traite")} style={boutonDiscret}>✓ Marquer comme traité</button>
+              : <button onClick={() => void marquer(String(m.id), "nouveau")} style={boutonDiscret}>↩ Remettre à traiter</button>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- Rapports
 function Rapports() {
   const [jours, setJours] = useState(30);
@@ -1376,6 +1437,7 @@ const MENU: { id: Onglet; titre: string; icone: string; proprietaire?: boolean; 
   { id: "avis", titre: "Avis clients", icone: "⭐" },
   { id: "abonnements", titre: "Abonnements", icone: "🔁" },
   { id: "blog", titre: "Blog", icone: "📰" },
+  { id: "messages", titre: "Messages", icone: "✉️" },
   { id: "clients", titre: "Clients", icone: "👥" },
   { id: "stock", titre: "Stock", icone: "📦" },
   { id: "produits", titre: "Produits", icone: "🌿" },
@@ -1406,12 +1468,24 @@ export default function Admin() {
     window.addEventListener("resize", f);
     return () => window.removeEventListener("resize", f);
   }, []);
+  const [nbMessages, setNbMessages] = useState(0);
+  // Compteurs (commandes à traiter, colis à expédier, messages) : au changement d'onglet ET toutes les 60 s, pour ne rien rater.
   useEffect(() => {
-    if (moi && moi !== "inconnu" && !moi.mustChange) {
+    if (!(moi && moi !== "inconnu" && !moi.mustChange)) return;
+    const maj = () => {
       void api<{ chiffres: Ligne }>("stats").then((r) => r.ok && setATraiter(Number(r.data.chiffres.a_traiter)));
       void api<{ compteurs: Ligne }>("shipments?vue=en_cours").then((r) => r.ok && setAExpedier(Number(r.data.compteurs.a_expedier)));
-    }
+      void api<{ nouveaux: number }>("messages?vue=nouveau").then((r) => r.ok && setNbMessages(Number(r.data.nouveaux)));
+    };
+    maj();
+    const t = setInterval(maj, 60_000);
+    return () => clearInterval(t);
   }, [moi, onglet]);
+  // Titre de l'onglet du navigateur : « (3) NUTRELIS Console » quand il y a du travail en attente.
+  useEffect(() => {
+    const n = aTraiter + nbMessages;
+    document.title = `${n > 0 ? `(${n}) ` : ""}NUTRELIS Console`;
+  }, [aTraiter, nbMessages]);
 
   if (moi === "inconnu") return <p style={{ padding: 20 }}>Chargement…</p>;
   if (moi === null) return <Connexion onOk={() => void charger()} />;
@@ -1434,10 +1508,11 @@ export default function Admin() {
       {visibles.map((m) => (
         <div key={m.id}>
           {m.groupe && <div style={{ fontSize: 11, letterSpacing: 1.5, color: "#8a948a", fontWeight: 700, margin: "14px 10px 6px" }}>{m.groupe.toUpperCase()}</div>}
-          <button onClick={() => aller(m.id)} style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, border: 0, cursor: "pointer", fontSize: 14, fontWeight: onglet === m.id ? 800 : 600, background: onglet === m.id ? VERT : "transparent", color: onglet === m.id ? "#fff" : "#2b312b" }}>
+          <button onClick={() => aller(m.id)} style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 12, border: 0, cursor: "pointer", fontSize: 14, fontWeight: onglet === m.id ? 700 : 600, background: onglet === m.id ? "linear-gradient(135deg, #22a455 0%, #15803d 100%)" : "transparent", color: onglet === m.id ? "#fff" : "#2b362e", boxShadow: onglet === m.id ? "0 6px 14px rgba(21,128,61,.28)" : "none" }}>
             <span aria-hidden>{m.icone}</span>
             <span style={{ flex: 1 }}>{m.titre}</span>
             {m.id === "expeditions" && aExpedier > 0 && <span style={{ background: onglet === m.id ? "#fff" : "#b45309", color: onglet === m.id ? VERT : "#fff", borderRadius: 999, padding: "1px 8px", fontSize: 12, fontWeight: 800 }}>{aExpedier}</span>}
+            {m.id === "messages" && nbMessages > 0 && <span style={{ background: onglet === m.id ? "#fff" : "#b91c1c", color: onglet === m.id ? VERT : "#fff", borderRadius: 999, padding: "1px 8px", fontSize: 12, fontWeight: 800 }}>{nbMessages}</span>}
             {m.id === "commandes" && aTraiter > 0 && <span style={{ background: onglet === m.id ? "#fff" : "#b91c1c", color: onglet === m.id ? VERT : "#fff", borderRadius: 999, padding: "1px 8px", fontSize: 12, fontWeight: 800 }}>{aTraiter}</span>}
           </button>
         </div>
@@ -1454,6 +1529,7 @@ export default function Admin() {
       {onglet === "avis" && <Avis />}
       {onglet === "abonnements" && <Abonnements />}
       {onglet === "blog" && <BlogAdmin />}
+      {onglet === "messages" && <Messages />}
       {onglet === "clients" && <Clients />}
       {onglet === "stock" && <Stock />}
       {onglet === "produits" && <Produits />}
@@ -1489,13 +1565,16 @@ export default function Admin() {
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "240px minmax(0, 1fr)", minHeight: "100vh" }}>
-      <aside style={{ background: "#fff", borderRight: "1px solid #e4e7e2", padding: 16, position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", gap: 14, overflowY: "auto" }}>
-        <div style={{ fontWeight: 900, fontSize: 18, color: VERT, letterSpacing: -0.3 }}>NUTRELIS<div style={{ fontSize: 11, letterSpacing: 2, color: "#8a948a", fontWeight: 700 }}>CONSOLE</div></div>
+      <aside style={{ background: "#fff", borderRight: "1px solid #e3e9e3", boxShadow: "1px 0 12px rgba(16,24,20,.03)", padding: 16, position: "sticky", top: 0, height: "100vh", display: "flex", flexDirection: "column", gap: 14, overflowY: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 38, height: 38, borderRadius: 11, background: "linear-gradient(135deg, #22a455, #15803d)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, boxShadow: "0 6px 14px rgba(21,128,61,.3)" }}>🌿</div>
+          <div style={{ fontWeight: 900, fontSize: 17, color: "#16201a", letterSpacing: -0.3, lineHeight: 1.1 }}>NUTRELIS<div style={{ fontSize: 10.5, letterSpacing: 2, color: "#7a857d", fontWeight: 700 }}>CONSOLE</div></div>
+        </div>
         <div style={{ flex: 1 }}>{navigation}</div>
         <div style={{ borderTop: "1px solid #e4e7e2", paddingTop: 12, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 8 }}>{identite}<button onClick={deconnexion} style={boutonDiscret}>Déconnexion</button></div>
       </aside>
-      <main style={{ padding: "22px 28px 80px", maxWidth: 1240 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 18px" }}>{titreOnglet}</h1>
+      <main style={{ padding: "26px 32px 80px", maxWidth: 1240 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 20px", letterSpacing: -0.5 }}>{titreOnglet}</h1>
         {contenu}
       </main>
     </div>

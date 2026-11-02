@@ -16,6 +16,19 @@ export default function Contact() {
   const isSmall = screen === "mobile" || screen === "tablet";
   const px = isMobile ? "16px" : isSmall ? "24px" : "60px";
   const [sent, setSent] = useState(false);
+  const [envoi, setEnvoi] = useState(false);
+  const [erreurEnvoi, setErreurEnvoi] = useState("");
+  const [piege, setPiege] = useState("");
+  async function envoyer() {
+    if (!form.nom || !form.email || !form.message) { setErreurEnvoi(t("checkout.fillRequired")); return; }
+    setEnvoi(true); setErreurEnvoi("");
+    try {
+      const r = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, site: piege }) });
+      const d = (await r.json().catch(() => ({}))) as { error?: string };
+      if (r.ok) setSent(true); else setErreurEnvoi(d.error ?? "Échec de l'envoi. Réessayez.");
+    } catch { setErreurEnvoi("Connexion impossible. Réessayez."); }
+    setEnvoi(false);
+  }
   const [form, setForm] = useState({ nom: "", email: "", sujet: "", message: "" });
 
   return (
@@ -161,12 +174,14 @@ export default function Contact() {
                 </div>
 
                 <button
-                  onClick={() => { if (form.nom && form.email && form.message) setSent(true); }}
+                  onClick={() => void envoyer()} disabled={envoi}
                   style={{ background: "var(--accent)", color: "#060f08", border: "none", padding: "18px", borderRadius: 12, fontSize: 16, fontWeight: 800, cursor: "pointer", fontFamily: "var(--font-sora), sans-serif", letterSpacing: 0.3 }}
                 >
                   {t("contactPage.sendBtn")}
                 </button>
 
+                {erreurEnvoi && <p role="alert" style={{ color: "#e53e3e", fontSize: 13, textAlign: "center", margin: 0 }}>{erreurEnvoi}</p>}
+                <input type="text" name="site" value={piege} onChange={(e) => setPiege(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }} />
                 <p style={{ color: "#aaa", fontSize: 12, textAlign: "center" }}>
                   {t("contactPage.privacyNote")}
                 </p>
