@@ -33,7 +33,7 @@ export async function notifierBoutique(sujet: string, texte: string): Promise<vo
           headers: { Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
           body: JSON.stringify({ messaging_product: "whatsapp", to, type: "text", text: { body: `${sujet}\n${texte}` } }),
           signal: AbortSignal.timeout(10_000),
-        }).catch((e) => console.error("[nutrelis] alerte whatsapp", to.slice(-4), e instanceof Error ? e.message : e)),
+        }).then((r) => { if (!r.ok) console.error("[nutrelis] alerte whatsapp refusée", to.slice(-4), r.status); }).catch((e) => console.error("[nutrelis] alerte whatsapp", to.slice(-4), e instanceof Error ? e.message : e)),
       );
     }
   }
@@ -44,7 +44,7 @@ export async function notifierBoutique(sujet: string, texte: string): Promise<vo
         headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({ from: process.env.MAIL_FROM || "NUTRELIS <support@nutrelis.bio>", to: emails, subject: sujet, text: texte }),
         signal: AbortSignal.timeout(10_000),
-      }).catch((e) => console.error("[nutrelis] alerte email", e instanceof Error ? e.message : e)),
+      }).then(async (r) => { if (!r.ok) console.error("[nutrelis] alerte email refusée", r.status, (await r.text()).slice(0, 200)); }).catch((e) => console.error("[nutrelis] alerte email", e instanceof Error ? e.message : e)),
     );
   }
   await Promise.allSettled(taches);
