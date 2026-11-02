@@ -269,6 +269,8 @@ function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => 
   const [paye, setPaye] = useState(true);
   const [err, setErr] = useState("");
   const [envoi, setEnvoi] = useState(false);
+  // Commande « lien de paiement » enregistrée : on affiche le lien à transmettre au client avant de refermer le formulaire.
+  const [resultat, setResultat] = useState<{ numero: string; total: number; lien: string; tel: string; nom: string; erreur?: string } | null>(null);
   useEffect(() => {
     void api<{ produits: Ligne[]; variantes: Ligne[] }>("products").then((r) => { if (r.ok) { setProduits(r.data.produits ?? []); setVariantes(r.data.variantes ?? []); } });
     void api<{ revendeurs: Ligne[] }>("resellers").then((r) => r.ok && setRevendeurs((r.data.revendeurs ?? []).filter((x) => x.active)));
@@ -296,11 +298,35 @@ function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => 
     if (!client.nom.trim() || client.telephone.replace(/\D/g, "").length < 8) { setErr("Le nom et un téléphone valide du client sont obligatoires."); return; }
     if (choisies.length === 0) { setErr("Choisissez au moins un produit et son pack."); return; }
     setEnvoi(true);
-    const r = await api("orders", { method: "POST", body: { lignes: choisies.map((l) => ({ variantId: l.variantId, qty: l.qty })), client, mode, code: code.trim() || undefined, revendeurId: revendeurId || undefined, paiementRecu: paye } });
+    const r = await api("orders", { method: "POST", body: { lignes: choisies.map((l) => ({ variantId: l.variantId, qty: l.qty })), client, mode, code: code.trim() || undefined, revendeurId: revendeurId || undefined, paiementRecu: mode === "fapshi" ? false : paye } });
+    if (!r.ok) { setEnvoi(false); setErr(r.data.error ?? "Échec."); return; }
+    if (mode !== "fapshi") { setEnvoi(false); fait(); return; }
+    const cmd = r.data as unknown as { id: string; numero: string; total: number };
+    const l = await api<{ lien?: string }>(`orders/${cmd.id}/lien-paiement`, { method: "POST" });
     setEnvoi(false);
-    if (!r.ok) setErr(r.data.error ?? "Échec."); else fait();
+    setResultat({ numero: cmd.numero, total: cmd.total, lien: l.ok ? l.data.lien ?? "" : "", tel: client.telephone.replace(/\D/g, ""), nom: client.nom, erreur: l.ok && l.data.lien ? undefined : l.data.error ?? "Lien impossible à créer." });
   }
   const lab = { display: "grid", gap: 4, fontSize: 12.5, fontWeight: 700, minWidth: 0 } as const;
+  if (resultat) {
+    const msg = `Bonjour ${resultat.nom}, voici votre lien de paiement NUTRELIS (commande ${resultat.numero}, ${fcfa(resultat.total)}) : ${resultat.lien}`;
+    return (
+      <div style={{ ...carte, marginBottom: 14, display: "grid", gap: 12, borderColor: VERT }}>
+        <h3 style={{ margin: 0 }}>Commande {resultat.numero} enregistrée — {fcfa(resultat.total)}</h3>
+        {resultat.lien ? (
+          <>
+            <div style={{ fontSize: 13.5 }}>Transmettez ce lien de paiement au client. Dès qu'il paie, la commande passe en « payée ».</div>
+            <input readOnly value={resultat.lien} onFocus={(e) => e.currentTarget.select()} style={champ} aria-label="Lien de paiement" />
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button onClick={() => { void navigator.clipboard?.writeText(resultat.lien).then(() => setErr("Lien copié."), () => setErr("Copie impossible : sélectionnez le lien.")); }} style={bouton}>Copier le lien</button>
+              <a href={`https://wa.me/${resultat.tel}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>Envoyer par WhatsApp</a>
+            </div>
+          </>
+        ) : <div role="alert" style={{ color: "#b91c1c", fontWeight: 700 }}>La commande est créée mais le lien n'a pas pu l'être ({resultat.erreur}). Rouvrez la commande et cliquez sur « 🔗 Lien de paiement ».</div>}
+        {err && <div style={{ color: "#15803d", fontWeight: 700 }}>{err}</div>}
+        <div><button onClick={fait} style={boutonDiscret}>Terminer</button></div>
+      </div>
+    );
+  }
   return (
     <div style={{ ...carte, marginBottom: 14, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
       <h3 style={{ margin: 0 }}>Nouvelle commande <span style={{ fontWeight: 500, color: "#5b665e", fontSize: 13 }}>(vente directe ou revendeur)</span></h3>
@@ -363,11 +389,13 @@ function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => 
         <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", alignItems: "end" }}>
           <label style={lab}>Moyen de paiement
             <select value={mode} onChange={(e) => setMode(e.target.value)} style={champ}>
-              <option value="especes">Espèces</option><option value="virement">Virement</option><option value="livraison">À la livraison</option>
+              <option value="especes">Espèces</option><option value="virement">Virement</option><option value="livraison">À la livraison</option><option value="fapshi">🔗 Lien de paiement en ligne</option>
             </select>
           </label>
           {!revendeurId && <label style={lab}>Code promo (facultatif)<input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="ex. BIENVENUE10" style={champ} /></label>}
-          <label style={{ fontSize: 14, display: "flex", alignItems: "center", gap: 8, minHeight: 44 }}><input type="checkbox" checked={paye} onChange={(e) => setPaye(e.target.checked)} /> Déjà payée</label>
+          {mode === "fapshi"
+            ? <div style={{ fontSize: 12.5, color: "#5b665e" }}>Un lien de paiement sera généré à l'enregistrement.</div>
+            : <label style={{ fontSize: 14, display: "flex", alignItems: "center", gap: 8, minHeight: 44 }}><input type="checkbox" checked={paye} onChange={(e) => setPaye(e.target.checked)} /> Déjà payée</label>}
         </div>
       </div>
 
@@ -378,7 +406,7 @@ function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => 
       </div>
       {err && <div role="alert" style={{ color: "#b91c1c", fontWeight: 700 }}>{err}</div>}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <button onClick={() => void valider()} disabled={envoi} style={{ ...bouton, opacity: envoi ? 0.6 : 1 }}>{envoi ? "Enregistrement…" : "Enregistrer la commande"}</button>
+        <button onClick={() => void valider()} disabled={envoi} style={{ ...bouton, opacity: envoi ? 0.6 : 1 }}>{envoi ? "Enregistrement…" : mode === "fapshi" ? "Enregistrer et créer le lien" : "Enregistrer la commande"}</button>
         <button onClick={annuler} style={boutonDiscret}>Annuler</button>
       </div>
     </div>
