@@ -26,6 +26,7 @@ export async function POST(req: Request) {
     const cmd = await creerCommande({
       lignes,
       mode,
+      code: texte(b.code, 40),
       client: {
         nom: [texte(c.prenom, 80), texte(c.nom, 80)].filter(Boolean).join(" ") || texte(c.fullName, 160) || "",
         telephone: texte(c.telephone, 30) ?? "",

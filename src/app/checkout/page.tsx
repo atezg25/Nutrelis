@@ -26,7 +26,39 @@ export default function Checkout() {
   const lignesVille = (tarifs?.villes ?? []).filter(v => norm(v.ville) === norm(form.ville));
   const tarifVille = lignesVille.find(v => v.quartier && norm(v.quartier) === norm(form.quartier)) ?? lignesVille.find(v => !v.quartier);
   const frais = tarifVille ? tarifVille.fraisFcfa : (tarifs?.defautFcfa ?? 0);
-  const totalAPayer = totalPrix + frais;
+  // Code promo : la remise affichée est indicative, le serveur la recalcule à la commande.
+  const [codeSaisi, setCodeSaisi] = useState("");
+  const [promo, setPromo] = useState<{ code: string; remiseFcfa: number; libelle: string } | null>(null);
+  const [promoMsg, setPromoMsg] = useState("");
+  const [promoEnCours, setPromoEnCours] = useState(false);
+  async function appliquerCode() {
+    if (!codeSaisi.trim()) return;
+    setPromoEnCours(true); setPromoMsg("");
+    try {
+      const r = await fetch("/api/promo/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: codeSaisi, sousTotal: totalPrix }) });
+      const d = (await r.json().catch(() => ({}))) as { code?: string; remiseFcfa?: number; libelle?: string; error?: string };
+      if (r.ok && d.code) { setPromo({ code: d.code, remiseFcfa: d.remiseFcfa ?? 0, libelle: d.libelle ?? "" }); setPromoMsg(""); }
+      else { setPromo(null); setPromoMsg(d.error ?? "Code invalide."); }
+    } catch { setPromoMsg("Vérification impossible. Réessayez."); }
+    setPromoEnCours(false);
+  }
+  // Le panier a changé (quantité, pack) : on revérifie le code pour afficher le bon montant.
+  useEffect(() => { if (promo) void (async () => { const r = await fetch("/api/promo/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: promo.code, sousTotal: totalPrix }) }); const d = (await r.json().catch(() => ({}))) as { code?: string; remiseFcfa?: number; libelle?: string; error?: string }; if (r.ok && d.code) setPromo({ code: d.code, remiseFcfa: d.remiseFcfa ?? 0, libelle: d.libelle ?? "" }); else { setPromo(null); setPromoMsg(d.error ?? ""); } })(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [totalPrix]);
+  const remiseCode = promo?.remiseFcfa ?? 0;
+  const totalAPayer = totalPrix - remiseCode + frais;
+
+  // Panier abandonné : dès que le téléphone est saisi, on garde le panier (le serveur ignore les numéros trop courts).
+  useEffect(() => {
+    const tel = form.telephone.replace(/\D/g, "");
+    if (tel.length < 9 || items.length === 0) return;
+    const t = setTimeout(() => {
+      void fetch("/api/cart-capture", { method: "POST", headers: { "Content-Type": "application/json" }, keepalive: true,
+        body: JSON.stringify({ telephone: form.telephone, nom: form.nom, prenom: form.prenom, email: form.email, ville: form.ville, total: totalAPayer,
+          items: items.filter(i => i.variantId).map(i => ({ variantId: i.variantId, qty: i.quantite, mode: i.mode })) }) }).catch(() => undefined);
+    }, 1500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.telephone, form.nom, form.prenom, form.email, form.ville, items, totalAPayer]);
 
   const sc = useScreenSize();
   const isMobile = sc === "mobile";
@@ -69,6 +101,7 @@ export default function Checkout() {
         body: JSON.stringify({
           items: lignes,
           mode: modePaiement === "livraison" ? "livraison" : "fapshi",
+          code: promo?.code,
           client: {
             nom: form.nom,
             prenom: form.prenom,
@@ -379,10 +412,32 @@ export default function Checkout() {
             </div>
           ))}
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
+          <div style={{ marginTop: 14 }}>
+            {promo ? (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 10, padding: "10px 12px", fontSize: 13 }}>
+                <span>✅ Code <strong>{promo.code}</strong> appliqué</span>
+                <button onClick={() => { setPromo(null); setCodeSaisi(""); }} style={{ background: "none", border: 0, color: "#b91c1c", cursor: "pointer", fontWeight: 700, fontSize: 12 }}>Retirer</button>
+              </div>
+            ) : (
+              <div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input value={codeSaisi} onChange={(e) => setCodeSaisi(e.target.value.toUpperCase())} onKeyDown={(e) => { if (e.key === "Enter") void appliquerCode(); }} placeholder="Code promo" aria-label="Code promo" autoCapitalize="characters" style={{ flex: 1, minWidth: 0, padding: "11px 12px", borderRadius: 10, border: "1.5px solid #ddd", fontSize: 14, textTransform: "uppercase" }} />
+                  <button onClick={() => void appliquerCode()} disabled={promoEnCours || !codeSaisi.trim()} style={{ background: "#7D0806", color: "#fff", border: 0, borderRadius: 10, padding: "0 16px", fontWeight: 800, fontSize: 13, cursor: "pointer", opacity: promoEnCours || !codeSaisi.trim() ? 0.5 : 1 }}>{promoEnCours ? "…" : "Appliquer"}</button>
+                </div>
+                {promoMsg && <p role="alert" style={{ color: "#e53e3e", fontSize: 12.5, margin: "6px 0 0" }}>{promoMsg}</p>}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: "#555" }}>
               <span>{t("cart.subtotal")}</span><span>{totalPrix.toLocaleString()} FCFA</span>
             </div>
+            {remiseCode > 0 && (
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: "#1f7a3a", fontWeight: 700 }}>
+                <span>🏷️ {promo?.code} ({promo?.libelle})</span><span>−{remiseCode.toLocaleString()} FCFA</span>
+              </div>
+            )}
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, color: "#555" }}>
               <span>{t("cart.shipping")}{tarifVille?.delai ? ` (${tarifVille.delai})` : ""}</span><span style={{ color: frais === 0 ? "var(--accent)" : "#333", fontWeight: 700 }}>{frais === 0 ? t("common.freeShipping") : `${frais.toLocaleString()} FCFA`}</span>
             </div>

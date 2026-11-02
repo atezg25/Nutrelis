@@ -45,6 +45,27 @@ type VarianteLue = {
   pactive: boolean;
 };
 
+/**
+ * Évalue un code promo pour un sous-total. `c` = client de transaction (le code est alors VERROUILLÉ, pour que deux commandes
+ * simultanées ne dépassent pas le nombre d'utilisations) ; `null` = simple vérification (affichage au paiement).
+ */
+export async function evaluerCodePromo(c: PoolClient | null, brut: string, sousTotal: number): Promise<{ id: string; code: string; discount: number; libelle: string }> {
+  const code = brut.trim().toUpperCase();
+  const sql = "SELECT id, code, kind, value, min_order_fcfa, max_uses, used_count, starts_at, ends_at, active FROM promo_code WHERE upper(code)=$1" + (c ? " FOR UPDATE" : "");
+  type Promo = { id: string; code: string; kind: "percent" | "fixed"; value: number; min_order_fcfa: number; max_uses: number | null; used_count: number; starts_at: Date | null; ends_at: Date | null; active: boolean };
+  const rows = c ? (await c.query<Promo>(sql, [code])).rows : await query<Promo>(sql, [code]);
+  const p = rows[0];
+  const maintenant = new Date();
+  if (!p || !p.active) throw new ErreurCommande("CODE_INVALIDE", "Ce code promo n'est pas valide.");
+  if (p.starts_at && p.starts_at > maintenant) throw new ErreurCommande("CODE_INVALIDE", "Ce code promo n'est pas encore actif.");
+  if (p.ends_at && p.ends_at < maintenant) throw new ErreurCommande("CODE_INVALIDE", "Ce code promo a expiré.");
+  if (p.max_uses !== null && p.used_count >= p.max_uses) throw new ErreurCommande("CODE_INVALIDE", "Ce code promo a atteint son nombre d'utilisations.");
+  if (sousTotal < p.min_order_fcfa) throw new ErreurCommande("CODE_INVALIDE", `Ce code demande une commande d'au moins ${p.min_order_fcfa.toLocaleString("fr-FR")} FCFA.`);
+  const brutRemise = p.kind === "percent" ? Math.round((sousTotal * p.value) / 100) : p.value;
+  const discount = Math.max(0, Math.min(brutRemise, sousTotal));
+  return { id: p.id, code: p.code, discount, libelle: p.kind === "percent" ? `−${p.value} %` : `−${p.value.toLocaleString("fr-FR")} FCFA` };
+}
+
 export async function creerCommande(p: {
   lignes: LigneDemandee[];
   client: ClientCommande;
@@ -52,6 +73,8 @@ export async function creerCommande(p: {
   canal?: "web" | "revendeur" | "manuel";
   revendeurId?: string | null;
   paiementRecu?: boolean;
+  /** Code promo saisi par le client (ignoré pour les ventes revendeur). */
+  code?: string | null;
 }): Promise<{ id: string; numero: string; total: number }> {
   const nom = p.client.nom?.trim();
   const tel = p.client.telephone?.replace(/[^\d+]/g, "");
@@ -106,7 +129,15 @@ export async function creerCommande(p: {
       }
     }
     const livraison = p.revendeurId ? 0 : (await fraisPourVille(p.client.ville, p.client.quartier)).fraisFcfa;
-    const total = sousTotal + livraison;
+    // Code promo : calculé et verrouillé ICI (jamais fait confiance au navigateur). La livraison n'est pas remisée.
+    let rabais = 0;
+    let promo: { id: string; code: string } | null = null;
+    if (p.code && !p.revendeurId) {
+      const r = await evaluerCodePromo(c, p.code, sousTotal);
+      rabais = r.discount;
+      promo = { id: r.id, code: r.code };
+    }
+    const total = sousTotal - rabais + livraison;
 
     const num = await c.query<{ n: string }>("SELECT nextval('order_number_seq')::text AS n");
     const numero = `NUT-${num.rows[0]!.n.padStart(6, "0")}`;
@@ -114,15 +145,16 @@ export async function creerCommande(p: {
     const payee = p.paiementRecu === true;
     const ord = await c.query<{ id: string }>(
       `INSERT INTO customer_order (number, channel, reseller_id, customer_name, phone, email, city, address, notes,
-                                   payment_status, payment_method, subtotal_fcfa, delivery_fcfa, total_fcfa, subscription)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id`,
+                                   payment_status, payment_method, subtotal_fcfa, delivery_fcfa, total_fcfa, subscription, promo_code, discount_fcfa)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING id`,
       [
         numero, canal, p.revendeurId ?? null, nom, tel, p.client.email?.trim() || null, p.client.ville?.trim() || null,
         p.client.adresse?.trim() || null, p.client.notes?.trim() || null,
-        payee ? "payee" : p.mode === "livraison" ? "a_la_livraison" : "en_attente", p.mode, sousTotal, livraison, total, estAbonnement,
+        payee ? "payee" : p.mode === "livraison" ? "a_la_livraison" : "en_attente", p.mode, sousTotal, livraison, total, estAbonnement, promo?.code ?? null, rabais,
       ],
     );
     const id = ord.rows[0]!.id;
+    if (promo) await c.query("UPDATE promo_code SET used_count = used_count + 1 WHERE id=$1", [promo.id]);
     for (const it of items) {
       await c.query("INSERT INTO order_item (order_id, variant_id, name, unit_fcfa, qty, subscription) VALUES ($1,$2,$3,$4,$5,$6)", [id, it.v.id, `${it.v.pname} — ${it.v.label}${it.abo ? " (abonnement)" : ""}`, it.unit, it.qty, it.abo]);
       await c.query("INSERT INTO stock_movement (variant_id, delta, reason, ref) VALUES ($1,$2,'vente',$3)", [it.v.id, -it.qty, numero]);
@@ -130,6 +162,8 @@ export async function creerCommande(p: {
     return { id, numero, total };
   });
   // Rupture / stock faible franchi par cette vente : alerte à la boutique (sans jamais bloquer la commande).
+  // Le panier enregistré à l'étape « coordonnées » n'est plus « abandonné » : la commande est passée.
+  void query("UPDATE abandoned_cart SET status='recupere', updated_at=now() WHERE phone=$1", [tel]).catch(() => undefined);
   void alerterStock([...fusion].map(([variantId, qty]) => ({ variantId, qty }))).catch(() => undefined);
   return cree;
 }

@@ -304,3 +304,37 @@ CREATE TABLE IF NOT EXISTS contact_message (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS contact_message_status_idx ON contact_message (status, created_at DESC);
+
+-- Codes promo, remise sur commande, paniers abandonnés
+CREATE TABLE IF NOT EXISTS promo_code (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code          TEXT NOT NULL,
+  kind          TEXT NOT NULL CHECK (kind IN ('percent','fixed')),
+  value         INTEGER NOT NULL CHECK (value > 0),
+  min_order_fcfa INTEGER NOT NULL DEFAULT 0 CHECK (min_order_fcfa >= 0),
+  max_uses      INTEGER CHECK (max_uses IS NULL OR max_uses > 0),
+  used_count    INTEGER NOT NULL DEFAULT 0,
+  starts_at     TIMESTAMPTZ,
+  ends_at       TIMESTAMPTZ,
+  active        BOOLEAN NOT NULL DEFAULT TRUE,
+  note          TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS promo_code_code_idx ON promo_code (upper(code));
+ALTER TABLE customer_order ADD COLUMN IF NOT EXISTS promo_code TEXT;
+ALTER TABLE customer_order ADD COLUMN IF NOT EXISTS discount_fcfa INTEGER NOT NULL DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS abandoned_cart (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  phone      TEXT NOT NULL,
+  name       TEXT,
+  email      TEXT,
+  city       TEXT,
+  items      JSONB NOT NULL DEFAULT '[]'::jsonb,
+  total_fcfa INTEGER NOT NULL DEFAULT 0,
+  status     TEXT NOT NULL DEFAULT 'ouvert' CHECK (status IN ('ouvert','relance','recupere')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS abandoned_cart_phone_idx ON abandoned_cart (phone);
+CREATE INDEX IF NOT EXISTS abandoned_cart_status_idx ON abandoned_cart (status, updated_at DESC);

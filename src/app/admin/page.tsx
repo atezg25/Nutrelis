@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 // Un seul écran à onglets. Tout passe par /api/admin/* (cookie signé, mot de passe unique).
 // ============================================================
 type Ligne = Record<string, string | number | boolean | null>;
-type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "avis" | "abonnements" | "blog" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "messages" | "utilisateurs" | "parametres" | "journal" | "compte";
+type Onglet = "tableau" | "commandes" | "expeditions" | "paiements" | "avis" | "abonnements" | "blog" | "clients" | "stock" | "produits" | "revendeurs" | "rapports" | "messages" | "promos" | "paniers" | "utilisateurs" | "parametres" | "journal" | "compte";
 
 const VERT = "#1f7a3a";
 const fcfa = (n: unknown) => `${Number(n ?? 0).toLocaleString("fr-FR")} FCFA`;
@@ -201,6 +201,7 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
           <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
             <a href={`tel:+${tel}`} style={{ ...boutonDiscret, textDecoration: "none" }}>Appeler</a>
             <a href={`https://wa.me/${tel}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>WhatsApp</a>
+            <a href={`/admin/facture/${id}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>🧾 Facture</a>
           </div>
         </div>
         <div>
@@ -1239,6 +1240,85 @@ function Messages() {
   );
 }
 
+// ---------------------------------------------------------------- Paniers abandonnés
+function Paniers() {
+  const [lignes, setLignes] = useState<Ligne[]>([]);
+  const [msg, setMsg] = useState("");
+  const charger = useCallback(() => { void api<{ paniers: Ligne[] }>("paniers").then((r) => r.ok && setLignes(r.data.paniers ?? [])); }, []);
+  useEffect(charger, [charger]);
+  async function marquer(id: string, status: "relance" | "recupere") {
+    await api(`paniers/${id}`, { method: "PATCH", body: { status } });
+    charger();
+  }
+  // Message de relance prêt à envoyer sur WhatsApp : poli, court, sans pression, avec le lien du panier.
+  const texteRelance = (l: Ligne) => `Bonjour ${String(l.name ?? "").split(" ")[0] || ""}, c'est NUTRELIS. Vous avez laissé ${String(l.resume || "des articles")} dans votre panier. Nous le gardons pour vous : finalisez votre commande ici https://nutrelis.bio/panier. Une question ? Répondez-nous ici. Merci !`;
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 12 }}>
+      <p style={{ margin: 0, color: "#5b665e", fontSize: 13.5, lineHeight: 1.6 }}>
+        Clients qui ont saisi leur téléphone au moment de commander, puis n'ont rien commandé depuis 30 minutes. Relancez-les par WhatsApp : un message poli suffit souvent à finaliser la vente.
+      </p>
+      {msg && <div style={{ color: VERT, fontWeight: 700 }}>{msg}</div>}
+      <Tableau lignes={lignes} colonnes={[
+        { titre: "Client", rendu: (l) => <><strong>{String(l.name ?? "Sans nom")}</strong><br /><span style={{ color: "#777", fontSize: 12 }}>{String(l.phone)}{l.city ? ` · ${String(l.city)}` : ""}</span></> },
+        { titre: "Panier", rendu: (l) => <span style={{ fontSize: 13 }}>{String(l.resume || "—")}</span> },
+        { titre: "Total", rendu: (l) => fcfa(l.total_fcfa) },
+        { titre: "Dernière activité", rendu: (l) => date(l.updated_at) },
+        { titre: "Statut", rendu: (l) => <Badge texte={l.status === "relance" ? "Relancé" : "À relancer"} couleur={l.status === "relance" ? "#1d4ed8" : "#b45309"} /> },
+        { titre: "Actions", rendu: (l) => (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <a href={`https://wa.me/${String(l.phone).replace(/\D/g, "")}?text=${encodeURIComponent(texteRelance(l))}`} target="_blank" rel="noreferrer" onClick={() => void marquer(String(l.id), "relance")} style={{ ...bouton, textDecoration: "none", padding: "6px 10px", fontSize: 13 }}>💬 Relancer</a>
+            <button onClick={() => { void marquer(String(l.id), "recupere"); setMsg("Panier retiré de la liste."); }} style={{ ...boutonDiscret, padding: "6px 10px", fontSize: 13 }}>✓ Terminé</button>
+          </div>
+        ) },
+      ]} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- Codes promo
+function Promos() {
+  const [lignes, setLignes] = useState<Ligne[]>([]);
+  const [f, setF] = useState({ code: "", kind: "percent", value: "10", minOrder: "", maxUses: "", endsAt: "", note: "" });
+  const [msg, setMsg] = useState("");
+  const charger = useCallback(() => { void api<{ promos: Ligne[] }>("promos").then((r) => r.ok && setLignes(r.data.promos ?? [])); }, []);
+  useEffect(charger, [charger]);
+  async function creer() {
+    setMsg("");
+    const r = await api("promos", { method: "POST", body: { ...f, value: Number(f.value), minOrder: f.minOrder === "" ? 0 : Number(f.minOrder), maxUses: f.maxUses === "" ? null : Number(f.maxUses), endsAt: f.endsAt || null } });
+    if (r.ok) { setF({ code: "", kind: "percent", value: "10", minOrder: "", maxUses: "", endsAt: "", note: "" }); setMsg("Code créé ✓"); charger(); } else setMsg(r.data.error ?? "Échec.");
+  }
+  async function basculer(l: Ligne) { await api(`promos/${String(l.id)}`, { method: "PATCH", body: { active: !l.active } }); charger(); }
+  async function supprimer(l: Ligne) { const r = await api(`promos/${String(l.id)}`, { method: "DELETE" }); setMsg(r.ok ? "Code supprimé." : r.data.error ?? "Échec."); charger(); }
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
+      <div style={{ ...carte, display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", alignItems: "end" }}>
+        <label style={{ display: "grid", gap: 4, fontSize: 12.5, fontWeight: 700 }}>Code<input value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.toUpperCase() })} placeholder="BIENVENUE10" style={champ} /></label>
+        <label style={{ display: "grid", gap: 4, fontSize: 12.5, fontWeight: 700 }}>Type<select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })} style={champ}><option value="percent">Pourcentage (%)</option><option value="fixed">Montant fixe (FCFA)</option></select></label>
+        <label style={{ display: "grid", gap: 4, fontSize: 12.5, fontWeight: 700 }}>{f.kind === "percent" ? "Remise (%)" : "Remise (FCFA)"}<input type="number" min={1} value={f.value} onChange={(e) => setF({ ...f, value: e.target.value })} style={champ} /></label>
+        <label style={{ display: "grid", gap: 4, fontSize: 12.5, fontWeight: 700 }}>Commande minimum (FCFA)<input type="number" min={0} value={f.minOrder} onChange={(e) => setF({ ...f, minOrder: e.target.value })} placeholder="aucun" style={champ} /></label>
+        <label style={{ display: "grid", gap: 4, fontSize: 12.5, fontWeight: 700 }}>Utilisations max<input type="number" min={1} value={f.maxUses} onChange={(e) => setF({ ...f, maxUses: e.target.value })} placeholder="illimité" style={champ} /></label>
+        <label style={{ display: "grid", gap: 4, fontSize: 12.5, fontWeight: 700 }}>Valable jusqu'au<input type="date" value={f.endsAt} onChange={(e) => setF({ ...f, endsAt: e.target.value })} style={champ} /></label>
+        <label style={{ display: "grid", gap: 4, fontSize: 12.5, fontWeight: 700 }}>Note (interne)<input value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} placeholder="ex. offre de lancement" style={champ} /></label>
+        <button onClick={() => void creer()} disabled={!f.code || !f.value} style={{ ...bouton, opacity: !f.code || !f.value ? 0.6 : 1 }}>+ Créer le code</button>
+      </div>
+      {msg && <div style={{ color: msg.includes("✓") || msg.includes("supprimé") ? VERT : "#b91c1c", fontWeight: 700 }}>{msg}</div>}
+      <Tableau lignes={lignes} colonnes={[
+        { titre: "Code", rendu: (l) => <strong style={{ letterSpacing: 0.5 }}>{String(l.code)}</strong> },
+        { titre: "Remise", rendu: (l) => (l.kind === "percent" ? `${String(l.value)} %` : fcfa(l.value)) },
+        { titre: "Conditions", rendu: (l) => <span style={{ fontSize: 12.5 }}>{Number(l.min_order_fcfa) > 0 ? `dès ${fcfa(l.min_order_fcfa)}` : "sans minimum"}{l.ends_at ? ` · jusqu'au ${new Date(String(l.ends_at)).toLocaleDateString("fr-FR")}` : ""}{l.note ? <><br /><em style={{ color: "#777" }}>{String(l.note)}</em></> : null}</span> },
+        { titre: "Utilisations", rendu: (l) => `${String(l.used_count)}${l.max_uses ? ` / ${String(l.max_uses)}` : ""}` },
+        { titre: "Statut", rendu: (l) => <Badge texte={l.active ? "Actif" : "Désactivé"} couleur={l.active ? VERT : "#6b7280"} /> },
+        { titre: "Actions", rendu: (l) => (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <button onClick={() => void basculer(l)} style={{ ...boutonDiscret, padding: "6px 10px", fontSize: 13 }}>{l.active ? "Désactiver" : "Activer"}</button>
+            {Number(l.used_count) === 0 && <button onClick={() => void supprimer(l)} style={{ ...boutonDiscret, padding: "6px 10px", fontSize: 13, color: "#b91c1c" }}>Supprimer</button>}
+          </div>
+        ) },
+      ]} />
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------- Rapports
 function Rapports() {
   const [jours, setJours] = useState(30);
@@ -1438,6 +1518,8 @@ const MENU: { id: Onglet; titre: string; icone: string; proprietaire?: boolean; 
   { id: "abonnements", titre: "Abonnements", icone: "🔁" },
   { id: "blog", titre: "Blog", icone: "📰" },
   { id: "messages", titre: "Messages", icone: "✉️" },
+  { id: "paniers", titre: "Paniers abandonnés", icone: "🛒" },
+  { id: "promos", titre: "Codes promo", icone: "🏷️" },
   { id: "clients", titre: "Clients", icone: "👥" },
   { id: "stock", titre: "Stock", icone: "📦" },
   { id: "produits", titre: "Produits", icone: "🌿" },
@@ -1530,6 +1612,8 @@ export default function Admin() {
       {onglet === "abonnements" && <Abonnements />}
       {onglet === "blog" && <BlogAdmin />}
       {onglet === "messages" && <Messages />}
+      {onglet === "paniers" && <Paniers />}
+      {onglet === "promos" && <Promos />}
       {onglet === "clients" && <Clients />}
       {onglet === "stock" && <Stock />}
       {onglet === "produits" && <Produits />}
