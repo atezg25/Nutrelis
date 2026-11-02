@@ -183,9 +183,17 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
     const r = await api(`orders/${id}`, { method: "PATCH", body: corps });
     if (!r.ok) setMsg(r.data.error ?? "Échec."); else { charger(); recharger(); }
   }
+  const [lien, setLien] = useState("");
+  const [lienEnCours, setLienEnCours] = useState(false);
+  async function creerLien() {
+    setMsg(""); setLienEnCours(true);
+    const r = await api<{ lien?: string }>(`orders/${id}/lien-paiement`, { method: "POST" });
+    setLienEnCours(false);
+    if (r.ok && r.data.lien) { setLien(r.data.lien); charger(); } else setMsg(r.data.error ?? "Impossible de créer le lien.");
+  }
   if (!d) return null;
   const c = d.commande;
-  const tel = String(c.phone ?? "").replace(/[^\d]/g, "");
+  const tel =String(c.phone ?? "").replace(/[^\d]/g, "");
   return (
     <div style={{ ...carte, marginBottom: 14, borderColor: VERT }}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
@@ -221,6 +229,17 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
       </div>
       {c.payment_status !== "payee" && c.status !== "annulee" && (
         <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <button onClick={() => void creerLien()} disabled={lienEnCours} style={bouton}>{lienEnCours ? "…" : "🔗 Lien de paiement"}</button>
+          {lien && (
+            <div style={{ flexBasis: "100%", display: "grid", gap: 8, background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 12, padding: 12 }}>
+              <input readOnly value={lien} onFocus={(e) => e.currentTarget.select()} style={champ} aria-label="Lien de paiement" />
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button onClick={() => { void navigator.clipboard?.writeText(lien).then(() => setMsg("Lien copié."), () => setMsg("Copie impossible : sélectionnez le lien.")); }} style={boutonDiscret}>Copier</button>
+                <a href={`https://wa.me/${tel}?text=${encodeURIComponent(`Bonjour ${String(c.customer_name)}, voici votre lien de paiement NUTRELIS (commande ${String(c.number)}, ${fcfa(c.total_fcfa)}) : ${lien}`)}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>Envoyer par WhatsApp</a>
+              </div>
+              <span style={{ fontSize: 12, color: "#555" }}>Dès que le client paie, la commande passe automatiquement en « payée ».</span>
+            </div>
+          )}
           <span style={{ fontSize: 13, color: "#555" }}>Marquer comme payée :</span>
           <button onClick={() => void agir({ paiementRecu: "especes" })} style={bouton}>Espèces</button>
           <button onClick={() => void agir({ paiementRecu: "virement" })} style={bouton}>Virement</button>
