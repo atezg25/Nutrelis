@@ -21,8 +21,10 @@ export default function Checkout() {
   useEffect(() => {
     void fetch("/api/shipping/rates", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(setTarifs).catch(() => setTarifs(null));
   }, []);
-  const lignesVille = (tarifs?.villes ?? []).filter(v => v.ville.toLowerCase() === form.ville.trim().toLowerCase());
-  const tarifVille = lignesVille.find(v => v.quartier && v.quartier.toLowerCase() === form.quartier.trim().toLowerCase()) ?? lignesVille.find(v => !v.quartier);
+  // Sans tenir compte des accents ni de la casse (« Yaounde » = « Yaoundé »), comme le serveur.
+  const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  const lignesVille = (tarifs?.villes ?? []).filter(v => norm(v.ville) === norm(form.ville));
+  const tarifVille = lignesVille.find(v => v.quartier && norm(v.quartier) === norm(form.quartier)) ?? lignesVille.find(v => !v.quartier);
   const frais = tarifVille ? tarifVille.fraisFcfa : (tarifs?.defautFcfa ?? 0);
   const totalAPayer = totalPrix + frais;
 
