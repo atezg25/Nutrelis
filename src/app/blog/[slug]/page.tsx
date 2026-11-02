@@ -2,6 +2,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import NavbarCart from "@/components/NavbarCart";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useLocale } from "@/context/LocaleContext";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import HydrationGuard from "@/components/HydrationGuard";
@@ -38,6 +39,7 @@ export default function PageArticle({ params }: { params: Promise<{ slug: string
           <img src="/images/logo-homepage.png" alt="Nutrelis" style={{ height: isMobile ? 28 : 40, width: "auto" }} />
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 12 }}>
+          <LanguageSwitcher />
           <NavbarCart />
           <Link href="/#produits" style={{ background: "var(--accent)", color: "#060f08", padding: isMobile ? "8px 12px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 11 : 14, fontWeight: 800, textDecoration: "none", fontFamily: "var(--font-sora), sans-serif", whiteSpace: "nowrap" }}>
             {isMobile ? t("home.navShop") : t("home.navShopArrow")}
