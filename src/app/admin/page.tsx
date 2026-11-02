@@ -239,53 +239,129 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
 
 function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => void }) {
   const [produits, setProduits] = useState<Ligne[]>([]);
+  const [variantes, setVariantes] = useState<Ligne[]>([]);
   const [revendeurs, setRevendeurs] = useState<Ligne[]>([]);
   const [revendeurId, setRevendeurId] = useState("");
-  const [client, setClient] = useState({ nom: "", telephone: "", ville: "", adresse: "" });
-  const [lignes, setLignes] = useState<{ variantId: string; qty: number }[]>([{ variantId: "", qty: 1 }]);
+  const [client, setClient] = useState({ nom: "", telephone: "", ville: "", quartier: "", adresse: "", notes: "" });
+  // Chaque ligne = un PRODUIT puis un PACK de ce produit (les packs sont triés par nombre d'unités).
+  const [lignes, setLignes] = useState<{ produitId: string; variantId: string; qty: number }[]>([{ produitId: "", variantId: "", qty: 1 }]);
+  const [code, setCode] = useState("");
   const [mode, setMode] = useState("especes");
   const [paye, setPaye] = useState(true);
   const [err, setErr] = useState("");
+  const [envoi, setEnvoi] = useState(false);
   useEffect(() => {
-    void api<{ variantes: Ligne[] }>("products").then((r) => r.ok && setProduits(r.data.variantes ?? []));
+    void api<{ produits: Ligne[]; variantes: Ligne[] }>("products").then((r) => { if (r.ok) { setProduits(r.data.produits ?? []); setVariantes(r.data.variantes ?? []); } });
     void api<{ revendeurs: Ligne[] }>("resellers").then((r) => r.ok && setRevendeurs((r.data.revendeurs ?? []).filter((x) => x.active)));
   }, []);
+
+  // Catalogue : produits actifs (dans l'ordre de la boutique), chacun avec ses packs actifs du plus petit au plus grand.
+  const catalogue = produits
+    .filter((p) => p.active)
+    .map((p) => ({
+      p,
+      packs: variantes
+        .filter((v) => v.product_id === p.id && v.active)
+        .sort((x, y) => Number(x.units ?? 1) - Number(y.units ?? 1) || Number(x.sort ?? 0) - Number(y.sort ?? 0) || Number(x.price_fcfa) - Number(y.price_fcfa)),
+    }))
+    .filter((c) => c.packs.length > 0);
+  const remisePct = Number(revendeurs.find((r) => String(r.id) === revendeurId)?.discount_pct ?? 0);
+  const prixPack = (v: Ligne) => (revendeurId ? Number(v.reseller_price_fcfa ?? Math.round((Number(v.price_fcfa) * (100 - remisePct)) / 100)) : Number(v.price_fcfa));
+  const trouve = (id: string) => variantes.find((v) => String(v.id) === id);
+  const sousTotal = lignes.reduce((t, l) => { const v = trouve(l.variantId); return t + (v ? prixPack(v) * (l.qty || 0) : 0); }, 0);
+  const maj = (i: number, patch: Partial<{ produitId: string; variantId: string; qty: number }>) => setLignes(lignes.map((x, k) => (k === i ? { ...x, ...patch } : x)));
+
   async function valider() {
     setErr("");
-    const r = await api("orders", { method: "POST", body: { lignes: lignes.filter((l) => l.variantId), client, mode, revendeurId: revendeurId || undefined, paiementRecu: paye } });
+    const choisies = lignes.filter((l) => l.variantId);
+    if (!client.nom.trim() || client.telephone.replace(/\D/g, "").length < 8) { setErr("Le nom et un téléphone valide du client sont obligatoires."); return; }
+    if (choisies.length === 0) { setErr("Choisissez au moins un produit et son pack."); return; }
+    setEnvoi(true);
+    const r = await api("orders", { method: "POST", body: { lignes: choisies.map((l) => ({ variantId: l.variantId, qty: l.qty })), client, mode, code: code.trim() || undefined, revendeurId: revendeurId || undefined, paiementRecu: paye } });
+    setEnvoi(false);
     if (!r.ok) setErr(r.data.error ?? "Échec."); else fait();
   }
+  const lab = { display: "grid", gap: 4, fontSize: 12.5, fontWeight: 700, minWidth: 0 } as const;
   return (
-    <div style={{ ...carte, marginBottom: 14, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 10 }}>
-      <h3 style={{ margin: 0 }}>Nouvelle commande (vente directe ou revendeur)</h3>
-      <select value={revendeurId} onChange={(e) => setRevendeurId(e.target.value)} style={champ}>
-        <option value="">Vente directe (prix public)</option>
-        {revendeurs.map((r) => <option key={String(r.id)} value={String(r.id)}>{String(r.name)} — remise {String(r.discount_pct)} %</option>)}
-      </select>
-      <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
-        <input placeholder="Nom du client" value={client.nom} onChange={(e) => setClient({ ...client, nom: e.target.value })} style={champ} />
-        <input placeholder="Téléphone" value={client.telephone} onChange={(e) => setClient({ ...client, telephone: e.target.value })} style={champ} />
-        <input placeholder="Ville" value={client.ville} onChange={(e) => setClient({ ...client, ville: e.target.value })} style={champ} />
-        <input placeholder="Adresse" value={client.adresse} onChange={(e) => setClient({ ...client, adresse: e.target.value })} style={champ} />
-      </div>
-      {lignes.map((l, i) => (
-        <div key={i} style={{ display: "flex", gap: 8 }}>
-          <select value={l.variantId} onChange={(e) => setLignes(lignes.map((x, k) => (k === i ? { ...x, variantId: e.target.value } : x)))} style={{ ...champ, flex: 1 }}>
-            <option value="">Choisir un pack…</option>
-            {produits.filter((p) => p.active).map((p) => <option key={String(p.id)} value={String(p.id)}>{String(p.label)} ({String(p.sku)}) — {fcfa(p.price_fcfa)} — stock {String(p.stock)}</option>)}
-          </select>
-          <input type="number" min={1} value={l.qty} onChange={(e) => setLignes(lignes.map((x, k) => (k === i ? { ...x, qty: Number(e.target.value) } : x)))} style={{ ...champ, width: 80 }} />
-        </div>
-      ))}
-      <div><button onClick={() => setLignes([...lignes, { variantId: "", qty: 1 }])} style={boutonDiscret}>+ Ajouter un pack</button></div>
-      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-        <select value={mode} onChange={(e) => setMode(e.target.value)} style={champ}>
-          <option value="especes">Espèces</option><option value="virement">Virement</option><option value="livraison">À la livraison</option>
+    <div style={{ ...carte, marginBottom: 14, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
+      <h3 style={{ margin: 0 }}>Nouvelle commande <span style={{ fontWeight: 500, color: "#5b665e", fontSize: 13 }}>(vente directe ou revendeur)</span></h3>
+      <label style={lab}>Type de vente
+        <select value={revendeurId} onChange={(e) => setRevendeurId(e.target.value)} style={champ}>
+          <option value="">Vente directe (prix public)</option>
+          {revendeurs.map((r) => <option key={String(r.id)} value={String(r.id)}>{String(r.name)} — remise {String(r.discount_pct)} %</option>)}
         </select>
-        <label style={{ fontSize: 14 }}><input type="checkbox" checked={paye} onChange={(e) => setPaye(e.target.checked)} /> Déjà payée</label>
+      </label>
+
+      <div>
+        <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 8 }}>1 · Client</div>
+        <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
+          <input placeholder="Nom du client *" aria-label="Nom du client" value={client.nom} onChange={(e) => setClient({ ...client, nom: e.target.value })} style={champ} autoComplete="off" />
+          <input placeholder="Téléphone *" aria-label="Téléphone" inputMode="tel" value={client.telephone} onChange={(e) => setClient({ ...client, telephone: e.target.value })} style={champ} />
+          <input placeholder="Ville (ex. Yaoundé)" aria-label="Ville" value={client.ville} onChange={(e) => setClient({ ...client, ville: e.target.value })} style={champ} />
+          <input placeholder="Quartier" aria-label="Quartier" value={client.quartier} onChange={(e) => setClient({ ...client, quartier: e.target.value })} style={champ} />
+          <input placeholder="Adresse / repère" aria-label="Adresse" value={client.adresse} onChange={(e) => setClient({ ...client, adresse: e.target.value })} style={{ ...champ, gridColumn: "1 / -1" }} />
+        </div>
       </div>
-      {err && <div style={{ color: "#b91c1c" }}>{err}</div>}
-      <div style={{ display: "flex", gap: 8 }}><button onClick={() => void valider()} style={bouton}>Enregistrer la commande</button><button onClick={annuler} style={boutonDiscret}>Annuler</button></div>
+
+      <div>
+        <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 8 }}>2 · Produits <span style={{ fontWeight: 500, color: "#5b665e" }}>(d'abord le produit, puis son pack)</span></div>
+        <div style={{ display: "grid", gap: 10 }}>
+          {lignes.map((l, i) => {
+            const cat = catalogue.find((c) => String(c.p.id) === l.produitId);
+            const v = trouve(l.variantId);
+            const depasse = v && l.qty > Number(v.stock);
+            return (
+              <div key={i} style={{ border: "1px solid #e3e9e3", borderRadius: 12, padding: 10, background: "#fafcfa", display: "grid", gap: 8 }}>
+                <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))" }}>
+                  <select aria-label="Produit" value={l.produitId} onChange={(e) => { const c = catalogue.find((x) => String(x.p.id) === e.target.value); maj(i, { produitId: e.target.value, variantId: c && c.packs.length === 1 ? String(c.packs[0]!.id) : "" }); }} style={champ}>
+                    <option value="">Choisir un produit…</option>
+                    {catalogue.map((c) => <option key={String(c.p.id)} value={String(c.p.id)}>{String(c.p.name)}</option>)}
+                  </select>
+                  <select aria-label="Pack" value={l.variantId} onChange={(e) => maj(i, { variantId: e.target.value })} disabled={!cat} style={{ ...champ, opacity: cat ? 1 : 0.6 }}>
+                    <option value="">{cat ? "Choisir un pack…" : "Choisissez d'abord un produit"}</option>
+                    {cat?.packs.map((v2) => <option key={String(v2.id)} value={String(v2.id)} disabled={Number(v2.stock) <= 0}>{String(v2.label)} — {fcfa(prixPack(v2))}{Number(v2.stock) <= 0 ? " — RUPTURE" : ` — stock ${String(v2.stock)}`}</option>)}
+                  </select>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", border: "1px solid #d5ddd5", borderRadius: 10, background: "#fff" }}>
+                    <button type="button" onClick={() => maj(i, { qty: Math.max(1, (l.qty || 1) - 1) })} aria-label="Moins" style={{ ...boutonDiscret, border: 0, boxShadow: "none", padding: "8px 14px" }}>−</button>
+                    <input type="number" min={1} aria-label="Quantité" value={l.qty} onChange={(e) => maj(i, { qty: Math.max(1, Number(e.target.value) || 1) })} style={{ ...champ, border: 0, width: 56, textAlign: "center", padding: "8px 0" }} />
+                    <button type="button" onClick={() => maj(i, { qty: (l.qty || 1) + 1 })} aria-label="Plus" style={{ ...boutonDiscret, border: 0, boxShadow: "none", padding: "8px 14px" }}>+</button>
+                  </div>
+                  {v && <strong style={{ marginLeft: "auto" }}>{fcfa(prixPack(v) * (l.qty || 0))}</strong>}
+                  {lignes.length > 1 && <button type="button" onClick={() => setLignes(lignes.filter((_, k) => k !== i))} aria-label="Retirer cette ligne" style={{ ...boutonDiscret, color: "#b91c1c", padding: "8px 12px" }}>✕</button>}
+                </div>
+                {depasse && <div style={{ color: "#b45309", fontSize: 12.5, fontWeight: 700 }}>⚠️ Stock insuffisant : il en reste {String(v?.stock)}.</div>}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 8 }}><button type="button" onClick={() => setLignes([...lignes, { produitId: "", variantId: "", qty: 1 }])} style={boutonDiscret}>+ Ajouter un autre produit</button></div>
+      </div>
+
+      <div>
+        <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 8 }}>3 · Paiement</div>
+        <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", alignItems: "end" }}>
+          <label style={lab}>Moyen de paiement
+            <select value={mode} onChange={(e) => setMode(e.target.value)} style={champ}>
+              <option value="especes">Espèces</option><option value="virement">Virement</option><option value="livraison">À la livraison</option>
+            </select>
+          </label>
+          {!revendeurId && <label style={lab}>Code promo (facultatif)<input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="ex. BIENVENUE10" style={champ} /></label>}
+          <label style={{ fontSize: 14, display: "flex", alignItems: "center", gap: 8, minHeight: 44 }}><input type="checkbox" checked={paye} onChange={(e) => setPaye(e.target.checked)} /> Déjà payée</label>
+        </div>
+      </div>
+
+      <label style={lab}>Note (facultatif)<input value={client.notes} onChange={(e) => setClient({ ...client, notes: e.target.value })} placeholder="ex. livrer après 17 h" style={champ} /></label>
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap", borderTop: "1px solid #e3e9e3", paddingTop: 12 }}>
+        <div style={{ fontSize: 14 }}>Sous-total estimé : <strong style={{ fontSize: 18 }}>{fcfa(sousTotal)}</strong><div style={{ fontSize: 12, color: "#5b665e" }}>La livraison{code ? " et la remise du code sont" : " est"} ajoutée{code ? "s" : ""} automatiquement à l'enregistrement.</div></div>
+      </div>
+      {err && <div role="alert" style={{ color: "#b91c1c", fontWeight: 700 }}>{err}</div>}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button onClick={() => void valider()} disabled={envoi} style={{ ...bouton, opacity: envoi ? 0.6 : 1 }}>{envoi ? "Enregistrement…" : "Enregistrer la commande"}</button>
+        <button onClick={annuler} style={boutonDiscret}>Annuler</button>
+      </div>
     </div>
   );
 }

@@ -58,7 +58,8 @@ export async function POST(req: Request) {
       canal: revendeurId ? "revendeur" : "manuel",
       revendeurId,
       paiementRecu: b.paiementRecu === true,
-      client: { nom: texte(c.nom, 160) ?? "", telephone: texte(c.telephone, 30) ?? "", email: texte(c.email, 160), ville: texte(c.ville, 80), adresse: texte(c.adresse, 200), notes: texte(c.notes, 500) },
+      client: { nom: texte(c.nom, 160) ?? "", telephone: texte(c.telephone, 30) ?? "", email: texte(c.email, 160), ville: texte(c.ville, 80), quartier: texte(c.quartier, 80), adresse: texte(c.adresse, 200), notes: texte(c.notes, 500) },
+      code: texte(b.code, 40),
     });
     await journaliser("commande_saisie", `${cmd.numero}${revendeurId ? " (revendeur)" : ""} — ${cmd.total} FCFA`);
     return reponse(cmd, 201);
