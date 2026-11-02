@@ -1,9 +1,10 @@
 "use client";
 import { useLocale } from "@/context/LocaleContext";
 
-export default function LanguageSwitcher({ variant }: { variant?: "badge" }) {
+export default function LanguageSwitcher({ variant }: { variant?: "badge" | "nav" }) {
   const { locale, setLocale } = useLocale();
   const isBadge = variant === "badge";
+  const isNav = variant === "nav"; // barre claire des pages produit : bouton neutre, lisible sur fond clair
 
   return (
     <button
@@ -12,11 +13,12 @@ export default function LanguageSwitcher({ variant }: { variant?: "badge" }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: isBadge ? "rgba(6,15,8,0.85)" : "rgba(255,255,255,0.1)",
-        border: isBadge ? "1px solid rgba(29,185,84,0.4)" : "1px solid rgba(255,255,255,0.25)",
+        background: isBadge ? "rgba(6,15,8,0.85)" : isNav ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.1)",
+        border: isBadge ? "1px solid rgba(29,185,84,0.4)" : isNav ? "1.5px solid rgba(0,0,0,0.18)" : "1px solid rgba(255,255,255,0.25)",
         borderRadius: isBadge ? "0 10px 10px 0" : "50%",
-        width: isBadge ? 38 : 34,
-        height: isBadge ? 38 : 34,
+        width: isBadge ? 38 : isNav ? 36 : 34,
+        height: isBadge ? 38 : isNav ? 36 : 34,
+        flexShrink: 0,
         cursor: "pointer",
         transition: "all 0.2s",
         padding: 0,

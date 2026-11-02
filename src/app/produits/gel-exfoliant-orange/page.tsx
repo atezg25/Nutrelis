@@ -1,6 +1,7 @@
 "use client";
 import { useCart } from "@/context/CartContext";
 import NavbarCart from "@/components/NavbarCart";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useScreenSize } from "@/hooks/useIsMobile";
 import HydrationGuard from "@/components/HydrationGuard";
@@ -64,6 +65,7 @@ function Navbar({ avis }: { avis: boolean }) {
           </div>
         )}
        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <LanguageSwitcher variant="nav" />
           <NavbarCart dark={false} />
           <a href="#commander" style={{
             background: "var(--gel-accent)",

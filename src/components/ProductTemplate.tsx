@@ -6,6 +6,7 @@ import { useScreenSize } from "@/hooks/useIsMobile";
 import { useLocale } from "@/context/LocaleContext";
 import HydrationGuard from "@/components/HydrationGuard";
 import NavbarCart from "@/components/NavbarCart";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import FloatingActions from "@/components/FloatingActions";
 import type { ContenuProduit } from "@/lib/contenu";
 
@@ -174,6 +175,7 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
             </div>
           )}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <LanguageSwitcher variant="nav" />
             <NavbarCart dark={false} />
             <a href="#commander" style={{ background: "var(--asta-accent)", color: "#fff", padding: isMobile ? "8px 14px" : "10px 24px", borderRadius: 8, fontSize: isMobile ? 12 : 14, fontWeight: 700, textDecoration: "none", boxShadow: "0 4px 14px rgba(var(--asta-rgb),0.25)", fontFamily: SORA, whiteSpace: "nowrap" }}>
               {isMobile ? t("nav.order") : t("nav.orderArrow")}
