@@ -1323,6 +1323,14 @@ function Parametres() {
   const [vals, setVals] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState("");
   useEffect(() => { void api<{ reglages: { cle: string; titre: string; aide: string; valeur: string }[] }>("settings").then((r) => { if (r.ok) { setRegl(r.data.reglages); setVals(Object.fromEntries(r.data.reglages.map((x) => [x.cle, x.valeur]))); } }); }, []);
+  const [test, setTest] = useState<{ nom: string; actif: boolean; destinataires: number; raison: string | null }[] | null>(null);
+  const [testEnCours, setTestEnCours] = useState(false);
+  async function tester() {
+    setTestEnCours(true);
+    const r = await api<{ canaux: { nom: string; actif: boolean; destinataires: number; raison: string | null }[] }>("alertes-test", { method: "POST", body: {} });
+    setTestEnCours(false);
+    setTest(r.ok ? r.data.canaux : [{ nom: "Test", actif: false, destinataires: 0, raison: r.data.error ?? "échec" }]);
+  }
   async function enregistrer() {
     setMsg("");
     const r = await fetch("/api/admin/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(vals) });
@@ -1340,6 +1348,19 @@ function Parametres() {
       ))}
       {msg && <div style={{ color: msg.startsWith("Enregistré") ? VERT : "#b91c1c", fontWeight: 700 }}>{msg}</div>}
       <div><button onClick={() => void enregistrer()} style={bouton}>Enregistrer les paramètres</button></div>
+      <div style={{ borderTop: "1px solid #e4e7e2", paddingTop: 14 }}>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Alertes : vérifier que vous les recevez</div>
+        <button onClick={() => void tester()} disabled={testEnCours} style={boutonDiscret}>{testEnCours ? "Envoi…" : "📣 Envoyer une alerte de test"}</button>
+        {test && (
+          <ul style={{ margin: "10px 0 0", paddingLeft: 18, fontSize: 13.5, lineHeight: 1.7 }}>
+            {test.map((c) => (
+              <li key={c.nom}>
+                <strong>{c.nom}</strong> : {c.actif ? <span style={{ color: VERT, fontWeight: 700 }}>envoyé à {c.destinataires} destinataire{c.destinataires > 1 ? "s" : ""}</span> : <span style={{ color: "#b45309" }}>non actif ({c.raison})</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

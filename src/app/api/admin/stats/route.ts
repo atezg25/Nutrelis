@@ -23,7 +23,7 @@ export async function GET() {
     const stockFaible = await query<{ sku: string; label: string; pname: string; stock: number; low_stock_alert: number }>(
       `SELECT v.sku, v.label, p.name AS pname, s.stock, v.low_stock_alert FROM variant v
          JOIN product p ON p.id=v.product_id JOIN variant_stock s ON s.variant_id=v.id
-        WHERE v.active AND s.stock <= v.low_stock_alert ORDER BY s.stock, p.name`,
+        WHERE v.active AND p.active AND s.stock <= v.low_stock_alert ORDER BY s.stock, p.name`,
     );
     const derniers = await query(
       `SELECT id, number, customer_name, total_fcfa, status, payment_status, channel, created_at FROM customer_order ORDER BY created_at DESC LIMIT 8`,
