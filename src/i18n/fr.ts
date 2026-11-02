@@ -719,6 +719,7 @@ const fr: Record<string, any> = {
     continuePayment: "Continuer vers le paiement →",
     paymentTitle: "Mode de paiement",
     paymentDesc: "Choisissez votre méthode de paiement préférée",
+    recommended: "Recommandé",
     payOnline: "Mobile Money (MTN, Orange)",
     payOnlineDesc: "Paiement sécurisé en ligne via Fapshi",
     payOnlineInfo: "Vous serez redirigé vers la page de paiement sécurisée Fapshi, puis vous validerez la demande sur votre téléphone avec votre code secret.",

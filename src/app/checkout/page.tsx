@@ -10,7 +10,7 @@ export default function Checkout() {
   const { items, totalPrix, viderPanier } = useCart();
   const { t } = useLocale();
   const [etape, setEtape] = useState<"formulaire" | "paiement" | "confirmation">("formulaire");
-  const [modePaiement, setModePaiement] = useState<"mobile_money" | "livraison" | null>(null);
+  const [modePaiement, setModePaiement] = useState<"mobile_money" | "livraison" | null>("mobile_money");
   const [form, setForm] = useState({
     nom: "", prenom: "", email: "", telephone: "",
     adresse: "", ville: "", quartier: "",
@@ -118,6 +118,59 @@ export default function Checkout() {
   };
 
   // PAGE CONFIRMATION
+  // Choix du mode de paiement : affiché dès le formulaire ET à l'étape de paiement. Le paiement en ligne est recommandé (présélectionné).
+  const choixPaiement = (
+    <>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
+              {[
+                { id: "mobile_money", label: t("checkout.payOnline"), desc: t("checkout.payOnlineDesc"), emoji: "📱", color: "#ffcc00", disabled: false },
+                { id: "livraison", label: t("checkout.payOnDelivery"), desc: t("checkout.payOnDeliveryDesc"), emoji: "🚚", color: "#1f7a3a", disabled: false },
+              ].map(opt => (
+                <div
+                  key={opt.id}
+                  onClick={() => !opt.disabled && setModePaiement(opt.id as "mobile_money" | "livraison")}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 14,
+                    padding: isMobile ? "16px" : "20px", borderRadius: 14, cursor: opt.disabled ? "not-allowed" : "pointer",
+                    border: `2px solid ${modePaiement === opt.id ? "#7D0806" : "#eee"}`,
+                    background: modePaiement === opt.id ? "#fdecea" : opt.disabled ? "#f8f8f8" : "#fff",
+                    opacity: opt.disabled ? 0.5 : 1,
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: opt.color + "20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
+                    {opt.emoji}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 800, fontSize: isMobile ? 14 : 15, marginBottom: 4, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>{opt.label}{opt.id === "mobile_money" && <span style={{ background: "#1f7a3a", color: "#fff", fontSize: 10, fontWeight: 800, letterSpacing: 0.5, padding: "2px 8px", borderRadius: 20 }}>⭐ {t("checkout.recommended")}</span>}</div>
+                    <div style={{ color: "#888", fontSize: 12 }}>{opt.desc}</div>
+                  </div>
+                  <div style={{
+                    width: 22, height: 22, borderRadius: "50%",
+                    border: `2px solid ${modePaiement === opt.id ? "#7D0806" : "#ddd"}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0,
+                  }}>
+                    {modePaiement === opt.id && <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#7D0806" }} />}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {modePaiement && (
+              <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 12, padding: "20px", marginBottom: 24 }}>
+                <p style={{ fontSize: 14, color: "#333", lineHeight: 1.7, marginBottom: 8 }}>
+                  {modePaiement === "mobile_money" ? t("checkout.payOnlineInfo") : t("checkout.payOnDeliveryInfo")}
+                </p>
+                <p style={{ fontSize: 14, color: "#555", margin: 0 }}>
+                  <strong>{t("checkout.amount")} : {totalAPayer.toLocaleString()} FCFA</strong>
+                </p>
+              </div>
+            )}
+
+    </>
+  );
+
   if (etape === "confirmation") {
     return (
       <div style={{ background: "#fff", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -253,6 +306,10 @@ export default function Checkout() {
               </datalist>
             </div>
 
+            <h3 style={{ fontFamily: "var(--font-sora), sans-serif", fontSize: "1.1rem", fontWeight: 800, margin: "28px 0 6px" }}>{t("checkout.paymentTitle")}</h3>
+            <p style={{ color: "#888", fontSize: 13, marginBottom: 16 }}>{t("checkout.paymentDesc")}</p>
+            {choixPaiement}
+
             {formErreur && <p style={{ color: "#e53e3e", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{formErreur}</p>}
 
             <button
@@ -272,52 +329,7 @@ export default function Checkout() {
             </h2>
             <p style={{ color: "#888", fontSize: 14, marginBottom: 28 }}>{t("checkout.paymentDesc")}</p>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
-              {[
-                { id: "mobile_money", label: t("checkout.payOnline"), desc: t("checkout.payOnlineDesc"), emoji: "📱", color: "#ffcc00", disabled: false },
-                { id: "livraison", label: t("checkout.payOnDelivery"), desc: t("checkout.payOnDeliveryDesc"), emoji: "🚚", color: "#1f7a3a", disabled: false },
-              ].map(opt => (
-                <div
-                  key={opt.id}
-                  onClick={() => !opt.disabled && setModePaiement(opt.id as "mobile_money" | "livraison")}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 14,
-                    padding: isMobile ? "16px" : "20px", borderRadius: 14, cursor: opt.disabled ? "not-allowed" : "pointer",
-                    border: `2px solid ${modePaiement === opt.id ? "#7D0806" : "#eee"}`,
-                    background: modePaiement === opt.id ? "#fdecea" : opt.disabled ? "#f8f8f8" : "#fff",
-                    opacity: opt.disabled ? 0.5 : 1,
-                    transition: "all 0.2s",
-                  }}
-                >
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: opt.color + "20", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
-                    {opt.emoji}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 800, fontSize: isMobile ? 14 : 15, marginBottom: 4 }}>{opt.label}</div>
-                    <div style={{ color: "#888", fontSize: 12 }}>{opt.desc}</div>
-                  </div>
-                  <div style={{
-                    width: 22, height: 22, borderRadius: "50%",
-                    border: `2px solid ${modePaiement === opt.id ? "#7D0806" : "#ddd"}`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0,
-                  }}>
-                    {modePaiement === opt.id && <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#7D0806" }} />}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {modePaiement && (
-              <div style={{ background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 12, padding: "20px", marginBottom: 24 }}>
-                <p style={{ fontSize: 14, color: "#333", lineHeight: 1.7, marginBottom: 8 }}>
-                  {modePaiement === "mobile_money" ? t("checkout.payOnlineInfo") : t("checkout.payOnDeliveryInfo")}
-                </p>
-                <p style={{ fontSize: 14, color: "#555", margin: 0 }}>
-                  <strong>{t("checkout.amount")} : {totalAPayer.toLocaleString()} FCFA</strong>
-                </p>
-              </div>
-            )}
+            {choixPaiement}
 
             {erreur && (
               <p style={{ color: "#e53e3e", fontSize: 13, marginBottom: 12, textAlign: "center" }}>{erreur}</p>
