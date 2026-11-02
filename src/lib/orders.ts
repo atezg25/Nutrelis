@@ -20,7 +20,7 @@ export type ModePaiement = "fapshi" | "livraison" | "especes" | "virement";
 
 export class ErreurCommande extends Error {
   constructor(
-    public code: "PANIER_VIDE" | "PRODUIT_INDISPONIBLE" | "STOCK_INSUFFISANT" | "CLIENT_INVALIDE" | "REVENDEUR_INTROUVABLE",
+    public code: "PANIER_VIDE" | "PRODUIT_INDISPONIBLE" | "STOCK_INSUFFISANT" | "CLIENT_INVALIDE" | "REVENDEUR_INTROUVABLE" | "CODE_INVALIDE",
     message: string,
   ) {
     super(message);
