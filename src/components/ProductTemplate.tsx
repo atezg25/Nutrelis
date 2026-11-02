@@ -388,22 +388,24 @@ export default function ProductTemplate({ produit, autres }: { produit: ProduitC
                   const choisi = p.id === packId;
                   return (
                     <button key={p.id} onClick={() => p.inStock && setPackId(p.id)} disabled={!p.inStock} aria-pressed={choisi}
-                      style={{ position: "relative", textAlign: "left", display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 16, cursor: p.inStock ? "pointer" : "not-allowed", opacity: p.inStock ? 1 : 0.55, background: choisi ? "var(--asta-tint)" : "#fff", border: `2px solid ${choisi ? "var(--asta-accent)" : "var(--asta-border)"}`, transition: "all .2s" }}>
-                      {p.popular && <span style={{ position: "absolute", top: -11, right: 16, background: "var(--asta-accent)", color: "#fff", fontSize: 10, fontWeight: 800, letterSpacing: 1, padding: "3px 12px", borderRadius: 20 }}>{L("LE PLUS POPULAIRE", "MOST POPULAR")}</span>}
+                      style={{ position: "relative", textAlign: "left", display: "flex", alignItems: "center", gap: isMobile ? 8 : 16, padding: isMobile ? "10px 10px" : "16px 20px", borderRadius: 12, cursor: p.inStock ? "pointer" : "not-allowed", opacity: p.inStock ? 1 : 0.55, background: choisi ? "var(--asta-tint)" : "#fff", border: `2px solid ${choisi ? "var(--asta-accent)" : "var(--asta-border)"}`, transition: "all .2s" }}>
+                      {p.popular && <span style={{ position: "absolute", top: -11, right: 16, background: "var(--asta-accent)", color: "#fff", fontSize: isMobile ? 8 : 10, fontWeight: 800, letterSpacing: 1, padding: isMobile ? "2px 8px" : "3px 10px", borderRadius: 20 }}>{L("LE PLUS POPULAIRE", "MOST POPULAR")}</span>}
                       <div style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${choisi ? "var(--asta-accent)" : "#ccc"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                         {choisi && <div style={{ width: 12, height: 12, borderRadius: "50%", background: "var(--asta-accent)" }} />}
                       </div>
                       {c.imagesPacks?.[p.sku] && <img src={c.imagesPacks[p.sku]} alt="" loading="lazy" decoding="async" style={{ height: isMobile ? 48 : 60, width: "auto", flexShrink: 0, objectFit: "contain" }} />}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: SORA, fontWeight: 800, fontSize: 15 }}>{p.label}</div>
-                        {p.description && <div style={{ color: "var(--asta-text2)", fontSize: 12, marginTop: 2 }}>{p.description}</div>}
+                        <div style={{ fontFamily: SORA, fontWeight: 800, fontSize: isMobile ? 12 : 15, lineHeight: 1.3 }}>{p.label}</div>
+                        {p.description && <div style={{ color: "var(--asta-text2)", fontSize: isMobile ? 10 : 12, marginTop: 2 }}>{p.description}</div>}
                         {!p.inStock && <div style={{ color: "#b91c1c", fontSize: 12, fontWeight: 700, marginTop: 2 }}>{L("Rupture de stock", "Out of stock")}</div>}
                         {p.inStock && p.stockFaible && <div style={{ color: "#b45309", fontSize: 12, fontWeight: 700, marginTop: 2 }}>{L("Plus que quelques exemplaires", "Only a few left")}</div>}
                       </div>
                       <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        {remiseM(p) > 0 && <div style={{ color: "var(--asta-text2)", fontSize: 12, textDecoration: "line-through" }}>{fcfa(ancienDe(p)!)}</div>}
-                        <div style={{ color: "var(--asta-accent)", fontWeight: 900, fontSize: 17, fontFamily: SORA }}>{fcfa(prixDe(p))}</div>
-                        {remiseM(p) > 0 && <div style={{ color: "#1a7a3c", fontSize: 11, fontWeight: 800 }}>−{remiseM(p)}%</div>}
+                        <div style={{ color: "var(--asta-accent)", fontSize: isMobile ? 15 : 22, fontWeight: 900, lineHeight: 1, fontFamily: SORA }}>
+                          {prixDe(p).toLocaleString("fr-FR")}<span style={{ fontSize: 12 }}> FCFA</span>
+                        </div>
+                        {remiseM(p) > 0 && <div style={{ color: "#aaa", fontSize: 12, textDecoration: "line-through" }}>{ancienDe(p)!.toLocaleString("fr-FR")} F</div>}
+                        {remiseM(p) > 0 && <div style={{ color: "#1a7a3c", fontSize: isMobile ? 9 : 11, fontWeight: 800 }}>−{remiseM(p)}%</div>}
                       </div>
                     </button>
                   );
