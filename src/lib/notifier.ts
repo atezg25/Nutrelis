@@ -6,16 +6,18 @@ import { lireReglage } from "./reglages";
  *  - E-mails : le réglage « alerte_email » + les copies « alerte_email_copies » (liste séparée par des virgules).
  *  - WhatsApp : le réglage « alerte_whatsapp » + les copies « alerte_whatsapp_copies » (numéros internationaux sans « + »).
  * Sans configuration, rien n'est perdu : la commande apparaît dans l'administration.
- * Variables : WHATSAPP_ENABLED, WHATSAPP_TOKEN, WHATSAPP_PHONE_ID ; RESEND_API_KEY, STORE_EMAIL, MAIL_FROM.
+ *  - Telegram : le réglage « alerte_telegram » (identifiants de discussion) + la variable TELEGRAM_BOT_TOKEN.
+ * Variables : TELEGRAM_BOT_TOKEN, WHATSAPP_ENABLED, WHATSAPP_TOKEN, WHATSAPP_PHONE_ID ; RESEND_API_KEY, STORE_EMAIL, MAIL_FROM.
  */
 const liste = (v: string) => v.split(/[,;\s]+/).map((x) => x.trim()).filter(Boolean);
 const unique = <T,>(a: T[]) => [...new Set(a)];
 
-export async function destinatairesAlertes(): Promise<{ emails: string[]; telephones: string[] }> {
-  const [e1, e2, t1, t2] = await Promise.all([
-    lireReglage("alerte_email"), lireReglage("alerte_email_copies"), lireReglage("alerte_whatsapp"), lireReglage("alerte_whatsapp_copies"),
+export async function destinatairesAlertes(): Promise<{ emails: string[]; telephones: string[]; telegram: string[] }> {
+  const [e1, e2, t1, t2, tg] = await Promise.all([
+    lireReglage("alerte_email"), lireReglage("alerte_email_copies"), lireReglage("alerte_whatsapp"), lireReglage("alerte_whatsapp_copies"), lireReglage("alerte_telegram"),
   ]);
   return {
+    telegram: unique(liste(tg).filter((x) => /^-?\d{5,20}$/.test(x))),
     emails: unique([...liste(e1), ...liste(e2)].map((x) => x.toLowerCase()).filter((x) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))),
     telephones: unique([...liste(t1), ...liste(t2)].map((x) => x.replace(/\D/g, "")).filter((x) => /^\d{8,15}$/.test(x))),
   };
@@ -23,8 +25,22 @@ export async function destinatairesAlertes(): Promise<{ emails: string[]; teleph
 
 /** Envoie une alerte à tous les destinataires. Ne lève jamais : une alerte qui échoue ne doit pas casser une commande. */
 export async function notifierBoutique(sujet: string, texte: string): Promise<void> {
-  const { emails, telephones } = await destinatairesAlertes();
+  const { emails, telephones, telegram } = await destinatairesAlertes();
   const taches: Promise<unknown>[] = [];
+  // Telegram : un robot, un message par personne (chacune a d'abord appuyé sur Démarrer dans le robot).
+  if (process.env.TELEGRAM_BOT_TOKEN) {
+    for (const chat_id of telegram) {
+      taches.push(
+        fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id, text: `${sujet}\n\n${texte}`.slice(0, 4000), disable_web_page_preview: true }),
+          signal: AbortSignal.timeout(10_000),
+        }).then(async (r) => { if (!r.ok) console.error("[nutrelis] alerte telegram refusée", chat_id.slice(-4), r.status, (await r.text()).slice(0, 160)); })
+          .catch((e) => console.error("[nutrelis] alerte telegram", e instanceof Error ? e.message : e)),
+      );
+    }
+  }
   if (process.env.WHATSAPP_ENABLED === "true" && process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_ID) {
     for (const to of telephones) {
       taches.push(
