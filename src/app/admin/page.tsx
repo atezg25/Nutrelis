@@ -42,7 +42,7 @@ const boutonDiscret: React.CSSProperties = { ...bouton, background: "#fff", colo
 function Tableau({ colonnes, lignes, onClic }: { colonnes: { titre: string; rendu: (l: Ligne) => React.ReactNode }[]; lignes: Ligne[]; onClic?: (l: Ligne) => void }) {
   return (
     <div style={{ ...carte, padding: 0, overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+      <table className="nx-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr>{colonnes.map((c) => <th key={c.titre} style={{ textAlign: "left", padding: "12px 14px", borderBottom: "1px solid #e3e9e3", color: "#5b665e", fontSize: 11.5, textTransform: "uppercase", letterSpacing: 0.6 }}>{c.titre}</th>)}</tr>
         </thead>
@@ -50,7 +50,7 @@ function Tableau({ colonnes, lignes, onClic }: { colonnes: { titre: string; rend
           {lignes.length === 0 && <tr><td colSpan={colonnes.length} style={{ padding: "28px 18px", color: "#7a857d", textAlign: "center" }}>📭 Rien à afficher pour le moment.</td></tr>}
           {lignes.map((l, i) => (
             <tr key={String(l.id ?? i)} onClick={onClic ? () => onClic(l) : undefined} style={{ cursor: onClic ? "pointer" : "default", borderBottom: "1px solid #eef2ee" }}>
-              {colonnes.map((c) => <td key={c.titre} style={{ padding: "12px 14px", verticalAlign: "top" }}>{c.rendu(l)}</td>)}
+              {colonnes.map((c) => <td key={c.titre} data-label={c.titre} style={{ padding: "12px 14px", verticalAlign: "top" }}>{c.rendu(l)}</td>)}
             </tr>
           ))}
         </tbody>
@@ -1635,14 +1635,25 @@ export default function Admin() {
 
   if (etroit) {
     return (
-      <div style={{ padding: "0 12px 60px" }}>
-        <header style={{ position: "sticky", top: 0, zIndex: 20, background: "#f6f7f5", padding: "10px 0", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid #e4e7e2" }}>
+      <div style={{ padding: "0 14px 96px" }}>
+        <header style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(243,246,243,.96)", backdropFilter: "blur(10px)", padding: "calc(10px + env(safe-area-inset-top, 0px)) 0 10px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid #e4e7e2" }}>
           <button onClick={() => setMenuOuvert(!menuOuvert)} style={{ ...boutonDiscret, padding: "8px 12px" }} aria-label="Menu">☰</button>
           <strong style={{ flex: 1, color: VERT }}>{titreOnglet}</strong>
           {aTraiter > 0 && <button onClick={() => aller("commandes")} style={{ ...bouton, padding: "6px 10px", background: "#b91c1c" }}>{aTraiter} à traiter</button>}
         </header>
         {menuOuvert && <div style={{ ...carte, margin: "10px 0" }}>{navigation}<div style={{ borderTop: "1px solid #e4e7e2", marginTop: 10, paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>{identite}<button onClick={deconnexion} style={boutonDiscret}>Déconnexion</button></div></div>}
         <div style={{ marginTop: 14 }}>{contenu}</div>
+        <nav className="nx-bottom-nav" aria-label="Navigation rapide">
+          {([["tableau", "📊", "Accueil", 0], ["commandes", "🧾", "Commandes", aTraiter], ["stock", "📦", "Stock", 0], ["messages", "✉️", "Messages", nbMessages]] as const).map(([id, ico, nom, n]) => (
+            <button key={id} onClick={() => aller(id)} aria-current={onglet === id ? "page" : undefined}>
+              <span className="ico" aria-hidden>{ico}</span>{nom}
+              {n > 0 && <span className="pastille">{n}</span>}
+            </button>
+          ))}
+          <button onClick={() => { setMenuOuvert((o) => !o); window.scrollTo({ top: 0, behavior: "smooth" }); }} aria-label="Plus">
+            <span className="ico" aria-hidden>☰</span>Plus
+          </button>
+        </nav>
       </div>
     );
   }
