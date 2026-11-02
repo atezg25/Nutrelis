@@ -14,7 +14,7 @@ const date = (s: unknown) => (s ? new Date(String(s)).toLocaleString("fr-FR", { 
 
 const LIB_STATUT: Record<string, string> = { nouvelle: "Nouvelle", confirmee: "Confirmée", expediee: "Expédiée", livree: "Livrée", annulee: "Annulée" };
 const LIB_PAIEMENT: Record<string, string> = { en_attente: "En attente", payee: "Payée", echouee: "Échouée", a_la_livraison: "À la livraison", remboursee: "Remboursée" };
-const LIB_MODE: Record<string, string> = { fapshi: "Mobile Money (Fapshi)", livraison: "À la livraison", especes: "Espèces", virement: "Virement" };
+const LIB_MODE: Record<string, string> = { fapshi: "Mobile money", livraison: "À la livraison", especes: "Espèces", virement: "Virement" };
 const LIB_CANAL: Record<string, string> = { web: "Site", revendeur: "Revendeur", manuel: "Saisie" };
 const COULEUR_STATUT: Record<string, string> = { nouvelle: "#b45309", confirmee: "#1d4ed8", expediee: "#6d28d9", livree: VERT, annulee: "#b91c1c" };
 const COULEUR_PAIEMENT: Record<string, string> = { en_attente: "#b45309", payee: VERT, echouee: "#b91c1c", a_la_livraison: "#1d4ed8", remboursee: "#6b7280" };
@@ -243,7 +243,7 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
           <span style={{ fontSize: 13, color: "#555" }}>Marquer comme payée :</span>
           <button onClick={() => void agir({ paiementRecu: "especes" })} style={bouton}>Espèces</button>
           <button onClick={() => void agir({ paiementRecu: "virement" })} style={bouton}>Virement</button>
-          <button onClick={() => void agir({ paiementRecu: "livraison" })} style={bouton}>Payée à la livraison</button>
+          <button onClick={() => void agir({ paiementRecu: "fapshi" })} style={bouton}>Mobile money</button>
         </div>
       )}
       {d.paiements.length > 0 && (
@@ -389,7 +389,7 @@ function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => 
         <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", alignItems: "end" }}>
           <label style={lab}>Moyen de paiement
             <select value={mode} onChange={(e) => setMode(e.target.value)} style={champ}>
-              <option value="especes">Espèces</option><option value="virement">Virement</option><option value="livraison">À la livraison</option><option value="fapshi">🔗 Lien de paiement en ligne</option>
+              <option value="especes">Espèces</option><option value="virement">Virement</option><option value="fapshi">Mobile money (lien de paiement)</option>
             </select>
           </label>
           {!revendeurId && <label style={lab}>Code promo (facultatif)<input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="ex. BIENVENUE10" style={champ} /></label>}
@@ -489,7 +489,7 @@ function Paiements() {
       <Tableau lignes={d.paiements} colonnes={[
         { titre: "Date", rendu: (l) => date(l.created_at) },
         { titre: "Commande", rendu: (l) => <>{String(l.number)}<br /><span style={{ color: "#777", fontSize: 12 }}>{String(l.customer_name)}</span></> },
-        { titre: "Moyen", rendu: (l) => (l.provider === "fapshi" ? "Fapshi" : LIB_MODE[String(l.provider)] ?? String(l.provider)) },
+        { titre: "Moyen", rendu: (l) => (l.provider === "fapshi" ? "Mobile money" : LIB_MODE[String(l.provider)] ?? String(l.provider)) },
         { titre: "Référence", rendu: (l) => String(l.provider_ref ?? "—") },
         { titre: "Montant", rendu: (l) => fcfa(l.amount_fcfa) },
         { titre: "Résultat", rendu: (l) => <><Badge texte={LIB_PAIEMENT[String(l.status)] ?? String(l.status)} couleur={COULEUR_PAIEMENT[String(l.status)] ?? "#555"} />{l.provider_status ? <span style={{ color: "#777", fontSize: 12 }}> {String(l.provider_status)}</span> : null}</> },

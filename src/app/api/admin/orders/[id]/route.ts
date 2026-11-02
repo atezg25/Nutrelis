@@ -38,7 +38,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       await journaliser("commande_statut", `${id} → ${b.statut}`);
     }
     if (typeof b.paiementRecu === "string") {
-      const modes = ["especes", "virement", "livraison"] as const;
+      const modes = ["especes", "virement", "fapshi", "livraison"] as const;
       if (!(modes as readonly string[]).includes(b.paiementRecu)) return erreur("Mode de paiement invalide.", 400);
       await marquerPayee(id, b.paiementRecu as ModePaiement);
       await journaliser("commande_payee_manuel", `${id} (${b.paiementRecu})`);
