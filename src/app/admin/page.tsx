@@ -1534,7 +1534,6 @@ function Utilisateurs() {
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             <button onClick={() => void agir(String(l.id), { reinitialiser: true }, String(l.email))} style={boutonDiscret}>Réinitialiser le mot de passe</button>
             <button onClick={() => void agir(String(l.id), { active: !l.active }, String(l.email))} style={boutonDiscret}>{l.active ? "Désactiver" : "Réactiver"}</button>
-            <button onClick={() => void agir(String(l.id), { role: l.role === "proprietaire" ? "gestionnaire" : "proprietaire" }, String(l.email))} style={boutonDiscret}>{l.role === "proprietaire" ? "Rendre gestionnaire" : "Rendre propriétaire"}</button>
           </div>) },
       ]} />
       <div style={{ ...carte, display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 8 }}>
@@ -1542,10 +1541,9 @@ function Utilisateurs() {
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <input placeholder="Nom" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} style={{ ...champ, flex: 1, minWidth: 140 }} />
           <input placeholder="Adresse e-mail" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} style={{ ...champ, flex: 1, minWidth: 180 }} />
-          <select value={f.role} onChange={(e) => setF({ ...f, role: e.target.value })} style={champ}><option value="gestionnaire">Gestionnaire</option><option value="proprietaire">Propriétaire</option></select>
-          <button onClick={() => void creer()} disabled={!f.name || !f.email} style={bouton}>Créer le compte</button>
+                    <button onClick={() => void creer()} disabled={!f.name || !f.email} style={bouton}>Créer le compte</button>
         </div>
-        <div style={{ fontSize: 12.5, color: "#666" }}>Gestionnaire : commandes, paiements, clients, stock, produits, revendeurs, rapports. Propriétaire : tout, y compris utilisateurs, paramètres et journal.</div>
+        <div style={{ fontSize: 12.5, color: "#666" }}>Gestionnaire : commandes, paiements, clients, stock, produits, revendeurs, rapports. Le propriétaire cumule tous les rôles (il a aussi les droits du gestionnaire). Ce rôle ne peut être attribué à personne.</div>
       </div>
     </div>
   );

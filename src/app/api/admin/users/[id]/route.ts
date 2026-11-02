@@ -26,7 +26,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       await query("UPDATE admin_user SET active=$2, session_version=session_version+1 WHERE id=$1", [id, b.active]);
       await journaliser(b.active ? "compte_reactive" : "compte_desactive", cible.email);
     }
-    if (b.role === "proprietaire" || b.role === "gestionnaire") {
+    if (b.role === "proprietaire") return erreur("Un utilisateur ne peut pas devenir propriétaire.", 403, "INTERDIT");
+    // Un propriétaire cumule tous les rôles (il a aussi tous les droits du gestionnaire) : on ne le rétrograde pas.
+    if (b.role === "gestionnaire" && cible.role === "proprietaire") return erreur("Un propriétaire garde tous les rôles : il ne peut pas être rétrogradé.", 403, "INTERDIT");
+    if (b.role === "gestionnaire") {
       if (b.role !== cible.role) {
         if (memeCompte) return erreur("Vous ne pouvez pas modifier votre propre rôle.", 400, "AUTO_ROLE");
         await query("UPDATE admin_user SET role=$2, session_version=session_version+1 WHERE id=$1", [id, b.role]);

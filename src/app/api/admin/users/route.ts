@@ -24,7 +24,9 @@ export async function POST(req: Request) {
     const b = await corps(req);
     const email = texte(b.email, 200)?.toLowerCase() ?? null;
     const name = texte(b.name, 100);
-    const role = b.role === "proprietaire" ? "proprietaire" : "gestionnaire";
+    // Le rôle de propriétaire ne s'attribue jamais : tout compte créé est gestionnaire.
+    if (b.role === "proprietaire") return erreur("Un utilisateur ne peut pas devenir propriétaire.", 403, "INTERDIT");
+    const role = "gestionnaire";
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !name) return erreur("Nom et adresse e-mail valides requis.", 400);
     const temporaire = motDePasseTemporaire();
     try {
