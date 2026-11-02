@@ -4,7 +4,7 @@ import { query } from "./db";
  * Réglages modifiables depuis la console (table `setting`). Chaque réglage a une valeur de repli (variable d'environnement
  * ou valeur par défaut) : la boutique fonctionne même si la table est vide.
  */
-export type CleReglage = "frais_livraison_fcfa" | "alerte_email" | "alerte_whatsapp" | "abonnement_actif" | "abonnement_remise_pct" | "abonnement_jours_par_unite" | "boutique_titre" | "boutique_description" | "boutique_carrousel_secondes" | "boutique_nom" | "boutique_telephone" | "boutique_adresse";
+export type CleReglage = "frais_livraison_fcfa" | "alerte_email" | "alerte_email_copies" | "alerte_whatsapp" | "alerte_whatsapp_copies" | "abonnement_actif" | "abonnement_remise_pct" | "abonnement_jours_par_unite" | "boutique_titre" | "boutique_description" | "boutique_carrousel_secondes" | "boutique_nom" | "boutique_telephone" | "boutique_adresse";
 
 export const REGLAGES: Record<CleReglage, { titre: string; aide: string; defaut: () => string; type: "entier" | "email" | "telephone" | "texte"; max?: number }> = {
   frais_livraison_fcfa: { titre: "Frais de livraison par défaut (FCFA)", aide: "Pour une ville qui n'a pas son propre tarif (onglet Expéditions > Tarifs par ville). 0 = livraison offerte.", defaut: () => String(Number(process.env.DELIVERY_FEE_FCFA ?? 0) || 0), type: "entier" },
@@ -18,6 +18,8 @@ export const REGLAGES: Record<CleReglage, { titre: string; aide: string; defaut:
   boutique_nom: { titre: "Nom de la boutique (bordereau de colis)", aide: "Expéditeur imprimé sur chaque bordereau.", defaut: () => "NUTRELIS", type: "texte" },
   boutique_telephone: { titre: "Téléphone de la boutique (bordereau de colis)", aide: "Numéro que le transporteur et le destinataire peuvent appeler.", defaut: () => process.env.WHATSAPP_STORE_PHONE ?? "", type: "telephone" },
   boutique_adresse: { titre: "Adresse de la boutique (bordereau de colis)", aide: "Adresse de départ des colis, par exemple ville et quartier.", defaut: () => "", type: "texte" },
+  alerte_email_copies: { titre: "Copies des alertes par e-mail (autres adresses)", aide: "Une ou plusieurs adresses séparées par des virgules : elles reçoivent une copie de chaque commande, annulation, rupture ou stock faible.", defaut: () => "atezg25@gmail.com", type: "texte", max: 400 },
+  alerte_whatsapp_copies: { titre: "Copies des alertes WhatsApp (autres numéros)", aide: "Numéros internationaux sans « + », séparés par des virgules (ex. 237693147120). L'envoi automatique exige l'API WhatsApp Cloud de Meta.", defaut: () => "237693147120", type: "texte", max: 200 },
   alerte_whatsapp: { titre: "Numéro WhatsApp de la boutique", aide: "Format international sans « + » (ex. 237677043275). L'envoi automatique exige l'API WhatsApp Cloud de Meta (non configurée).", defaut: () => process.env.WHATSAPP_STORE_PHONE ?? "", type: "telephone" },
 };
 
@@ -41,6 +43,8 @@ export async function ecrireReglage(cle: CleReglage, brut: string): Promise<stri
   if (def.type === "entier" && !/^\d{1,7}$/.test(v)) return `${def.titre} : nombre entier attendu.`;
   if (def.type === "email" && v !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return `${def.titre} : adresse invalide.`;
   if (def.type === "texte" && v.length > (def.max ?? 200)) return `${def.titre} : ${def.max ?? 200} caractères au plus.`;
+  if (cle === "alerte_email_copies" && v !== "" && !v.split(/[,;\s]+/).filter(Boolean).every((x) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))) return `${def.titre} : adresses invalides.`;
+  if (cle === "alerte_whatsapp_copies" && v !== "" && !v.split(/[,;\s]+/).filter(Boolean).every((x) => /^\d{8,15}$/.test(x))) return `${def.titre} : chiffres uniquement, avec l'indicatif, séparés par des virgules.`;
   if (cle === "abonnement_actif" && !/^[01]$/.test(v)) return `${def.titre} : 1 ou 0.`;
   if (cle === "abonnement_remise_pct" && (Number(v) < 1 || Number(v) > 90)) return `${def.titre} : entre 1 et 90.`;
   if (cle === "abonnement_jours_par_unite" && (Number(v) < 1 || Number(v) > 720)) return `${def.titre} : entre 1 et 720 jours.`;

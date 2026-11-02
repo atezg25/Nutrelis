@@ -1,7 +1,7 @@
 import type { PoolClient } from "pg";
 import { query, tx } from "./db";
 import { fapshiConfigure, verifierPaiement } from "./fapshi";
-import { notifierNouvelleCommande } from "./notifier";
+import { alerterStock, notifierCommandeAnnulee, notifierNouvelleCommande } from "./notifier";
 import { fraisPourVille } from "./livraison";
 import { prixAbonne } from "./abonnement";
 import { lireAbonnement } from "./abonnement-serveur";
@@ -73,7 +73,7 @@ export async function creerCommande(p: {
   }
   const estAbonnement = [...demandes.values()].some((d) => d.abo);
 
-  return tx(async (c) => {
+  const cree = await tx(async (c) => {
     const ids = [...fusion.keys()];
     const vs = await c.query<VarianteLue>(
       `SELECT v.id, v.sku, v.label, v.price_fcfa, v.reseller_price_fcfa, v.active, p.name AS pname, p.active AS pactive
@@ -129,6 +129,9 @@ export async function creerCommande(p: {
     }
     return { id, numero, total };
   });
+  // Rupture / stock faible franchi par cette vente : alerte à la boutique (sans jamais bloquer la commande).
+  void alerterStock([...fusion].map(([variantId, qty]) => ({ variantId, qty }))).catch(() => undefined);
+  return cree;
 }
 
 /** Rend le stock d'une commande (annulation, paiement échoué) — une seule fois. */
@@ -161,6 +164,7 @@ export async function appliquerPaiement(transId: string, statut: "payee" | "echo
     await query("UPDATE payment SET provider_status=$2, updated_at=now() WHERE provider='fapshi' AND provider_ref=$1", [transId, brut]);
     return;
   }
+  let echec: string | null = null;
   const vientDePayer = await tx(async (c): Promise<string | null> => {
     const p = await c.query<{ id: number; order_id: string; status: string }>(
       "SELECT id, order_id, status FROM payment WHERE provider='fapshi' AND provider_ref=$1 FOR UPDATE",
@@ -187,11 +191,13 @@ export async function appliquerPaiement(transId: string, statut: "payee" | "echo
       // Paiement refusé ou expiré : on libère le stock, le client pourra recommander.
       await c.query("UPDATE customer_order SET payment_status='echouee', status='annulee', updated_at=now() WHERE id=$1", [pay.order_id]);
       await restituerStock(c, pay.order_id, ord.number);
+      echec = ord.number;
     }
     return null;
   });
   // Le client a payé : la boutique est prévenue (une seule fois, car la transition « payée » n'arrive qu'une fois).
   if (vientDePayer) void notifierNouvelleCommande(vientDePayer, "PAYÉE en ligne ✅").catch(() => undefined);
+  if (echec) void notifierCommandeAnnulee(echec, "paiement en ligne refusé ou expiré").catch(() => undefined);
 }
 
 /** Vérifie auprès de Fapshi les paiements en attente (> 2 min) et applique le verdict. Sans danger à rappeler. */
@@ -230,10 +236,12 @@ export const STATUTS = ["nouvelle", "confirmee", "expediee", "livree", "annulee"
 export type StatutCommande = (typeof STATUTS)[number];
 
 export async function changerStatut(orderId: string, statut: StatutCommande): Promise<void> {
+  let annulee: string | null = null;
   await tx(async (c) => {
     const o = await c.query<{ number: string; status: string }>("SELECT number, status FROM customer_order WHERE id=$1 FOR UPDATE", [orderId]);
     const ord = o.rows[0];
     if (!ord || ord.status === statut) return;
+    if (statut === "annulee") annulee = ord.number;
     if (statut === "annulee") {
       await restituerStock(c, orderId, ord.number);
     } else if (ord.status === "annulee") {
@@ -242,6 +250,7 @@ export async function changerStatut(orderId: string, statut: StatutCommande): Pr
     }
     await c.query("UPDATE customer_order SET status=$2, updated_at=now() WHERE id=$1", [orderId, statut]);
   });
+  if (annulee) void notifierCommandeAnnulee(annulee, "annulée dans l'administration").catch(() => undefined);
 }
 
 /** Encaissement manuel (espèces, virement, paiement à la livraison reçu). */

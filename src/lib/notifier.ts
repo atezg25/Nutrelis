@@ -2,46 +2,113 @@ import { query } from "./db";
 import { lireReglage } from "./reglages";
 
 /**
- * Alerte « nouvelle commande » pour la boutique : WhatsApp (Cloud API) et/ou e-mail (Resend), selon ce qui est
- * configuré. Sans configuration, la commande n'est pas perdue : elle apparaît dans l'administration.
- * Variables : WHATSAPP_ENABLED, WHATSAPP_TOKEN, WHATSAPP_PHONE_ID, WHATSAPP_STORE_PHONE ; RESEND_API_KEY, STORE_EMAIL, MAIL_FROM.
+ * Alertes de la boutique : e-mail (Resend) et WhatsApp (API Cloud de Meta), à TOUS les destinataires.
+ *  - E-mails : le réglage « alerte_email » + les copies « alerte_email_copies » (liste séparée par des virgules).
+ *  - WhatsApp : le réglage « alerte_whatsapp » + les copies « alerte_whatsapp_copies » (numéros internationaux sans « + »).
+ * Sans configuration, rien n'est perdu : la commande apparaît dans l'administration.
+ * Variables : WHATSAPP_ENABLED, WHATSAPP_TOKEN, WHATSAPP_PHONE_ID ; RESEND_API_KEY, STORE_EMAIL, MAIL_FROM.
  */
-export async function notifierNouvelleCommande(numero: string, etat?: string): Promise<void> {
-  const rows = await query<{ customer_name: string; phone: string; city: string | null; total_fcfa: number; payment_method: string }>(
-    "SELECT customer_name, phone, city, total_fcfa, payment_method FROM customer_order WHERE number=$1",
-    [numero],
-  );
-  const o = rows[0];
-  if (!o) return;
-  const items = await query<{ name: string; qty: number }>(
-    "SELECT i.name, i.qty FROM order_item i JOIN customer_order c ON c.id=i.order_id WHERE c.number=$1",
-    [numero],
-  );
-  const detail = items.map((i) => `${i.qty} × ${i.name}`).join(", ");
-  const ligne = `🛒 Nouvelle commande ${numero} — ${o.customer_name} (${o.phone}${o.city ? `, ${o.city}` : ""}) — ${detail} — ${o.total_fcfa.toLocaleString("fr-FR")} FCFA — ${etat ?? (o.payment_method === "livraison" ? "paiement à la livraison" : "paiement en ligne")}`;
+const liste = (v: string) => v.split(/[,;\s]+/).map((x) => x.trim()).filter(Boolean);
+const unique = <T,>(a: T[]) => [...new Set(a)];
 
+export async function destinatairesAlertes(): Promise<{ emails: string[]; telephones: string[] }> {
+  const [e1, e2, t1, t2] = await Promise.all([
+    lireReglage("alerte_email"), lireReglage("alerte_email_copies"), lireReglage("alerte_whatsapp"), lireReglage("alerte_whatsapp_copies"),
+  ]);
+  return {
+    emails: unique([...liste(e1), ...liste(e2)].map((x) => x.toLowerCase()).filter((x) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x))),
+    telephones: unique([...liste(t1), ...liste(t2)].map((x) => x.replace(/\D/g, "")).filter((x) => /^\d{8,15}$/.test(x))),
+  };
+}
+
+/** Envoie une alerte à tous les destinataires. Ne lève jamais : une alerte qui échoue ne doit pas casser une commande. */
+export async function notifierBoutique(sujet: string, texte: string): Promise<void> {
+  const { emails, telephones } = await destinatairesAlertes();
   const taches: Promise<unknown>[] = [];
-  const emailAlerte = await lireReglage("alerte_email");
-  const telAlerte = await lireReglage("alerte_whatsapp");
-  if (process.env.WHATSAPP_ENABLED === "true" && process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_ID && telAlerte) {
-    taches.push(
-      fetch(`https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_ID}/messages`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ messaging_product: "whatsapp", to: telAlerte, type: "text", text: { body: ligne } }),
-        signal: AbortSignal.timeout(10_000),
-      }),
-    );
+  if (process.env.WHATSAPP_ENABLED === "true" && process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_ID) {
+    for (const to of telephones) {
+      taches.push(
+        fetch(`https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_ID}/messages`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ messaging_product: "whatsapp", to, type: "text", text: { body: `${sujet}\n${texte}` } }),
+          signal: AbortSignal.timeout(10_000),
+        }).catch((e) => console.error("[nutrelis] alerte whatsapp", to.slice(-4), e instanceof Error ? e.message : e)),
+      );
+    }
   }
-  if (process.env.RESEND_API_KEY && emailAlerte) {
+  if (process.env.RESEND_API_KEY && emails.length > 0) {
     taches.push(
       fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: process.env.MAIL_FROM || "NUTRELIS <support@nutrelis.bio>", to: [emailAlerte], subject: `Nouvelle commande ${numero}${etat ? ` — ${etat}` : ""}`, text: ligne }),
+        body: JSON.stringify({ from: process.env.MAIL_FROM || "NUTRELIS <support@nutrelis.bio>", to: emails, subject: sujet, text: texte }),
         signal: AbortSignal.timeout(10_000),
-      }),
+      }).catch((e) => console.error("[nutrelis] alerte email", e instanceof Error ? e.message : e)),
     );
   }
   await Promise.allSettled(taches);
+}
+
+type LigneCommande = { customer_name: string; phone: string; city: string | null; address: string | null; total_fcfa: number; payment_method: string };
+
+async function resumeCommande(numero: string): Promise<{ o: LigneCommande; detail: string } | null> {
+  const rows = await query<LigneCommande>(
+    "SELECT customer_name, phone, city, address, total_fcfa, payment_method FROM customer_order WHERE number=$1",
+    [numero],
+  );
+  const o = rows[0];
+  if (!o) return null;
+  const items = await query<{ name: string; qty: number }>(
+    "SELECT i.name, i.qty FROM order_item i JOIN customer_order c ON c.id=i.order_id WHERE c.number=$1",
+    [numero],
+  );
+  return { o, detail: items.map((i) => `${i.qty} × ${i.name}`).join(", ") };
+}
+
+/** Copie de la commande : nouvelle commande, ou paiement en ligne confirmé (`etat`). */
+export async function notifierNouvelleCommande(numero: string, etat?: string): Promise<void> {
+  const r = await resumeCommande(numero);
+  if (!r) return;
+  const { o, detail } = r;
+  const texte = [
+    `🛒 Nouvelle commande ${numero}${etat ? ` — ${etat}` : ""}`,
+    `Client : ${o.customer_name} (${o.phone})`,
+    `Livraison : ${[o.city, o.address].filter(Boolean).join(", ") || "non précisée"}`,
+    `Articles : ${detail}`,
+    `Total : ${o.total_fcfa.toLocaleString("fr-FR")} FCFA — ${etat ?? (o.payment_method === "livraison" ? "paiement à la livraison" : "paiement en ligne")}`,
+    "Détail : https://nutrelis.bio/admin",
+  ].join("\n");
+  await notifierBoutique(`Nouvelle commande ${numero}${etat ? ` — ${etat}` : ""}`, texte);
+}
+
+/** Commande annulée, ou paiement en ligne refusé / expiré. */
+export async function notifierCommandeAnnulee(numero: string, raison: string): Promise<void> {
+  const r = await resumeCommande(numero);
+  if (!r) return;
+  const texte = `⚠️ Commande ${numero} — ${raison}\nClient : ${r.o.customer_name} (${r.o.phone})\nArticles : ${r.detail}\nTotal : ${r.o.total_fcfa.toLocaleString("fr-FR")} FCFA\nLe stock a été rendu.`;
+  await notifierBoutique(`Commande ${numero} — ${raison}`, texte);
+}
+
+/**
+ * Alerte de stock après une vente : RUPTURE (stock tombé à 0) ou STOCK FAIBLE (seuil franchi par cette vente).
+ * Une alerte par franchissement, pas une par commande.
+ */
+export async function alerterStock(vendus: { variantId: string; qty: number }[]): Promise<void> {
+  for (const v of vendus) {
+    const r = await query<{ label: string; pname: string; seuil: number; stock: number }>(
+      `SELECT v.label, p.name AS pname, v.low_stock_alert AS seuil,
+              (SELECT COALESCE(SUM(delta),0)::int FROM stock_movement WHERE variant_id = v.id) AS stock
+         FROM variant v JOIN product p ON p.id = v.product_id WHERE v.id = $1`,
+      [v.variantId],
+    );
+    const x = r[0];
+    if (!x) continue;
+    const avant = x.stock + v.qty;
+    if (x.stock <= 0 && avant > 0) {
+      await notifierBoutique(`RUPTURE DE STOCK — ${x.pname} (${x.label})`, `🚨 RUPTURE DE STOCK : ${x.pname} — ${x.label}. Il n'en reste plus. Réapprovisionnez dans l'onglet Stock : https://nutrelis.bio/admin`);
+    } else if (x.stock > 0 && x.stock <= x.seuil && avant > x.seuil) {
+      await notifierBoutique(`Stock faible — ${x.pname} (${x.label})`, `⚠️ Stock faible : ${x.pname} — ${x.label}. Il reste ${x.stock} (seuil d'alerte : ${x.seuil}). https://nutrelis.bio/admin`);
+    }
+  }
 }
