@@ -1639,6 +1639,21 @@ export default function Admin() {
     const t = setInterval(maj, 60_000);
     return () => clearInterval(t);
   }, [moi, onglet]);
+  // Inactivité : 10 min sans geste -> déconnexion. Toute activité prolonge aussi le cookie (au plus une fois par minute).
+  useEffect(() => {
+    if (!(moi && moi !== "inconnu")) return;
+    let dernier = Date.now(), prolonge = Date.now();
+    const geste = () => {
+      dernier = Date.now();
+      if (dernier - prolonge > 60_000) { prolonge = dernier; void api("me/prolonger", { method: "POST" }); }
+    };
+    const evts = ["pointerdown", "keydown", "scroll", "touchstart"] as const;
+    evts.forEach((e) => window.addEventListener(e, geste, { passive: true }));
+    const t = setInterval(() => {
+      if (Date.now() - dernier >= 10 * 60_000) void api("logout", { method: "POST" }).then(() => setMoi(null));
+    }, 15_000);
+    return () => { evts.forEach((e) => window.removeEventListener(e, geste)); clearInterval(t); };
+  }, [moi]);
   // Titre de l'onglet du navigateur : « (3) NUTRELIS Console » quand il y a du travail en attente.
   useEffect(() => {
     const n = aTraiter + nbMessages;

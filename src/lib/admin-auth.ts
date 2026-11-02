@@ -6,13 +6,14 @@ import { query } from "./db";
 /**
  * COMPTES ADMINISTRATEURS.
  *  - Mot de passe : jamais stocké, seulement son empreinte scrypt (sel aléatoire par compte).
- *  - Session : cookie signé (HMAC) valable 12 h, lié à l'identifiant ET à la `session_version` du compte : changer le mot de passe
+ *  - Session : cookie signé (HMAC) valable 10 min, prolongée à chaque activité, lié à l'identifiant ET à la `session_version` du compte : changer le mot de passe
  *    (ou désactiver le compte) invalide aussitôt toutes les sessions ouvertes.
  *  - Rôles : `proprietaire` (tout, dont comptes, réglages, journal) et `gestionnaire` (commandes, paiements, stock, produits, revendeurs).
  */
 const scrypt = promisify(scryptCb) as (mdp: string, sel: Buffer, longueur: number) => Promise<Buffer>;
 export const NOM_COOKIE_ADMIN = "nutrelis_admin";
-const DUREE_MS = 12 * 60 * 60 * 1000;
+/** Inactivité maximale : la console se ferme après 10 min sans action (le navigateur prolonge le cookie tant que l'on travaille). */
+const DUREE_MS = 10 * 60 * 1000;
 const VERROU_MS = 15 * 60 * 1000;
 const ESSAIS_MAX = 8;
 
