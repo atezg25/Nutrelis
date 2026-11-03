@@ -9,7 +9,7 @@ import HydrationGuard from "@/components/HydrationGuard";
 
 export default function Contact() {
   const { t, contact } = useLocale();
-  // Numéro WhatsApp RÉEL de la boutique (réglage de la console), mis en forme : 237659304438 -> +237 659 30 44 38
+  // Numéro WhatsApp RÉEL de la boutique (réglage de la console), mis en forme : 237677043275 -> +237 677 04 32 75
   const wa = contact.whatsapp.replace(/\D/g, "");
   const waAffiche = wa.length === 12 && wa.startsWith("237") ? `+237 ${wa.slice(3, 6)} ${wa.slice(6, 8)} ${wa.slice(8, 10)} ${wa.slice(10)}` : wa ? `+${wa}` : "";
   const screen = useScreenSize();

@@ -23,7 +23,7 @@ export const REGLAGES: Record<CleReglage, { titre: string; aide: string; defaut:
   alerte_email_copies: { titre: "Copies des alertes par e-mail (autres adresses)", aide: "Une ou plusieurs adresses séparées par des virgules : elles reçoivent une copie de chaque commande, annulation, rupture ou stock faible.", defaut: () => "atezg25@gmail.com", type: "texte", max: 400 },
   alerte_whatsapp_copies: { titre: "Copies des alertes WhatsApp (autres numéros)", aide: "Numéros internationaux sans « + », séparés par des virgules (ex. 237693147120). L'envoi automatique exige l'API WhatsApp Cloud de Meta.", defaut: () => "237693147120", type: "texte", max: 200 },
   alerte_telegram: { titre: "Alertes Telegram (identifiants de discussion)", aide: "Un identifiant par personne (nombre fourni par le robot Telegram), séparés par des virgules. Chaque personne doit d'abord ouvrir le robot et appuyer sur Démarrer. Le jeton du robot est dans la configuration du serveur (TELEGRAM_BOT_TOKEN).", defaut: () => "", type: "texte", max: 200 },
-  alerte_whatsapp: { titre: "Numéro WhatsApp de la boutique", aide: "Format international sans « + » (ex. 237659304438). L'envoi automatique exige l'API WhatsApp Cloud de Meta (non configurée).", defaut: () => process.env.WHATSAPP_STORE_PHONE ?? "", type: "telephone" },
+  alerte_whatsapp: { titre: "Numéro WhatsApp de la boutique", aide: "Format international sans « + » (ex. 237677043275). L'envoi automatique exige l'API WhatsApp Cloud de Meta (non configurée).", defaut: () => process.env.WHATSAPP_STORE_PHONE ?? "", type: "telephone" },
 };
 
 export async function lireReglages(): Promise<Record<CleReglage, string>> {
