@@ -52,6 +52,13 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Un lien partagé (ex. WhatsApp) peut imposer la langue : ?lang=en ou ?lang=fr ; sinon la préférence mémorisée.
+    const demandee = new URLSearchParams(window.location.search).get("lang");
+    if (demandee === "en" || demandee === "fr") {
+      setLocaleState(demandee);
+      localStorage.setItem("nutrelis-locale", demandee);
+      return;
+    }
     const saved = localStorage.getItem("nutrelis-locale") as Locale | null;
     if (saved === "en" || saved === "fr") setLocaleState(saved);
   }, []);
