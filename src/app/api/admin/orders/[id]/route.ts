@@ -1,5 +1,5 @@
 import { query } from "@/lib/db";
-import { changerStatut, marquerPayee, reconcilierPaiements, STATUTS, type ModePaiement, type StatutCommande } from "@/lib/orders";
+import { changerStatut, marquerPayee, reconcilierEnArrierePlan, STATUTS, type ModePaiement, type StatutCommande } from "@/lib/orders";
 import { corps, erreur, refuserSiNonAdmin, reponse, reponseErreur, UUID } from "@/lib/http";
 import { journaliser } from "@/lib/admin-auth";
 
@@ -11,7 +11,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   try {
     const { id } = await params;
     if (!UUID.test(id)) return erreur("Identifiant invalide.", 400);
-    await reconcilierPaiements().catch(() => 0); // un paiement Mobile Money arrivé entre-temps est appliqué avant l'affichage
+    reconcilierEnArrierePlan(); // un paiement Mobile Money arrivé entre-temps est appliqué avant l'affichage
     const [commande] = await query(
       `SELECT o.*, r.name AS reseller_name FROM customer_order o LEFT JOIN reseller r ON r.id=o.reseller_id WHERE o.id=$1`,
       [id],

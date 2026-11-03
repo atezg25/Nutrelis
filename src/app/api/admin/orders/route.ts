@@ -1,5 +1,5 @@
 import { query } from "@/lib/db";
-import { creerCommande, reconcilierPaiements, type LigneDemandee, type ModePaiement } from "@/lib/orders";
+import { creerCommande, reconcilierEnArrierePlan, type LigneDemandee, type ModePaiement } from "@/lib/orders";
 import { corps, entier, erreur, refuserSiNonAdmin, reponse, reponseErreur, texte, UUID } from "@/lib/http";
 import { journaliser } from "@/lib/admin-auth";
 
@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const refus = await refuserSiNonAdmin();
   if (refus) return refus;
   try {
-    await reconcilierPaiements();
+    reconcilierEnArrierePlan();
     const u = new URL(req.url).searchParams;
     const statut = u.get("statut");
     const canal = u.get("canal");

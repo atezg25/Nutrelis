@@ -236,6 +236,17 @@ export async function appliquerPaiement(transId: string, statut: "payee" | "echo
   if (echec) void notifierCommandeAnnulee(echec, "paiement en ligne refusé ou expiré").catch(() => undefined);
 }
 
+/**
+ * Lance la vérification SANS attendre (et au plus toutes les 20 s) : la console ne doit jamais patienter après Fapshi.
+ * Le webhook reste la voie normale ; ceci rattrape un webhook perdu.
+ */
+let derniereReconciliation = 0;
+export function reconcilierEnArrierePlan(): void {
+  if (Date.now() - derniereReconciliation < 20_000) return;
+  derniereReconciliation = Date.now();
+  void reconcilierPaiements().catch(() => 0);
+}
+
 /** Vérifie auprès de Fapshi les paiements en attente (> 2 min) et applique le verdict. Sans danger à rappeler. */
 export async function reconcilierPaiements(): Promise<number> {
   if (!fapshiConfigure()) return 0;

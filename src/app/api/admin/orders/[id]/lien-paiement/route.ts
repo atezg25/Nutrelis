@@ -22,7 +22,6 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       [id],
     );
     if (!o) return erreur("Commande introuvable.", 404);
-    if (o.payment_status === "payee") return erreur("Cette commande est déjà payée.", 409);
     if (o.status === "annulee") return erreur("Cette commande est annulée.", 409);
     const base = process.env.NEXT_PUBLIC_URL || "https://nutrelis.bio";
     const p = await initierPaiement({

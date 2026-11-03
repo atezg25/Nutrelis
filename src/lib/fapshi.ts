@@ -24,7 +24,7 @@ async function appel(method: "GET" | "POST", chemin: string, corps?: unknown): P
     method,
     headers: entetes(),
     ...(corps ? { body: JSON.stringify(corps) } : {}),
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.timeout(method === "GET" ? 6_000 : 15_000), // une vérification lente ne doit jamais bloquer la console
   });
   const texte = await res.text();
   if (!res.ok) throw new Error(`fapshi http ${res.status}: ${texte.slice(0, 200)}`);

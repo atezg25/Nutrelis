@@ -1,5 +1,5 @@
 import { query } from "@/lib/db";
-import { reconcilierPaiements } from "@/lib/orders";
+import { reconcilierEnArrierePlan } from "@/lib/orders";
 import { refuserSiNonAdmin, reponse, reponseErreur } from "@/lib/http";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +9,7 @@ export async function GET() {
   const refus = await refuserSiNonAdmin();
   if (refus) return refus;
   try {
-    await reconcilierPaiements();
+    reconcilierEnArrierePlan();
     const enLigne = await query(
       `SELECT p.created_at, o.number, o.customer_name, p.provider, p.provider_ref, p.amount_fcfa, p.status, p.provider_status
          FROM payment p JOIN customer_order o ON o.id=p.order_id ORDER BY p.created_at DESC LIMIT 200`,

@@ -230,10 +230,11 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
           <button key={s} onClick={() => void agir({ statut: s })} style={{ ...boutonDiscret, ...(c.status === s ? { background: COULEUR_STATUT[s], color: "#fff", borderColor: COULEUR_STATUT[s] } : {}) }}>{LIB_STATUT[s]}</button>
         ))}
       </div>
-      {c.payment_status !== "payee" && c.status !== "annulee" && (
+      {c.status !== "annulee" && (
         <div style={{ marginTop: 12, display: "grid", gap: 12, background: "#fafcfa", border: "1px solid #e3e9e3", borderRadius: 12, padding: 12 }}>
-          {c.status === "livree" && <div role="status" style={{ background: "#fff7ed", border: "1px solid #fed7aa", color: "#9a3412", borderRadius: 10, padding: "8px 10px", fontWeight: 700, fontSize: 13 }}>📦 Colis livré — {fcfa(c.total_fcfa)} reste à encaisser. Confirmez l'encaissement ci-dessous.</div>}
-          <div style={{ fontWeight: 800, fontSize: 13 }}>Encaissement — {fcfa(c.total_fcfa)} à recevoir</div>
+          {c.status === "livree" && c.payment_status !== "payee" && <div role="status" style={{ background: "#fff7ed", border: "1px solid #fed7aa", color: "#9a3412", borderRadius: 10, padding: "8px 10px", fontWeight: 700, fontSize: 13 }}>📦 Colis livré — {fcfa(c.total_fcfa)} reste à encaisser. Confirmez l'encaissement ci-dessous.</div>}
+          <div style={{ fontWeight: 800, fontSize: 13 }}>{c.payment_status === "payee" ? `Encaissement — ${fcfa(c.total_fcfa)} marqué payé ✅` : `Encaissement — ${fcfa(c.total_fcfa)} à recevoir`}</div>
+          {c.payment_status === "payee" && <div style={{ fontSize: 12.5, color: "#5b665e" }}>Déjà marquée payée : un lien Mobile Money sert alors à régulariser (par exemple un paiement reçu hors Fapshi).</div>}
           <div style={{ display: "grid", gap: 8 }}>
             <div style={{ fontSize: 12.5, color: "#5b665e" }}>Le client paie par Mobile Money : envoyez-lui un lien. Le paiement est constaté <strong>automatiquement</strong>.</div>
             <div><button onClick={() => void creerLien()} disabled={lienEnCours} style={bouton}>{lienEnCours ? "…" : "🔗 Lien de paiement Mobile Money"}</button></div>
@@ -248,7 +249,7 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
               </div>
             )}
           </div>
-          <div style={{ display: "grid", gap: 8, borderTop: "1px solid #e3e9e3", paddingTop: 10 }}>
+          {c.payment_status !== "payee" && <div style={{ display: "grid", gap: 8, borderTop: "1px solid #e3e9e3", paddingTop: 10 }}>
             <div style={{ fontSize: 12.5, color: "#5b665e" }}>Argent reçu en main propre ou par virement : à confirmer ici (après la livraison pour les espèces).</div>
             {confirmer ? (
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: 10, padding: 10 }}>
@@ -262,7 +263,7 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
                 <button onClick={() => setConfirmer("virement")} style={boutonDiscret}>🏦 Virement reçu</button>
               </div>
             )}
-          </div>
+          </div>}
         </div>
       )}
       {d.paiements.length > 0 && (
@@ -494,12 +495,56 @@ function Commandes() {
 }
 
 // ---------------------------------------------------------------- Paiements
+/** Crée un lien de paiement Mobile Money. Il est TOUJOURS rattaché à une commande existante (choix obligatoire). */
+function NouveauLienPaiement({ apres }: { apres: () => void }) {
+  const [commandes, setCommandes] = useState<Ligne[]>([]);
+  const [id, setId] = useState("");
+  const [lien, setLien] = useState("");
+  const [err, setErr] = useState("");
+  const [enCours, setEnCours] = useState(false);
+  useEffect(() => { void api<{ orders: Ligne[] }>("orders").then((r) => r.ok && setCommandes((r.data.orders ?? []).filter((o) => o.status !== "annulee"))); }, []);
+  const c = commandes.find((o) => String(o.id) === id);
+  async function creer() {
+    setErr(""); setLien("");
+    if (!c) { setErr("Choisissez d'abord la commande à laquelle rattacher ce lien."); return; }
+    setEnCours(true);
+    const r = await api<{ lien?: string }>(`orders/${id}/lien-paiement`, { method: "POST" });
+    setEnCours(false);
+    if (r.ok && r.data.lien) { setLien(r.data.lien); apres(); } else setErr(r.data.error ?? "Impossible de créer le lien.");
+  }
+  const tel = String(c?.phone ?? "").replace(/\D/g, "");
+  return (
+    <div style={{ ...carte, display: "grid", gap: 10 }}>
+      <strong>🔗 Créer un lien de paiement Mobile Money</strong>
+      <div style={{ fontSize: 12.5, color: "#5b665e" }}>Le lien est toujours rattaché à une commande. L'argent arrive dans le portefeuille E-COMMERCE et la commande est mise à jour automatiquement.</div>
+      <select value={id} onChange={(e) => { setId(e.target.value); setLien(""); setErr(""); }} aria-label="Commande" style={champ}>
+        <option value="">Choisir la commande… (obligatoire)</option>
+        {commandes.map((o) => <option key={String(o.id)} value={String(o.id)}>{String(o.number)} — {String(o.customer_name)} — {fcfa(o.total_fcfa)} — {LIB_PAIEMENT[String(o.payment_status)] ?? ""}</option>)}
+      </select>
+      {c?.payment_status === "payee" && <div style={{ fontSize: 12.5, color: "#b45309" }}>Cette commande est déjà marquée payée : le lien servira à régulariser.</div>}
+      <div><button onClick={() => void creer()} disabled={enCours || !id} style={{ ...bouton, opacity: enCours || !id ? 0.55 : 1 }}>{enCours ? "Création…" : "Créer le lien"}</button></div>
+      {err && <div role="alert" style={{ color: "#b91c1c", fontWeight: 700 }}>{err}</div>}
+      {lien && c && (
+        <div style={{ display: "grid", gap: 8, background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 12, padding: 12 }}>
+          <input readOnly value={lien} onFocus={(e) => e.currentTarget.select()} style={champ} aria-label="Lien de paiement" />
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button onClick={() => { void navigator.clipboard?.writeText(lien).then(() => setErr(""), () => setErr("Copie impossible : sélectionnez le lien.")); }} style={boutonDiscret}>Copier</button>
+            <a href={`https://wa.me/${tel}?text=${encodeURIComponent(`Bonjour ${String(c.customer_name)}, voici votre lien de paiement NUTRELIS (commande ${String(c.number)}, ${fcfa(c.total_fcfa)}) : ${lien}`)}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>Envoyer par WhatsApp</a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Paiements() {
   const [d, setD] = useState<{ resume: Ligne; paiements: Ligne[] } | null>(null);
-  useEffect(() => { void api<{ resume: Ligne; paiements: Ligne[] }>("payments").then((r) => r.ok && setD(r.data)); }, []);
+  const charger = useCallback(() => { void api<{ resume: Ligne; paiements: Ligne[] }>("payments").then((r) => r.ok && setD(r.data)); }, []);
+  useEffect(charger, [charger]);
   if (!d) return <p>Chargement…</p>;
   return (
     <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 14 }}>
+      <NouveauLienPaiement apres={charger} />
       <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))" }}>
         {([["Encaissé", d.resume.encaisse], ["En attente de paiement", d.resume.en_attente], ["À encaisser à la livraison", d.resume.a_la_livraison]] as const).map(([t, v]) => (
           <div key={t} style={carte}><div style={{ fontSize: 12.5, color: "#666" }}>{t}</div><div style={{ fontSize: 22, fontWeight: 800, marginTop: 4 }}>{fcfa(v)}</div></div>

@@ -1,5 +1,5 @@
 import { query } from "@/lib/db";
-import { reconcilierPaiements } from "@/lib/orders";
+import { reconcilierEnArrierePlan } from "@/lib/orders";
 import { refuserSiNonAdmin, reponse, reponseErreur } from "@/lib/http";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +9,7 @@ export async function GET() {
   const refus = await refuserSiNonAdmin();
   if (refus) return refus;
   try {
-    await reconcilierPaiements();
+    reconcilierEnArrierePlan();
     const [chiffres] = await query<{ commandes_jour: number; ca_jour: number; ca_mois: number; a_traiter: number; impayees: number; commandes_mois: number }>(
       `SELECT
          COUNT(*) FILTER (WHERE created_at >= date_trunc('day', now()) AND status <> 'annulee')::int AS commandes_jour,
