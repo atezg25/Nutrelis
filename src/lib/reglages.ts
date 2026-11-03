@@ -4,9 +4,11 @@ import { query } from "./db";
  * Réglages modifiables depuis la console (table `setting`). Chaque réglage a une valeur de repli (variable d'environnement
  * ou valeur par défaut) : la boutique fonctionne même si la table est vide.
  */
-export type CleReglage = "frais_livraison_fcfa" | "alerte_email" | "alerte_email_copies" | "alerte_whatsapp" | "alerte_whatsapp_copies" | "alerte_telegram" | "abonnement_actif" | "abonnement_remise_pct" | "abonnement_jours_par_unite" | "boutique_titre" | "boutique_description" | "boutique_carrousel_secondes" | "boutique_nom" | "boutique_telephone" | "boutique_adresse";
+export type CleReglage = "avis_paiement_fr" | "avis_paiement_en" | "frais_livraison_fcfa" | "alerte_email" | "alerte_email_copies" | "alerte_whatsapp" | "alerte_whatsapp_copies" | "alerte_telegram" | "abonnement_actif" | "abonnement_remise_pct" | "abonnement_jours_par_unite" | "boutique_titre" | "boutique_description" | "boutique_carrousel_secondes" | "boutique_nom" | "boutique_telephone" | "boutique_adresse";
 
 export const REGLAGES: Record<CleReglage, { titre: string; aide: string; defaut: () => string; type: "entier" | "email" | "telephone" | "texte"; max?: number }> = {
+  avis_paiement_fr: { titre: "Avis affiché au paiement (français)", aide: "Message d'alerte au moment de choisir le mode de paiement (ex. un opérateur en panne). Laissez vide pour ne rien afficher. 300 caractères au plus.", defaut: () => "", type: "texte", max: 300 },
+  avis_paiement_en: { titre: "Avis affiché au paiement (anglais)", aide: "Même message en anglais, pour les clients qui consultent le site en anglais. Laissez vide pour ne rien afficher.", defaut: () => "", type: "texte", max: 300 },
   frais_livraison_fcfa: { titre: "Frais de livraison par défaut (FCFA)", aide: "Pour une ville qui n'a pas son propre tarif (onglet Expéditions > Tarifs par ville). 0 = livraison offerte.", defaut: () => String(Number(process.env.DELIVERY_FEE_FCFA ?? 0) || 0), type: "entier" },
   alerte_email: { titre: "E-mail qui reçoit les alertes de commande", aide: "Une alerte par commande à la livraison, et par paiement en ligne confirmé.", defaut: () => process.env.STORE_EMAIL ?? "", type: "email" },
   abonnement_actif: { titre: "Abonnement : activé (1) ou désactivé (0)", aide: "À 0, l'option « Abonnement » disparaît des pages produit et toute commande est facturée plein tarif.", defaut: () => "1", type: "entier" },

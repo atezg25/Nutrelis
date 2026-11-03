@@ -8,7 +8,12 @@ import { useLocale } from "@/context/LocaleContext";
 
 export default function Checkout() {
   const { items, totalPrix, viderPanier } = useCart();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  // Avis de paiement (ex. un opérateur en panne), piloté depuis la console > Paramètres ; vide = rien d'affiché.
+  const [avisPaiement, setAvisPaiement] = useState<{ fr: string; en: string }>({ fr: "", en: "" });
+  useEffect(() => {
+    void fetch("/api/shop-settings").then((r) => r.json()).then((d: { avis?: { fr?: string; en?: string } }) => setAvisPaiement({ fr: d.avis?.fr ?? "", en: d.avis?.en ?? "" })).catch(() => undefined);
+  }, []);
   const [etape, setEtape] = useState<"formulaire" | "paiement" | "confirmation">("formulaire");
   const [modePaiement, setModePaiement] = useState<"mobile_money" | "livraison" | null>("mobile_money");
   const [form, setForm] = useState({
@@ -152,8 +157,14 @@ export default function Checkout() {
 
   // PAGE CONFIRMATION
   // Choix du mode de paiement : affiché dès le formulaire ET à l'étape de paiement. Le paiement en ligne est recommandé (présélectionné).
+  const avisTexte = (locale === "en" ? avisPaiement.en || avisPaiement.fr : avisPaiement.fr || avisPaiement.en).trim();
   const choixPaiement = (
     <>
+            {avisTexte && (
+              <div role="alert" style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "#fff7e6", border: "1.5px solid #f5b942", color: "#7a4a00", borderRadius: 12, padding: "12px 14px", marginBottom: 16, fontSize: 14, lineHeight: 1.5, fontWeight: 600 }}>
+                <span aria-hidden style={{ fontSize: 18 }}>⚠️</span><span>{avisTexte}</span>
+              </div>
+            )}
             <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
               {[
                 { id: "mobile_money", label: t("checkout.payOnline"), desc: t("checkout.payOnlineDesc"), emoji: "📱", color: "#ffcc00", disabled: false },
