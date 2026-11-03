@@ -219,9 +219,11 @@ export async function appliquerPaiement(transId: string, statut: "payee" | "echo
         await c.query("UPDATE customer_order SET status='nouvelle' WHERE id=$1", [pay.order_id]);
         await reprendreStock(c, pay.order_id, ord.number, "paiement reçu après annulation");
       }
-      await c.query("UPDATE customer_order SET payment_status='payee', updated_at=now() WHERE id=$1", [pay.order_id]);
+      // Payée par Mobile Money : le moyen devient « Mobile Money » même si la commande avait été saisie « à la livraison » / « espèces ».
+      await c.query("UPDATE customer_order SET payment_status='payee', payment_method='fapshi', updated_at=now() WHERE id=$1", [pay.order_id]);
       return ord.number;
-    } else if (ord.payment_status !== "payee") {
+    } else if (ord.payment_status === "en_attente") {
+      // (une commande « à la livraison » dont le lien de paiement a expiré reste valable : elle sera encaissée à la livraison)
       // Paiement refusé ou expiré : on libère le stock, le client pourra recommander.
       await c.query("UPDATE customer_order SET payment_status='echouee', status='annulee', updated_at=now() WHERE id=$1", [pay.order_id]);
       await restituerStock(c, pay.order_id, ord.number);

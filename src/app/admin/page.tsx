@@ -185,6 +185,9 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
   }
   const [lien, setLien] = useState("");
   const [lienEnCours, setLienEnCours] = useState(false);
+  const [confirmer, setConfirmer] = useState<"" | "especes" | "virement">("");
+  // Un lien Mobile Money est affiché : on regarde toutes les 8 s si le client a payé (la commande passe alors « payée » toute seule).
+  useEffect(() => { if (!lien) return; const t = setInterval(charger, 8000); return () => clearInterval(t); }, [lien, charger]);
   async function creerLien() {
     setMsg(""); setLienEnCours(true);
     const r = await api<{ lien?: string }>(`orders/${id}/lien-paiement`, { method: "POST" });
@@ -228,22 +231,38 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
         ))}
       </div>
       {c.payment_status !== "payee" && c.status !== "annulee" && (
-        <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <button onClick={() => void creerLien()} disabled={lienEnCours} style={bouton}>{lienEnCours ? "…" : "🔗 Lien de paiement"}</button>
-          {lien && (
-            <div style={{ flexBasis: "100%", display: "grid", gap: 8, background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 12, padding: 12 }}>
-              <input readOnly value={lien} onFocus={(e) => e.currentTarget.select()} style={champ} aria-label="Lien de paiement" />
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <button onClick={() => { void navigator.clipboard?.writeText(lien).then(() => setMsg("Lien copié."), () => setMsg("Copie impossible : sélectionnez le lien.")); }} style={boutonDiscret}>Copier</button>
-                <a href={`https://wa.me/${tel}?text=${encodeURIComponent(`Bonjour ${String(c.customer_name)}, voici votre lien de paiement NUTRELIS (commande ${String(c.number)}, ${fcfa(c.total_fcfa)}) : ${lien}`)}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>Envoyer par WhatsApp</a>
+        <div style={{ marginTop: 12, display: "grid", gap: 12, background: "#fafcfa", border: "1px solid #e3e9e3", borderRadius: 12, padding: 12 }}>
+          {c.status === "livree" && <div role="status" style={{ background: "#fff7ed", border: "1px solid #fed7aa", color: "#9a3412", borderRadius: 10, padding: "8px 10px", fontWeight: 700, fontSize: 13 }}>📦 Colis livré — {fcfa(c.total_fcfa)} reste à encaisser. Confirmez l'encaissement ci-dessous.</div>}
+          <div style={{ fontWeight: 800, fontSize: 13 }}>Encaissement — {fcfa(c.total_fcfa)} à recevoir</div>
+          <div style={{ display: "grid", gap: 8 }}>
+            <div style={{ fontSize: 12.5, color: "#5b665e" }}>Le client paie par Mobile Money : envoyez-lui un lien. Le paiement est constaté <strong>automatiquement</strong>.</div>
+            <div><button onClick={() => void creerLien()} disabled={lienEnCours} style={bouton}>{lienEnCours ? "…" : "🔗 Lien de paiement Mobile Money"}</button></div>
+            {lien && (
+              <div style={{ display: "grid", gap: 8, background: "#f0faf2", border: "1px solid #c8e6d0", borderRadius: 12, padding: 12 }}>
+                <input readOnly value={lien} onFocus={(e) => e.currentTarget.select()} style={champ} aria-label="Lien de paiement" />
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <button onClick={() => { void navigator.clipboard?.writeText(lien).then(() => setMsg("Lien copié."), () => setMsg("Copie impossible : sélectionnez le lien.")); }} style={boutonDiscret}>Copier</button>
+                  <a href={`https://wa.me/${tel}?text=${encodeURIComponent(`Bonjour ${String(c.customer_name)}, voici votre lien de paiement NUTRELIS (commande ${String(c.number)}, ${fcfa(c.total_fcfa)}) : ${lien}`)}`} target="_blank" rel="noreferrer" style={{ ...boutonDiscret, textDecoration: "none" }}>Envoyer par WhatsApp</a>
+                </div>
+                <span style={{ fontSize: 12, color: "#555" }}>En attente du paiement… la commande passera en « payée » dès qu'il aboutit.</span>
               </div>
-              <span style={{ fontSize: 12, color: "#555" }}>Dès que le client paie, la commande passe automatiquement en « payée ».</span>
-            </div>
-          )}
-          <span style={{ fontSize: 13, color: "#555" }}>Marquer comme payée :</span>
-          <button onClick={() => void agir({ paiementRecu: "especes" })} style={bouton}>Espèces</button>
-          <button onClick={() => void agir({ paiementRecu: "virement" })} style={bouton}>Virement bancaire</button>
-          <button onClick={() => void agir({ paiementRecu: "fapshi" })} style={bouton}>Mobile Money</button>
+            )}
+          </div>
+          <div style={{ display: "grid", gap: 8, borderTop: "1px solid #e3e9e3", paddingTop: 10 }}>
+            <div style={{ fontSize: 12.5, color: "#5b665e" }}>Argent reçu en main propre ou par virement : à confirmer ici (après la livraison pour les espèces).</div>
+            {confirmer ? (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: 10, padding: 10 }}>
+                <strong style={{ fontSize: 13 }}>Confirmer : {fcfa(c.total_fcfa)} reçus {confirmer === "especes" ? "en espèces" : "par virement bancaire"} ?</strong>
+                <button onClick={() => { const m = confirmer; setConfirmer(""); void agir({ paiementRecu: m }); }} style={bouton}>Oui, encaissé</button>
+                <button onClick={() => setConfirmer("")} style={boutonDiscret}>Annuler</button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button onClick={() => setConfirmer("especes")} style={boutonDiscret}>💵 Espèces reçues</button>
+                <button onClick={() => setConfirmer("virement")} style={boutonDiscret}>🏦 Virement reçu</button>
+              </div>
+            )}
+          </div>
         </div>
       )}
       {d.paiements.length > 0 && (
