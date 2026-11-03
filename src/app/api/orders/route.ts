@@ -54,7 +54,7 @@ export async function POST(req: Request) {
         email: texte(c.email, 160),
         message: `NUTRELIS — commande ${cmd.numero}`,
       });
-      await enregistrerPaiementCree(cmd.id, cmd.total, p.transId);
+      await enregistrerPaiementCree(cmd.id, cmd.total, p.transId, p.lien);
       return reponse({ numero: cmd.numero, total: cmd.total, mode, checkoutUrl: p.lien });
     } catch (err) {
       // Fapshi n'a pas pu créer le paiement : la commande n'a pas lieu d'être, on libère le stock.

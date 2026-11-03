@@ -338,3 +338,6 @@ CREATE TABLE IF NOT EXISTS abandoned_cart (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS abandoned_cart_phone_idx ON abandoned_cart (phone);
 CREATE INDEX IF NOT EXISTS abandoned_cart_status_idx ON abandoned_cart (status, updated_at DESC);
+
+-- Lien de paiement hébergé conservé : un seul lien actif par commande (on le réaffiche au lieu d'en régénérer un)
+ALTER TABLE payment ADD COLUMN IF NOT EXISTS link text;

@@ -190,9 +190,9 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
   useEffect(() => { if (!lien) return; const t = setInterval(charger, 8000); return () => clearInterval(t); }, [lien, charger]);
   async function creerLien() {
     setMsg(""); setLienEnCours(true);
-    const r = await api<{ lien?: string }>(`orders/${id}/lien-paiement`, { method: "POST" });
+    const r = await api<{ lien?: string; reutilise?: boolean }>(`orders/${id}/lien-paiement`, { method: "POST" });
     setLienEnCours(false);
-    if (r.ok && r.data.lien) { setLien(r.data.lien); charger(); } else setMsg(r.data.error ?? "Impossible de créer le lien.");
+    if (r.ok && r.data.lien) { setLien(r.data.lien); if (r.data.reutilise) setMsg("Un lien existait déjà pour cette commande : le voici (il n'est pas régénéré)."); charger(); } else setMsg(r.data.error ?? "Impossible de créer le lien.");
   }
   if (!d) return null;
   const c = d.commande;
@@ -508,9 +508,9 @@ function NouveauLienPaiement({ apres }: { apres: () => void }) {
     setErr(""); setLien("");
     if (!c) { setErr("Choisissez d'abord la commande à laquelle rattacher ce lien."); return; }
     setEnCours(true);
-    const r = await api<{ lien?: string }>(`orders/${id}/lien-paiement`, { method: "POST" });
+    const r = await api<{ lien?: string; reutilise?: boolean }>(`orders/${id}/lien-paiement`, { method: "POST" });
     setEnCours(false);
-    if (r.ok && r.data.lien) { setLien(r.data.lien); apres(); } else setErr(r.data.error ?? "Impossible de créer le lien.");
+    if (r.ok && r.data.lien) { setLien(r.data.lien); if (r.data.reutilise) setErr("Un lien existait déjà pour cette commande : le voici (il n'est pas régénéré)."); apres(); } else setErr(r.data.error ?? "Impossible de créer le lien.");
   }
   const tel = String(c?.phone ?? "").replace(/\D/g, "");
   return (

@@ -188,8 +188,8 @@ async function reprendreStock(c: PoolClient, orderId: string, numero: string, no
   await c.query("UPDATE stock_movement SET ref = ref || '#' || id WHERE ref=$1 AND reason='annulation'", [numero]);
 }
 
-export async function enregistrerPaiementCree(orderId: string, montant: number, transId: string): Promise<void> {
-  await query("INSERT INTO payment (order_id, provider, provider_ref, amount_fcfa) VALUES ($1,'fapshi',$2,$3)", [orderId, transId, montant]);
+export async function enregistrerPaiementCree(orderId: string, montant: number, transId: string, lien?: string): Promise<void> {
+  await query("INSERT INTO payment (order_id, provider, provider_ref, amount_fcfa, link) VALUES ($1,'fapshi',$2,$3,$4)", [orderId, transId, montant, lien ?? null]);
 }
 
 /** Applique le verdict de Fapshi (webhook OU vérification) — idempotent. */
