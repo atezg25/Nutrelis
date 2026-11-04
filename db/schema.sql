@@ -345,3 +345,6 @@ ALTER TABLE payment ADD COLUMN IF NOT EXISTS link text;
 -- Livraison programmée à une date ultérieure (date prévue, modifiable depuis la console)
 ALTER TABLE customer_order ADD COLUMN IF NOT EXISTS deliver_on DATE;
 CREATE INDEX IF NOT EXISTS customer_order_deliver_on_idx ON customer_order (deliver_on) WHERE deliver_on IS NOT NULL;
+
+-- Rappel quotidien des livraisons programmées : une ligne par jour = un seul envoi, même avec deux serveurs
+CREATE TABLE IF NOT EXISTS rappel_livraison (jour DATE PRIMARY KEY, envoye_le TIMESTAMPTZ NOT NULL DEFAULT now());

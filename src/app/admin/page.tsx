@@ -492,6 +492,7 @@ function Commandes() {
   const [statut, setStatut] = useState("");
   const [canal, setCanal] = useState("");
   const [prog, setProg] = useState("");
+  const [rappel, setRappel] = useState("");
   const [q, setQ] = useState("");
   const [ouvert, setOuvert] = useState<string | null>(null);
   const [nouvelle, setNouvelle] = useState(false);
@@ -521,9 +522,11 @@ function Commandes() {
           <option value="toutes">📅 Livraisons programmées</option>
           <option value="a_livrer">⏰ À livrer aujourd'hui ou en retard</option>
         </select>
+        <button onClick={() => { setRappel("Envoi…"); void api<{ envoye?: boolean; commandes?: number }>("rappels-livraison", { method: "POST" }).then((r) => setRappel(!r.ok ? (r.data.error ?? "Échec de l'envoi.") : r.data.commandes ? "Rappel envoyé (Telegram + e-mail)." : "Aucune livraison à rappeler (rien d'aujourd'hui, de demain ou en retard).")); }} style={boutonDiscret} title="Envoie tout de suite le rappel des livraisons programmées">🔔 Rappel</button>
         <button onClick={() => exporterCsv(lignes)} style={boutonDiscret} title="Télécharger les commandes affichées (tableur)">⬇ Exporter</button>
         <button onClick={() => setNouvelle(true)} style={bouton}>+ Nouvelle commande</button>
       </div>
+      {rappel && <div role="status" style={{ marginBottom: 10, fontWeight: 700, color: "#1d4ed8" }}>{rappel}</div>}
       {nouvelle && <NouvelleCommande fait={() => { setNouvelle(false); charger(); }} annuler={() => setNouvelle(false)} />}
       {ouvert && <DetailCommande id={ouvert} fermer={() => setOuvert(null)} recharger={charger} />}
       <Tableau lignes={lignes} onClic={(l) => setOuvert(String(l.id))} colonnes={[
