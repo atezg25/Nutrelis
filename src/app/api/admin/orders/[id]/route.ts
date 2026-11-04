@@ -1,5 +1,5 @@
 import { query } from "@/lib/db";
-import { changerStatut, marquerPayee, reconcilierEnArrierePlan, STATUTS, type ModePaiement, type StatutCommande } from "@/lib/orders";
+import { changerStatut, dateLivraisonValide, marquerPayee, programmerLivraison, reconcilierEnArrierePlan, STATUTS, type ModePaiement, type StatutCommande } from "@/lib/orders";
 import { corps, erreur, refuserSiNonAdmin, reponse, reponseErreur, UUID } from "@/lib/http";
 import { journaliser } from "@/lib/admin-auth";
 
@@ -13,7 +13,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     if (!UUID.test(id)) return erreur("Identifiant invalide.", 400);
     reconcilierEnArrierePlan(); // un paiement Mobile Money arrivé entre-temps est appliqué avant l'affichage
     const [commande] = await query(
-      `SELECT o.*, r.name AS reseller_name FROM customer_order o LEFT JOIN reseller r ON r.id=o.reseller_id WHERE o.id=$1`,
+      `SELECT o.*, to_char(o.deliver_on, 'YYYY-MM-DD') AS livraison_le, r.name AS reseller_name FROM customer_order o LEFT JOIN reseller r ON r.id=o.reseller_id WHERE o.id=$1`,
       [id],
     );
     if (!commande) return erreur("Commande introuvable.", 404);
@@ -43,6 +43,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       if (!(modes as readonly string[]).includes(b.paiementRecu)) return erreur("Mode de paiement invalide.", 400);
       await marquerPayee(id, b.paiementRecu as ModePaiement);
       await journaliser("commande_payee_manuel", `${id} (${b.paiementRecu})`);
+    }
+    if ("livraisonLe" in b) {
+      const date = b.livraisonLe === null || b.livraisonLe === "" ? null : dateLivraisonValide(b.livraisonLe);
+      if (b.livraisonLe && !date) return erreur("Date de livraison invalide : choisissez aujourd'hui ou un jour à venir.", 400);
+      if (!(await programmerLivraison(id, date))) return erreur("Cette commande est déjà livrée ou annulée : sa date ne peut plus changer.", 409);
+      await journaliser("commande_livraison_programmee", `${id} → ${date ?? "date retirée"}`);
     }
     return reponse({ ok: true });
   } catch (err) {

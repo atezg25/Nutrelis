@@ -75,6 +75,8 @@ export async function creerCommande(p: {
   paiementRecu?: boolean;
   /** Code promo saisi par le client (ignoré pour les ventes revendeur). */
   code?: string | null;
+  /** Livraison programmée à une date ultérieure (AAAA-MM-JJ), saisie par l'administrateur. */
+  livraisonLe?: string | null;
 }): Promise<{ id: string; numero: string; total: number }> {
   const nom = p.client.nom?.trim();
   const tel = p.client.telephone?.replace(/[^\d+]/g, "");
@@ -145,12 +147,12 @@ export async function creerCommande(p: {
     const payee = p.paiementRecu === true;
     const ord = await c.query<{ id: string }>(
       `INSERT INTO customer_order (number, channel, reseller_id, customer_name, phone, email, city, address, notes,
-                                   payment_status, payment_method, subtotal_fcfa, delivery_fcfa, total_fcfa, subscription, promo_code, discount_fcfa)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING id`,
+                                   payment_status, payment_method, subtotal_fcfa, delivery_fcfa, total_fcfa, subscription, promo_code, discount_fcfa, deliver_on)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING id`,
       [
         numero, canal, p.revendeurId ?? null, nom, tel, p.client.email?.trim() || null, p.client.ville?.trim() || null,
         p.client.adresse?.trim() || null, p.client.notes?.trim() || null,
-        payee ? "payee" : p.mode === "livraison" ? "a_la_livraison" : "en_attente", p.mode, sousTotal, livraison, total, estAbonnement, promo?.code ?? null, rabais,
+        payee ? "payee" : p.mode === "livraison" ? "a_la_livraison" : "en_attente", p.mode, sousTotal, livraison, total, estAbonnement, promo?.code ?? null, rabais, p.livraisonLe ?? null,
       ],
     );
     const id = ord.rows[0]!.id;
@@ -306,4 +308,20 @@ export async function marquerPayee(orderId: string, mode: ModePaiement): Promise
     "UPDATE customer_order SET payment_status='payee', payment_method=CASE WHEN payment_method='fapshi' THEN payment_method ELSE $2 END, updated_at=now() WHERE id=$1",
     [orderId, mode],
   );
+}
+
+/** Valide une date de livraison AAAA-MM-JJ : jour réel, pas dans le passé (heure du Cameroun), au plus un an devant. */
+export function dateLivraisonValide(v: unknown): string | null {
+  if (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return null;
+  const d = new Date(`${v}T00:00:00Z`);
+  if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== v) return null;
+  const aujourdhui = new Date(Date.now() + 3600_000).toISOString().slice(0, 10); // UTC+1
+  const limite = new Date(Date.now() + 3600_000 + 366 * 86_400_000).toISOString().slice(0, 10);
+  return v >= aujourdhui && v <= limite ? v : null;
+}
+
+/** Programme (ou, avec null, retire) la date de livraison d'une commande non livrée et non annulée. */
+export async function programmerLivraison(orderId: string, date: string | null): Promise<boolean> {
+  const r = await query("UPDATE customer_order SET deliver_on=$2, updated_at=now() WHERE id=$1 AND status NOT IN ('livree','annulee') RETURNING id", [orderId, date]);
+  return r.length > 0;
 }

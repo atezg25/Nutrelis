@@ -341,3 +341,7 @@ CREATE INDEX IF NOT EXISTS abandoned_cart_status_idx ON abandoned_cart (status, 
 
 -- Lien de paiement hébergé conservé : un seul lien actif par commande (on le réaffiche au lieu d'en régénérer un)
 ALTER TABLE payment ADD COLUMN IF NOT EXISTS link text;
+
+-- Livraison programmée à une date ultérieure (date prévue, modifiable depuis la console)
+ALTER TABLE customer_order ADD COLUMN IF NOT EXISTS deliver_on DATE;
+CREATE INDEX IF NOT EXISTS customer_order_deliver_on_idx ON customer_order (deliver_on) WHERE deliver_on IS NOT NULL;

@@ -30,6 +30,26 @@ async function api<T = Ligne>(chemin: string, options?: { method?: string; body?
   return { ok: res.ok, status: res.status, data };
 }
 
+/** Date de livraison programmée (AAAA-MM-JJ) : libellé court + état par rapport à aujourd'hui (heure locale du navigateur). */
+function infoLivraison(v: unknown): { court: string; etat: "retard" | "aujourdhui" | "avenir"; relatif: string } | null {
+  if (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return null;
+  const [a, m, j] = v.split("-").map(Number);
+  const cible = new Date(a!, m! - 1, j!);
+  const t = new Date();
+  const jours = Math.round((cible.getTime() - new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime()) / 86_400_000);
+  const court = cible.toLocaleDateString("fr-FR", { weekday: "short", day: "2-digit", month: "short" });
+  if (jours < 0) return { court, etat: "retard", relatif: `en retard de ${-jours} j` };
+  if (jours === 0) return { court, etat: "aujourdhui", relatif: "aujourd'hui" };
+  return { court, etat: "avenir", relatif: jours === 1 ? "demain" : `dans ${jours} j` };
+}
+const COULEUR_LIVRAISON = { retard: "#b91c1c", aujourdhui: "#b45309", avenir: "#1d4ed8" } as const;
+const aujourdhuiISO = () => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`; };
+
+function BadgeLivraison({ v }: { v: unknown }) {
+  const i = infoLivraison(v);
+  return i ? <Badge texte={`📅 ${i.court} · ${i.relatif}`} couleur={COULEUR_LIVRAISON[i.etat]} /> : null;
+}
+
 function Badge({ texte, couleur }: { texte: string; couleur: string }) {
   return <span style={{ background: `${couleur}14`, color: couleur, padding: "3px 10px", borderRadius: 999, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${couleur}26` }}><span aria-hidden style={{ width: 6, height: 6, borderRadius: "50%", background: couleur }} />{texte}</span>;
 }
@@ -186,6 +206,8 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
   const [lien, setLien] = useState("");
   const [lienEnCours, setLienEnCours] = useState(false);
   const [confirmer, setConfirmer] = useState<"" | "especes" | "virement">("");
+  const [dateLiv, setDateLiv] = useState("");
+  useEffect(() => { setDateLiv(typeof d?.commande.livraison_le === "string" ? d.commande.livraison_le : ""); }, [d]);
   // Un lien Mobile Money est affiché : on regarde toutes les 8 s si le client a payé (la commande passe alors « payée » toute seule).
   useEffect(() => { if (!lien) return; const t = setInterval(charger, 8000); return () => clearInterval(t); }, [lien, charger]);
   async function creerLien() {
@@ -208,6 +230,7 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
           <strong>{String(c.customer_name)}</strong><br />
           {String(c.phone)} {c.email ? <>· {String(c.email)}</> : null}<br />
           {[c.address, c.city].filter(Boolean).join(", ")}
+          {c.livraison_le && c.status !== "livree" ? <><br /><BadgeLivraison v={c.livraison_le} /></> : null}
           {c.notes ? <><br /><em>« {String(c.notes)} »</em></> : null}
           <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
             <a href={`tel:+${tel}`} style={{ ...boutonDiscret, textDecoration: "none" }}>Appeler</a>
@@ -230,6 +253,17 @@ function DetailCommande({ id, fermer, recharger }: { id: string; fermer: () => v
           <button key={s} onClick={() => void agir({ statut: s })} style={{ ...boutonDiscret, ...(c.status === s ? { background: COULEUR_STATUT[s], color: "#fff", borderColor: COULEUR_STATUT[s] } : {}) }}>{LIB_STATUT[s]}</button>
         ))}
       </div>
+      {c.status !== "annulee" && c.status !== "livree" && (
+        <div style={{ marginTop: 12, display: "grid", gap: 8, background: "#f5f8ff", border: "1px solid #dbe4ff", borderRadius: 12, padding: 12 }}>
+          <div style={{ fontWeight: 800, fontSize: 13, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>📅 Livraison programmée <BadgeLivraison v={c.livraison_le} /></div>
+          <div style={{ fontSize: 12.5, color: "#5b665e" }}>Commande à livrer plus tard : indiquez le jour convenu avec le client. Elle reste dans « Commandes » avec ce rappel, et le stock reste réservé.</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+            <input type="date" min={aujourdhuiISO()} value={dateLiv} onChange={(e) => setDateLiv(e.target.value)} aria-label="Date de livraison" style={{ ...champ, width: "auto" }} />
+            <button onClick={() => void agir({ livraisonLe: dateLiv || null })} disabled={!dateLiv || dateLiv === c.livraison_le} style={{ ...bouton, opacity: !dateLiv || dateLiv === c.livraison_le ? 0.55 : 1 }}>Enregistrer la date</button>
+            {c.livraison_le && <button onClick={() => void agir({ livraisonLe: null })} style={boutonDiscret}>Retirer la date</button>}
+          </div>
+        </div>
+      )}
       {c.status !== "annulee" && (
         <div style={{ marginTop: 12, display: "grid", gap: 12, background: "#fafcfa", border: "1px solid #e3e9e3", borderRadius: 12, padding: 12 }}>
           {c.status === "livree" && c.payment_status !== "payee" && <div role="status" style={{ background: "#fff7ed", border: "1px solid #fed7aa", color: "#9a3412", borderRadius: 10, padding: "8px 10px", fontWeight: 700, fontSize: 13 }}>📦 Colis livré — {fcfa(c.total_fcfa)} reste à encaisser. Confirmez l'encaissement ci-dessous.</div>}
@@ -287,6 +321,7 @@ function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => 
   const [code, setCode] = useState("");
   const [mode, setMode] = useState("especes");
   const [paye, setPaye] = useState(true);
+  const [livraisonLe, setLivraisonLe] = useState("");
   const [err, setErr] = useState("");
   const [envoi, setEnvoi] = useState(false);
   // Commande « lien de paiement » enregistrée : on affiche le lien à transmettre au client avant de refermer le formulaire.
@@ -318,7 +353,7 @@ function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => 
     if (!client.nom.trim() || client.telephone.replace(/\D/g, "").length < 8) { setErr("Le nom et un téléphone valide du client sont obligatoires."); return; }
     if (choisies.length === 0) { setErr("Choisissez au moins un produit et son pack."); return; }
     setEnvoi(true);
-    const r = await api("orders", { method: "POST", body: { lignes: choisies.map((l) => ({ variantId: l.variantId, qty: l.qty })), client, mode, code: code.trim() || undefined, revendeurId: revendeurId || undefined, paiementRecu: mode === "fapshi" ? false : paye } });
+    const r = await api("orders", { method: "POST", body: { lignes: choisies.map((l) => ({ variantId: l.variantId, qty: l.qty })), client, mode, code: code.trim() || undefined, revendeurId: revendeurId || undefined, paiementRecu: mode === "fapshi" ? false : paye, livraisonLe: livraisonLe || undefined } });
     if (!r.ok) { setEnvoi(false); setErr(r.data.error ?? "Échec."); return; }
     if (mode !== "fapshi") { setEnvoi(false); fait(); return; }
     const cmd = r.data as unknown as { id: string; numero: string; total: number };
@@ -365,6 +400,9 @@ function NouvelleCommande({ fait, annuler }: { fait: () => void; annuler: () => 
           <input placeholder="Ville (ex. Yaoundé)" aria-label="Ville" value={client.ville} onChange={(e) => setClient({ ...client, ville: e.target.value })} style={champ} />
           <input placeholder="Quartier" aria-label="Quartier" value={client.quartier} onChange={(e) => setClient({ ...client, quartier: e.target.value })} style={champ} />
           <input placeholder="Adresse / repère" aria-label="Adresse" value={client.adresse} onChange={(e) => setClient({ ...client, adresse: e.target.value })} style={{ ...champ, gridColumn: "1 / -1" }} />
+          <label style={{ ...lab, gridColumn: "1 / -1" }}>📅 Livraison à une date ultérieure (facultatif — laissez vide pour une livraison immédiate)
+            <input type="date" min={aujourdhuiISO()} value={livraisonLe} onChange={(e) => setLivraisonLe(e.target.value)} aria-label="Date de livraison" style={{ ...champ, width: "auto", justifySelf: "start" }} />
+          </label>
         </div>
       </div>
 
@@ -438,7 +476,7 @@ function exporterCsv(lignes: Ligne[]) {
   const cols: [string, (l: Ligne) => string][] = [
     ["N°", (l) => String(l.number)], ["Date", (l) => date(l.created_at)], ["Client", (l) => String(l.customer_name)], ["Téléphone", (l) => String(l.phone)],
     ["Ville", (l) => String(l.city ?? "")], ["Commande", (l) => String(l.resume ?? "")], ["Total FCFA", (l) => String(l.total_fcfa)],
-    ["Statut", (l) => LIB_STATUT[String(l.status)] ?? String(l.status)], ["Paiement", (l) => LIB_PAIEMENT[String(l.payment_status)] ?? String(l.payment_status)],
+    ["Statut", (l) => LIB_STATUT[String(l.status)] ?? String(l.status)], ["Livraison prévue", (l) => String(l.livraison_le ?? "")], ["Paiement", (l) => LIB_PAIEMENT[String(l.payment_status)] ?? String(l.payment_status)],
   ];
   const cell = (v: string) => `"${v.replace(/"/g, '""')}"`;
   const csv = "\uFEFF" + [cols.map(([t]) => cell(t)).join(";"), ...lignes.map((l) => cols.map(([, f]) => cell(f(l))).join(";"))].join("\r\n");
@@ -453,6 +491,7 @@ function Commandes() {
   const [lignes, setLignes] = useState<Ligne[]>([]);
   const [statut, setStatut] = useState("");
   const [canal, setCanal] = useState("");
+  const [prog, setProg] = useState("");
   const [q, setQ] = useState("");
   const [ouvert, setOuvert] = useState<string | null>(null);
   const [nouvelle, setNouvelle] = useState(false);
@@ -461,8 +500,9 @@ function Commandes() {
     if (statut) p.set("statut", statut);
     if (canal) p.set("canal", canal);
     if (q) p.set("q", q);
+    if (prog) p.set("programmees", prog);
     void api<{ orders: Ligne[] }>(`orders?${p}`).then((r) => r.ok && setLignes(r.data.orders ?? []));
-  }, [statut, canal, q]);
+  }, [statut, canal, q, prog]);
   useEffect(charger, [charger]);
   return (
     <div>
@@ -476,6 +516,11 @@ function Commandes() {
           <option value="">Tous les canaux</option>
           {Object.entries(LIB_CANAL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
+        <select value={prog} onChange={(e) => setProg(e.target.value)} style={champ} aria-label="Livraison programmée">
+          <option value="">Toutes les livraisons</option>
+          <option value="toutes">📅 Livraisons programmées</option>
+          <option value="a_livrer">⏰ À livrer aujourd'hui ou en retard</option>
+        </select>
         <button onClick={() => exporterCsv(lignes)} style={boutonDiscret} title="Télécharger les commandes affichées (tableur)">⬇ Exporter</button>
         <button onClick={() => setNouvelle(true)} style={bouton}>+ Nouvelle commande</button>
       </div>
@@ -487,7 +532,7 @@ function Commandes() {
         { titre: "Client", rendu: (l) => <>{String(l.customer_name)}<br /><span style={{ color: "#777", fontSize: 12 }}>{String(l.phone)}{l.city ? ` · ${String(l.city)}` : ""}</span></> },
         { titre: "Commande", rendu: (l) => <span style={{ fontSize: 13 }}>{String(l.resume ?? "")}{l.subscription ? <> <Badge texte="Abonnement" couleur="#b45309" /></> : null}{l.reseller_name ? <><br /><em>{String(l.reseller_name)}</em></> : null}</span> },
         { titre: "Total", rendu: (l) => fcfa(l.total_fcfa) },
-        { titre: "Statut", rendu: (l) => <Badge texte={LIB_STATUT[String(l.status)] ?? String(l.status)} couleur={COULEUR_STATUT[String(l.status)] ?? "#555"} /> },
+        { titre: "Statut", rendu: (l) => <><Badge texte={LIB_STATUT[String(l.status)] ?? String(l.status)} couleur={COULEUR_STATUT[String(l.status)] ?? "#555"} />{l.livraison_le && l.status !== "livree" && l.status !== "annulee" ? <><br /><BadgeLivraison v={l.livraison_le} /></> : null}</> },
         { titre: "Paiement", rendu: (l) => <Badge texte={LIB_PAIEMENT[String(l.payment_status)] ?? String(l.payment_status)} couleur={COULEUR_PAIEMENT[String(l.payment_status)] ?? "#555"} /> },
       ]} />
     </div>
