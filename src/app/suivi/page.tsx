@@ -59,7 +59,7 @@ function Contenu() {
       <p style={{ color: "var(--asta-text2)", marginBottom: 24 }}>{L("Saisissez le numéro de votre commande (NUT-000123) et le téléphone utilisé pour commander.", "Enter your order number (NUT-000123) and the phone used to order.")}</p>
       <form onSubmit={chercher} style={{ display: "grid", gap: 12 }}>
         <input value={numero} onChange={(e) => setNumero(e.target.value)} placeholder="NUT-000123" style={champ} autoCapitalize="characters" />
-        <input value={tel} onChange={(e) => setTel(e.target.value)} placeholder={L("Téléphone (ex. 677 04 32 75)", "Phone (e.g. 677 04 32 75)")} inputMode="tel" style={champ} />
+        <input value={tel} onChange={(e) => setTel(e.target.value)} placeholder={L("Téléphone (ex. 699 00 00 00)", "Phone (e.g. 699 00 00 00)")} inputMode="tel" style={champ} />
         <button type="submit" disabled={charge || !numero.trim() || tel.replace(/\D/g, "").length < 8} style={{ background: "var(--asta-accent)", color: "#fff", border: 0, borderRadius: 50, padding: "15px", fontWeight: 800, fontSize: 15, cursor: "pointer", opacity: charge || !numero.trim() || tel.replace(/\D/g, "").length < 8 ? 0.55 : 1 }}>
           {charge ? L("Recherche…", "Searching…") : L("Suivre", "Track")}
         </button>

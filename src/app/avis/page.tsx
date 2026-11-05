@@ -72,7 +72,7 @@ function Contenu() {
           <p style={{ color: "var(--asta-text2)", marginBottom: 22 }}>{L("Réservé aux clients dont le colis a été livré. Saisissez le numéro de votre commande et le téléphone utilisé pour la passer.", "For customers whose parcel has been delivered. Enter your order number and the phone used to place it.")}</p>
           <form onSubmit={verifier} style={{ display: "grid", gap: 12 }}>
             <input value={numero} onChange={(e) => setNumero(e.target.value)} placeholder="NUT-000123" style={champ} autoCapitalize="characters" />
-            <input value={tel} onChange={(e) => setTel(e.target.value)} placeholder={L("Téléphone (ex. 677 04 32 75)", "Phone (e.g. 677 04 32 75)")} inputMode="tel" style={champ} />
+            <input value={tel} onChange={(e) => setTel(e.target.value)} placeholder={L("Téléphone (ex. 699 00 00 00)", "Phone (e.g. 699 00 00 00)")} inputMode="tel" style={champ} />
             <button type="submit" disabled={charge || !numero.trim() || tel.replace(/\D/g, "").length < 8} style={{ ...bouton, opacity: charge || !numero.trim() || tel.replace(/\D/g, "").length < 8 ? 0.55 : 1 }}>{charge ? L("Vérification…", "Checking…") : L("Continuer", "Continue")}</button>
           </form>
         </>
