@@ -33,6 +33,16 @@ function getValue(obj: Record<string, any>, path: string): any {
   return path;
 }
 
+/** Écrit la langue dans l'adresse (?lang=en) : un lien copié depuis la barre d'adresse ou partagé s'ouvre alors dans la même langue. */
+function langueDansUrl(l: Locale) {
+  try {
+    const u = new URL(window.location.href);
+    if (u.searchParams.get("lang") === l) return;
+    u.searchParams.set("lang", l);
+    window.history.replaceState(window.history.state, "", u);
+  } catch { /* adresse non modifiable : la langue reste mémorisée dans le navigateur */ }
+}
+
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("fr");
   const [abonnement, setAbonnement] = useState({ actif: true, pct: 15, jours: 60 });
@@ -60,12 +70,13 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       return;
     }
     const saved = localStorage.getItem("nutrelis-locale") as Locale | null;
-    if (saved === "en" || saved === "fr") setLocaleState(saved);
+    if (saved === "en" || saved === "fr") { setLocaleState(saved); langueDansUrl(saved); }
   }, []);
 
   const setLocale = (l: Locale) => {
     setLocaleState(l);
     localStorage.setItem("nutrelis-locale", l);
+    langueDansUrl(l);
   };
 
   const t = (key: string): any => {
